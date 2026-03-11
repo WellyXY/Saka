@@ -3,183 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saka Dashboard</title>
+    <title>Yiumo Creator Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #0a0a0a;
             min-height: 100vh;
             color: #fff;
         }
-        .container { display: flex; min-height: 100vh; }
-        .sidebar {
-            width: 260px;
-            background: rgba(255,255,255,0.05);
-            padding: 20px;
-            border-right: 1px solid rgba(255,255,255,0.1);
-        }
-        .profile {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
-        }
-        .profile img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 3px solid #ff6b9d;
-            margin-bottom: 10px;
-        }
-        .profile h2 { font-size: 18px; margin-bottom: 5px; }
-        .profile p { color: #888; font-size: 14px; }
-        .verified { color: #3897f0; margin-left: 5px; }
-        .nav a {
-            display: block;
-            padding: 12px 15px;
-            color: #aaa;
-            text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            transition: all 0.3s;
-        }
-        .nav a:hover, .nav a.active {
-            background: linear-gradient(90deg, #ff6b9d, #c44569);
-            color: #fff;
-        }
-        .main { flex: 1; padding: 30px; overflow-y: auto; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+        /* Header */
         .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            gap: 24px;
+            padding: 32px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            border-radius: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #222;
         }
-        .header h1 { font-size: 28px; }
-        .header span { color: #888; }
-        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card {
-            background: linear-gradient(135deg, rgba(255,107,157,0.2), rgba(196,69,105,0.2));
-            border: 1px solid rgba(255,107,157,0.3);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-        }
-        .stat-card h3 { font-size: 32px; margin-bottom: 5px; color: #ff6b9d; }
-        .stat-card p { color: #aaa; font-size: 14px; }
-        .section-title {
-            font-size: 20px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #ff6b9d;
-            display: inline-block;
-        }
-        .posts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .post-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.3s;
-        }
-        .post-card:hover { transform: translateY(-5px); }
-        .post-card img {
-            width: 100%;
-            height: 280px;
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #ff6b9d;
             object-fit: cover;
-            cursor: pointer;
         }
-        .post-info { padding: 15px; }
-        .post-info .engagement {
-            display: flex;
-            gap: 15px;
+        .profile-info h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .profile-info .username {
+            color: #888;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .profile-info .bio {
             color: #aaa;
             font-size: 14px;
         }
-        .post-info .engagement span { display: flex; align-items: center; gap: 5px; }
-        .post-info .caption {
-            margin-top: 10px;
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: #ff6b9d;
+        }
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .stat-card .label {
             font-size: 13px;
-            color: #ccc;
-            line-height: 1.4;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Section */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .section-subtitle {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Posts Grid */
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+        .post-card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .post-card:hover {
+            transform: translateY(-4px);
+            border-color: #333;
+        }
+        .post-card .thumbnail {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            cursor: pointer;
+            background: #1a1a1a;
+        }
+        .post-card .info {
+            padding: 16px;
+        }
+        .post-card .engagement {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .post-card .engagement span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #888;
+        }
+        .post-card .caption {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        .post-card .type-badge {
+            display: inline-block;
+            font-size: 11px;
+            padding: 3px 8px;
+            background: rgba(255,107,157,0.15);
+            color: #ff6b9d;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             z-index: 1000;
             justify-content: center;
             align-items: center;
         }
         .modal.active { display: flex; }
-        .modal img { max-width: 90%; max-height: 90%; border-radius: 10px; }
+        .modal img { max-width: 90%; max-height: 90%; border-radius: 12px; }
         .modal-close {
             position: absolute;
             top: 20px; right: 30px;
-            font-size: 40px;
+            font-size: 32px;
             color: #fff;
             cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
+        .modal-close:hover { opacity: 1; }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .sidebar { width: 100%; }
-            .stats { grid-template-columns: repeat(2, 1fr); }
+            .container { padding: 16px; }
+            .header { flex-direction: column; text-align: center; padding: 24px; }
+            .avatar { width: 100px; height: 100px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .stat-card { padding: 16px; }
+            .stat-card .value { font-size: 28px; }
+            .posts-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <aside class="sidebar">
-            <div class="profile">
-                <img src="images/profile.jpg" alt="Saka">
-                <h2>Yiumo</h2>
-                <p>@saka.yiumo</p>
+        <!-- Header -->
+        <header class="header">
+            <img src="images/profile.jpg" alt="Yiumo" class="avatar">
+            <div class="profile-info">
+                <h1>Yiumo (幼末)</h1>
+                <p class="username">@saka.yiumo</p>
+                <p class="bio">20 y 🇰🇷</p>
             </div>
-            <nav class="nav">
-                <a href="#" class="active">📊 Overview</a>
-                <a href="#">📸 Instagram Posts</a>
-                <a href="#">📈 Engagement</a>
-            </nav>
-        </aside>
+        </header>
 
-        <main class="main">
-            <div class="header">
-                <h1>Saka Dashboard</h1>
-                <span>Updated: Mar 11, 2026</span>
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="value">30</div>
+                <div class="label">Posts</div>
             </div>
-
-            <div class="stats">
-                <div class="stat-card">
-                    <h3>32</h3>
-                    <p>Followers</p>
-                </div>
-                <div class="stat-card">
-                    <h3>12</h3>
-                    <p>Posts</p>
-                </div>
-                <div class="stat-card">
-                    <h3>75</h3>
-                    <p>Total Likes</p>
-                </div>
-                <div class="stat-card">
-                    <h3>6.3</h3>
-                    <p>Avg. Likes</p>
-                </div>
+            <div class="stat-card">
+                <div class="value">33</div>
+                <div class="label">Followers</div>
             </div>
+            <div class="stat-card">
+                <div class="value">30</div>
+                <div class="label">Following</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">~85</div>
+                <div class="label">Total Likes</div>
+            </div>
+        </div>
 
-            <h2 class="section-title">Recent Posts</h2>
-            <div class="posts-grid" id="posts-container"></div>
-        </main>
+        <!-- Content Section -->
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Content</h2>
+                <p class="section-subtitle">All posts from @saka.yiumo</p>
+            </div>
+            <span class="section-subtitle">Updated: Mar 11, 2026</span>
+        </div>
+
+        <div class="posts-grid" id="posts-container"></div>
     </div>
 
+    <!-- Modal -->
     <div class="modal" id="modal">
         <span class="modal-close" onclick="closeModal()">&times;</span>
         <img src="" alt="" id="modal-img">
@@ -187,14 +241,35 @@
 
     <script>
         const posts = [
-            { image: "images/post_01.jpg", caption: "You can count to ❤️❤️❤️", likes: 24, comments: 1 },
-            { image: "images/post_02.jpg", caption: "Take his bxll", likes: 14, comments: 0 },
-            { image: "images/post_03.jpg", caption: "I think I'm right🥱🥱", likes: 5, comments: 0 },
-            { image: "images/post_04.jpg", caption: "Have you see my… ❤️ #dancing", likes: 5, comments: 0 },
-            { image: "images/post_05.jpg", caption: "Jin Jin 🤪🤪", likes: 3, comments: 0 },
-            { image: "images/post_06.jpg", caption: "feeling myself 💅✨ #dance #fyp #vibes", likes: 3, comments: 0 },
-            { image: "images/post_07.jpg", caption: "vibes only ✨💃 #dance #fyp #vibes", likes: 1, comments: 0 },
-            { image: "images/post_08.jpg", caption: "gotta move my body 💃✨ #dance #fyp #vibes", likes: 3, comments: 0 }
+            { image: "images/thumb_01.jpg", caption: "You can count to ❤️❤️❤️", likes: 24, comments: 1, type: "Reel", pinned: true },
+            { image: "images/thumb_02.jpg", caption: "Love you 3000", likes: 8, comments: 0, type: "Reel" },
+            { image: "images/thumb_03.jpg", caption: "Take his bxll", likes: 14, comments: 0, type: "Reel" },
+            { image: "images/thumb_04.jpg", caption: "I think I'm right🥱🥱", likes: 5, comments: 0, type: "Reel" },
+            { image: "images/thumb_05.jpg", caption: "Have you see my… ❤️ #dancing", likes: 5, comments: 0, type: "Reel" },
+            { image: "images/thumb_06.jpg", caption: "Jin Jin 🤪🤪", likes: 3, comments: 0, type: "Reel" },
+            { image: "images/thumb_07.jpg", caption: "feeling myself 💅✨ #dance #fyp #vibes", likes: 3, comments: 0, type: "Reel" },
+            { image: "images/thumb_08.jpg", caption: "vibes only ✨💃 #dance #fyp #vibes", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_09.jpg", caption: "gotta move my body 💃✨ #dance #fyp #vibes", likes: 3, comments: 0, type: "Reel" },
+            { image: "images/thumb_10.jpg", caption: "Feeling the beat tonight, dancing like nobody's watching! 재미있게 춰봤어 💃✨", likes: 2, comments: 0, type: "Reel" },
+            { image: "images/thumb_11.jpg", caption: "Feeling the beat tonight, just letting loose in my room 💃 Who's joining the dance?", likes: 2, comments: 0, type: "Reel" },
+            { image: "images/thumb_12.jpg", caption: "Dancing my heart out tonight, feeling that 재미 (fun) vibe! 💃✨", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_13.jpg", caption: "Feeling the beat and just letting loose tonight! 💃 Who's dancing with me?", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_14.jpg", caption: "Feeling the rhythm tonight, just dancing my heart out in my room. Who's joining? 💃", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_15.jpg", caption: "Feeling the beat and letting loose tonight! 💃 Who's joining me?", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_16.jpg", caption: "can't stop won't stop 💃 #dance #kpop", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_17.jpg", caption: "just had to 💃 #dance #fyp", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_18.jpg", caption: "main character moment 🎬 #aesthetic #viral #fyp", likes: 2, comments: 0, type: "Reel" },
+            { image: "images/thumb_19.jpg", caption: "오늘 메이크업 💄 soft girl era ✨ #makeup #kbeauty", likes: 2, comments: 0, type: "Reel" },
+            { image: "images/thumb_20.jpg", caption: "Though this was trend? Isn't it 👀", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_21.jpg", caption: "오늘 춤 연습 영상! 피곤하지만 재미있었어~ 💃 #댄스 #춤추기", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_22.jpg", caption: "Feeling the rhythm tonight, just letting loose in my latest dance vid! 💃", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_23.jpg", caption: "Oh baby why don't you … ❤️❤️", likes: 2, comments: 0, type: "Reel" },
+            { image: "images/thumb_24.jpg", caption: "Ohhhhh omg so embarrassing and olddddd school 😶‍🌫️", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_25.jpg", caption: "Dance practice 💃", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_26.jpg", caption: "New moves 🔥", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_27.jpg", caption: "Weekend vibes ✨", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_28.jpg", caption: "Just dancing 💃", likes: 1, comments: 0, type: "Reel" },
+            { image: "images/thumb_29.jpg", caption: "Good day 🌸", likes: 1, comments: 0, type: "Reel" }
         ];
 
         function formatNumber(num) {
@@ -207,8 +282,9 @@
             const container = document.getElementById('posts-container');
             container.innerHTML = posts.map(post => `
                 <div class="post-card">
-                    <img src="${post.image}" alt="Post" onclick="openModal('${post.image}')" onerror="this.src='https://via.placeholder.com/640x640?text=Image+Not+Available'">
-                    <div class="post-info">
+                    <img src="${post.image}" alt="Post" class="thumbnail" onclick="openModal('${post.image}')" onerror="this.style.background='#222'">
+                    <div class="info">
+                        <span class="type-badge">${post.type}${post.pinned ? ' • Pinned' : ''}</span>
                         <div class="engagement">
                             <span>❤️ ${formatNumber(post.likes)}</span>
                             <span>💬 ${formatNumber(post.comments)}</span>
@@ -230,6 +306,10 @@
 
         document.getElementById('modal').addEventListener('click', (e) => {
             if (e.target.id === 'modal') closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
         });
 
         renderPosts();
