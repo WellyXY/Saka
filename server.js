@@ -90,12 +90,16 @@ async function fetchFollowers(userId) {
   }
 }
 
-// Fetch following (using v2 API)
-async function fetchFollowing(userId) {
+// Fetch following (using v3 API as per Brain's instructions)
+async function fetchFollowing(userId, username) {
   try {
-    const res = await tikhubGet('/api/v1/instagram/v2/fetch_user_following', { user_id: userId, count: 50 });
-    if (res.code !== 200) return [];
-    return res.data?.data?.items || [];
+    const res = await tikhubGet('/api/v1/instagram/v3/get_user_following', {
+      user_id: userId,
+      username: username || TARGET_USERNAME,
+      count: 50
+    });
+    if (res.code !== 200 && res.code !== 0) return [];
+    return res.data?.users || [];
   } catch (e) {
     console.error('Error fetching following:', e.message);
     return [];
@@ -157,12 +161,15 @@ async function fetchUserPostsById(userId, count = 3) {
 // Fetch inspiration posts from followed accounts
 async function fetchInspiration(followingList) {
   const inspirationPosts = [];
-  // Get posts from up to 5 followed accounts
-  const accountsToFetch = followingList.slice(0, 5);
+  // Get posts from up to 10 followed accounts (increased from 5)
+  const accountsToFetch = followingList.slice(0, 10);
+
+  console.log(`Fetching inspiration from ${accountsToFetch.length} accounts...`);
 
   for (const user of accountsToFetch) {
     try {
-      const posts = await fetchUserPostsById(user.id, 2);
+      // Use user.pk (not user.id) - TikHub API returns pk field
+      const posts = await fetchUserPostsById(user.pk, 3);
       for (const post of posts) {
         inspirationPosts.push({
           username: user.username,
@@ -171,14 +178,17 @@ async function fetchInspiration(followingList) {
           image: post.image_versions2?.candidates?.[0]?.url || null,
           caption: post.caption?.text || '',
           time: getTimeAgo(post.taken_at),
+          timestamp: post.taken_at, // Store raw timestamp for sorting
           id: post.code || post.pk,
+          type: post.media_type === 2 ? 'Reel' : 'Photo',
           likes: post.like_count || 0,
-          comments: post.comment_count || 0
+          comments: post.comment_count || 0,
+          views: post.play_count || post.view_count || 0
         });
       }
-      await new Promise(r => setTimeout(r, 200)); // Rate limit
+      await new Promise(r => setTimeout(r, 400)); // Rate limit (300-500ms as per Brain's instructions)
     } catch (e) {
-      console.error('Error fetching posts for', user.username);
+      console.error('Error fetching posts for', user.username, e.message);
     }
   }
 
@@ -231,7 +241,7 @@ async function refreshCache() {
     const followers = await fetchFollowers(userInfo.id);
     cache.followers = followers.map(transformUser);
 
-    const following = await fetchFollowing(userInfo.id);
+    const following = await fetchFollowing(userInfo.id, userInfo.username);
     cache.following = following.map(transformUser);
 
     // Fetch inspiration from followed accounts (use raw following data for user IDs)
@@ -306,6 +316,18 @@ app.get('/api/status', (req, res) => {
     followersCount: cache.followers ? cache.followers.length : 0,
     followingCount: cache.following ? cache.following.length : 0
   });
+});
+
+// Agent Task Dashboard
+app.get('/api/agents', async (req, res) => {
+  try {
+    // Read from agents-data.json
+    const dataPath = path.join(__dirname, 'agents-data.json');
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    res.json({ success: true, data: data.agents });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
 });
 
 // Serve index.html for root

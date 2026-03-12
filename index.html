@@ -304,6 +304,168 @@
             border-radius: 4px;
         }
 
+        /* Task Board */
+        .task-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .task-column {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 400px;
+        }
+        .column-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #222;
+        }
+        .task-list { display: flex; flex-direction: column; gap: 12px; }
+        .task-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .task-card:hover { border-color: #ff6b9d; transform: translateY(-2px); }
+        .task-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        .task-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+        .task-tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(255,107,157,0.15);
+            color: #ff6b9d;
+        }
+        .task-tag.ref { background: rgba(33,150,243,0.15); color: #2196f3; }
+        .task-tag.urgent { background: rgba(244,67,54,0.15); color: #f44336; }
+        .task-due { font-size: 11px; color: #666; margin-top: 8px; }
+
+        /* Agent Dashboard */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+        }
+        .agent-card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.2s;
+        }
+        .agent-card:hover { border-color: #333; }
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .agent-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .agent-avatar.muse { background: linear-gradient(135deg, #ff6b9d, #c44569); }
+        .agent-avatar.echo { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .agent-avatar.bolt { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .agent-avatar.saga { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .agent-avatar.nova { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .agent-avatar.atlas { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .agent-info h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .agent-role { font-size: 12px; color: #888; }
+        .agent-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .agent-status.working { background: rgba(76,175,80,0.15); color: #4caf50; }
+        .agent-status.idle { background: rgba(158,158,158,0.15); color: #9e9e9e; }
+        .agent-status.completed { background: rgba(33,150,243,0.15); color: #2196f3; }
+        .agent-status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        .agent-status.working::before { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .agent-tasks {
+            margin-top: 16px;
+            border-top: 1px solid #222;
+            padding-top: 16px;
+        }
+        .agent-tasks-title {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 13px;
+        }
+        .task-item:last-child { border-bottom: none; }
+        .task-item-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .task-item-icon.done { background: rgba(76,175,80,0.15); color: #4caf50; }
+        .task-item-icon.progress { background: rgba(255,193,7,0.15); color: #ffc107; }
+        .task-item-content { flex: 1; color: #ccc; line-height: 1.4; }
+        .task-item-time { font-size: 11px; color: #555; flex-shrink: 0; }
+        .no-tasks { color: #555; font-size: 13px; font-style: italic; }
+
+        /* Loading state */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #666;
+        }
+        .loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-top-color: #ff6b9d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         @media (max-width: 768px) {
             .container { padding: 16px; }
             .header { flex-direction: column; text-align: center; padding: 20px; }
@@ -317,6 +479,8 @@
             .history-table { font-size: 12px; }
             .history-table th, .history-table td { padding: 10px 8px; }
             .history-thumb { width: 40px; height: 40px; }
+            .task-columns { grid-template-columns: 1fr; }
+            .task-column { min-height: auto; }
         }
     </style>
 </head>
@@ -328,6 +492,8 @@
             <button class="nav-btn" onclick="showPage('history')">Content History</button>
             <button class="nav-btn" onclick="showPage('tracking')">Post Tracking</button>
             <button class="nav-btn" onclick="showPage('inspiration')">Inspiration</button>
+            <button class="nav-btn" onclick="showPage('tasks')">Tasks</button>
+            <button class="nav-btn" onclick="showPage('agents')">Agents</button>
         </nav>
 
         <!-- Header -->
@@ -439,6 +605,45 @@
             </div>
             <div class="inspiration-grid" id="inspiration-container"></div>
         </div>
+
+        <!-- Tasks Page -->
+        <div class="page" id="page-tasks">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Task Board</h2>
+                    <p class="section-subtitle">Content creation and publishing tasks</p>
+                </div>
+                <button class="filter-btn" onclick="addTask()" style="background:#ff6b9d;color:#fff;border-color:#ff6b9d;">+ New Task</button>
+            </div>
+            <div class="task-columns">
+                <div class="task-column">
+                    <h3 class="column-title">To Do</h3>
+                    <div class="task-list" id="tasks-todo"></div>
+                </div>
+                <div class="task-column">
+                    <h3 class="column-title">In Progress</h3>
+                    <div class="task-list" id="tasks-progress"></div>
+                </div>
+                <div class="task-column">
+                    <h3 class="column-title">Done</h3>
+                    <div class="task-list" id="tasks-done"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agents Page -->
+        <div class="page" id="page-agents">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Agent Task Board</h2>
+                    <p class="section-subtitle">Real-time status of all AI agents</p>
+                </div>
+                <button class="filter-btn" onclick="refreshAgents()" style="background:#ff6b9d;color:#fff;border-color:#ff6b9d;">↻ Refresh</button>
+            </div>
+            <div class="agents-grid" id="agents-container">
+                <div class="loading">Loading agents...</div>
+            </div>
+        </div>
     </div>
 
     <div class="modal" id="modal">
@@ -493,6 +698,10 @@
             // Lazy load inspiration posts
             if (page === 'inspiration' && inspirationPosts.length === 0) {
                 fetchInspirationPosts();
+            }
+            // Lazy load agents
+            if (page === 'agents' && !agentsLoaded) {
+                fetchAgents();
             }
         }
 
@@ -586,19 +795,21 @@
             }
 
             document.getElementById('inspiration-container').innerHTML = inspirationPosts.map(post => `
-                <div class="inspiration-card" onclick="window.open('https://www.instagram.com/p/${post.id}/', '_blank')" style="cursor:pointer;">
+                <div class="inspiration-card" onclick="window.open('https://www.instagram.com/${post.type === 'Reel' ? 'reel' : 'p'}/${post.id}/', '_blank')" style="cursor:pointer;">
                     <div class="inspiration-header">
                         <img src="${post.avatar}" class="inspiration-avatar" onerror="this.style.background='#333'" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
-                        <div>
+                        <div style="flex:1;">
                             <div class="inspiration-name">@${post.username}</div>
                             <div class="inspiration-handle">${post.time}</div>
                         </div>
+                        ${post.type ? `<span style="background:${post.type === 'Reel' ? 'rgba(255,107,157,0.15)' : 'rgba(100,100,255,0.15)'};color:${post.type === 'Reel' ? '#ff6b9d' : '#88f'};padding:3px 8px;border-radius:4px;font-size:11px;">${post.type}</span>` : ''}
                     </div>
                     ${post.image ? `<img src="${post.image}" style="width:100%;border-radius:8px;margin:12px 0;max-height:300px;object-fit:cover;" onerror="this.style.display='none'">` : ''}
-                    <p style="color:#aaa;font-size:13px;line-height:1.4;margin-bottom:12px;">${post.caption || ''}</p>
+                    <p style="color:#aaa;font-size:13px;line-height:1.4;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${post.caption || ''}</p>
                     <div class="inspiration-stats">
                         <span>❤️ ${formatNumber(post.likes)}</span>
                         <span>💬 ${formatNumber(post.comments)}</span>
+                        ${post.views ? `<span>👁️ ${formatNumber(post.views)}</span>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -665,6 +876,84 @@
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') closeModal();
         });
+
+        // Agent Dashboard
+        let agentsLoaded = false;
+        let agentsData = [];
+
+        const agentMeta = {
+            muse: { name: 'Muse', role: 'Content Creator', icon: '✨' },
+            echo: { name: 'Echo', role: 'Social Media Manager', icon: '📱' },
+            bolt: { name: 'Bolt', role: 'Developer', icon: '⚡' },
+            saga: { name: 'Saga', role: 'Storyteller', icon: '📖' },
+            nova: { name: 'Nova', role: 'Researcher', icon: '🔍' },
+            atlas: { name: 'Atlas', role: 'Data Analyst', icon: '📊' }
+        };
+
+        async function fetchAgents() {
+            const container = document.getElementById('agents-container');
+            container.innerHTML = '<div class="loading">Loading agents...</div>';
+
+            try {
+                const res = await fetch('/api/agents');
+                const data = await res.json();
+                if (data.success) {
+                    agentsData = data.data;
+                    agentsLoaded = true;
+                    renderAgents();
+                } else {
+                    container.innerHTML = '<div class="empty-state"><h3>Failed to load agents</h3><p>' + (data.error || 'Unknown error') + '</p></div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><h3>Failed to load</h3><p>Could not fetch agent data</p></div>';
+            }
+        }
+
+        function refreshAgents() {
+            agentsLoaded = false;
+            fetchAgents();
+        }
+
+        function renderAgents() {
+            const container = document.getElementById('agents-container');
+            if (agentsData.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>No agents found</h3><p>Agent data will appear here when available</p></div>';
+                return;
+            }
+
+            container.innerHTML = agentsData.map(agent => {
+                const meta = agentMeta[agent.type] || { name: agent.type, role: 'Agent', icon: '🤖' };
+                const statusClass = agent.status === 'working' ? 'working' : (agent.status === 'completed' ? 'completed' : 'idle');
+
+                let tasksHtml = '<div class="no-tasks">No recent tasks</div>';
+                if (agent.tasks && agent.tasks.length > 0) {
+                    tasksHtml = agent.tasks.slice(0, 5).map(task => `
+                        <div class="task-item">
+                            <div class="task-item-icon ${task.status === 'completed' ? 'done' : 'progress'}">${task.status === 'completed' ? '✓' : '•'}</div>
+                            <div class="task-item-content">${task.description}</div>
+                            <div class="task-item-time">${task.time || ''}</div>
+                        </div>
+                    `).join('');
+                }
+
+                return `
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-avatar ${agent.type}">${meta.icon}</div>
+                            <div class="agent-info">
+                                <h3>${meta.name}</h3>
+                                <div class="agent-role">${meta.role}</div>
+                            </div>
+                            <span class="agent-status ${statusClass}">${agent.status || 'idle'}</span>
+                        </div>
+                        <div class="agent-tasks">
+                            <div class="agent-tasks-title">Recent Tasks</div>
+                            ${tasksHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
         // Initialize
         renderPosts();
