@@ -18,6 +18,7 @@ let cache = {
   posts: null,
   followers: null,
   following: null,
+  inspiration: null,
   lastFetch: null
 };
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
@@ -77,24 +78,24 @@ async function fetchAllPosts(userId) {
   return allItems;
 }
 
-// Fetch followers
+// Fetch followers (using v2 API)
 async function fetchFollowers(userId) {
   try {
-    const res = await tikhubGet('/api/v1/instagram/v1/fetch_user_followers', { user_id: userId, count: 50 });
+    const res = await tikhubGet('/api/v1/instagram/v2/fetch_user_followers', { user_id: userId, count: 50 });
     if (res.code !== 200) return [];
-    return res.data.users || [];
+    return res.data?.data?.items || [];
   } catch (e) {
     console.error('Error fetching followers:', e.message);
     return [];
   }
 }
 
-// Fetch following
+// Fetch following (using v2 API)
 async function fetchFollowing(userId) {
   try {
-    const res = await tikhubGet('/api/v1/instagram/v1/fetch_user_following', { user_id: userId, count: 50 });
+    const res = await tikhubGet('/api/v1/instagram/v2/fetch_user_following', { user_id: userId, count: 50 });
     if (res.code !== 200) return [];
-    return res.data.users || [];
+    return res.data?.data?.items || [];
   } catch (e) {
     console.error('Error fetching following:', e.message);
     return [];
@@ -142,6 +143,60 @@ function transformUser(user) {
   };
 }
 
+// Fetch posts from a user for inspiration feed
+async function fetchUserPostsById(userId, count = 3) {
+  try {
+    const res = await tikhubGet('/api/v1/instagram/v1/fetch_user_posts', { user_id: userId, count });
+    if (res.code !== 200) return [];
+    return res.data.items || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+// Fetch inspiration posts from followed accounts
+async function fetchInspiration(followingList) {
+  const inspirationPosts = [];
+  // Get posts from up to 5 followed accounts
+  const accountsToFetch = followingList.slice(0, 5);
+
+  for (const user of accountsToFetch) {
+    try {
+      const posts = await fetchUserPostsById(user.id, 2);
+      for (const post of posts) {
+        inspirationPosts.push({
+          username: user.username,
+          name: user.full_name || user.username,
+          avatar: user.profile_pic_url,
+          image: post.image_versions2?.candidates?.[0]?.url || null,
+          caption: post.caption?.text || '',
+          time: getTimeAgo(post.taken_at),
+          id: post.code || post.pk,
+          likes: post.like_count || 0,
+          comments: post.comment_count || 0
+        });
+      }
+      await new Promise(r => setTimeout(r, 200)); // Rate limit
+    } catch (e) {
+      console.error('Error fetching posts for', user.username);
+    }
+  }
+
+  // Sort by timestamp (most recent first)
+  return inspirationPosts.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+}
+
+// Helper to format time ago
+function getTimeAgo(timestamp) {
+  if (!timestamp) return '';
+  const now = Math.floor(Date.now() / 1000);
+  const diff = now - timestamp;
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+  return Math.floor(diff / 604800) + 'w ago';
+}
+
 // Refresh cache
 async function refreshCache() {
   if (!TIKHUB_API_KEY) {
@@ -179,8 +234,11 @@ async function refreshCache() {
     const following = await fetchFollowing(userInfo.id);
     cache.following = following.map(transformUser);
 
+    // Fetch inspiration from followed accounts (use raw following data for user IDs)
+    cache.inspiration = await fetchInspiration(following);
+
     cache.lastFetch = now;
-    console.log(`Cache refreshed: ${cache.posts.length} posts, ${cache.followers.length} followers, ${cache.following.length} following`);
+    console.log(`Cache refreshed: ${cache.posts.length} posts, ${cache.followers.length} followers, ${cache.following.length} following, ${cache.inspiration.length} inspiration`);
     return true;
   } catch (e) {
     console.error('Error refreshing cache:', e.message);
@@ -220,6 +278,15 @@ app.get('/api/following', async (req, res) => {
   await refreshCache();
   if (cache.following) {
     res.json({ success: true, data: cache.following, count: cache.following.length });
+  } else {
+    res.json({ success: false, error: 'No data available' });
+  }
+});
+
+app.get('/api/inspiration', async (req, res) => {
+  await refreshCache();
+  if (cache.inspiration) {
+    res.json({ success: true, data: cache.inspiration, count: cache.inspiration.length });
   } else {
     res.json({ success: false, error: 'No data available' });
   }

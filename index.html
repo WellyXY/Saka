@@ -589,9 +589,22 @@
             if (followingBadge) followingBadge.textContent = profile.following || 0;
         }
 
+        async function fetchInspiration() {
+            try {
+                const res = await fetch('/api/inspiration');
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    inspirationPosts = data.data;
+                }
+            } catch (e) {
+                console.log('Using empty inspiration');
+            }
+            renderInspiration();
+        }
+
         // Load all data
         async function loadAllData() {
-            await Promise.all([fetchProfile(), fetchPosts(), fetchFollowers(), fetchFollowing()]);
+            await Promise.all([fetchProfile(), fetchPosts(), fetchFollowers(), fetchFollowing(), fetchInspiration()]);
             updateTime();
         }
 
@@ -691,7 +704,6 @@
 
         // Initial load - fetch from API
         loadAllData();
-        renderInspiration();
     </script>
 </body>
 </html>
