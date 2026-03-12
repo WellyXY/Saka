@@ -433,8 +433,8 @@
         <div class="page" id="page-inspiration">
             <div class="section-header">
                 <div>
-                    <h2 class="section-title">Inspiration Library</h2>
-                    <p class="section-subtitle">Saved accounts for content reference</p>
+                    <h2 class="section-title">Inspiration Feed</h2>
+                    <p class="section-subtitle">Latest posts from accounts you follow</p>
                 </div>
             </div>
             <div class="inspiration-grid" id="inspiration-container"></div>
@@ -466,7 +466,6 @@
                 if (response.ok) {
                     contentHistory = await response.json();
                     renderHistory();
-                    renderInspiration();
                     renderTracking();
                 }
             } catch (e) {
@@ -490,12 +489,17 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('page-' + page).classList.add('active');
             event.target.classList.add('active');
+
+            // Lazy load inspiration posts
+            if (page === 'inspiration' && inspirationPosts.length === 0) {
+                fetchInspirationPosts();
+            }
         }
 
         function renderPosts() {
             document.getElementById('posts-container').innerHTML = posts.map(post => `
-                <div class="post-card">
-                    <img src="${post.image}" alt="Post" class="thumbnail" onclick="openModal('${post.image}')" onerror="this.style.background='#222'">
+                <div class="post-card" onclick="window.open('${post.url}', '_blank')" style="cursor:pointer;">
+                    <img src="${post.image}" alt="Post" class="thumbnail" onerror="this.style.background='#222'">
                     <div class="info">
                         <span class="type-badge">${post.type}${post.pinned ? ' • Pinned' : ''}</span>
                         <div class="engagement">
@@ -503,6 +507,7 @@
                             <span>💬 ${formatNumber(post.comments)}</span>
                         </div>
                         <p class="caption">${post.caption}</p>
+                        <span style="font-size:11px;color:#555;margin-top:6px;display:block;">↗ Open in Instagram</span>
                     </div>
                 </div>
             `).join('');
@@ -548,27 +553,53 @@
             `).join('');
         }
 
+        // Inspiration posts from API
+        let inspirationPosts = [];
+
+        async function fetchInspirationPosts() {
+            const container = document.getElementById('inspiration-container');
+            container.innerHTML = '<div style="color:#666;padding:40px;text-align:center;">Loading posts from accounts you follow...</div>';
+
+            try {
+                const res = await fetch('/api/inspiration');
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    inspirationPosts = data.data;
+                    renderInspiration();
+                } else {
+                    container.innerHTML = '<div class="empty-state"><h3>No posts found</h3><p>Follow some accounts to see their latest posts here</p></div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><h3>Failed to load</h3><p>Could not fetch inspiration posts</p></div>';
+            }
+        }
+
         function renderInspiration() {
-            if (contentHistory.inspiration_accounts.length === 0) {
+            if (inspirationPosts.length === 0) {
                 document.getElementById('inspiration-container').innerHTML = `
                     <div class="empty-state">
-                        <h3>No saved accounts</h3>
-                        <p>Save accounts you like for future reference</p>
+                        <h3>No posts yet</h3>
+                        <p>Posts from accounts you follow will appear here</p>
                     </div>
                 `;
                 return;
             }
 
-            document.getElementById('inspiration-container').innerHTML = contentHistory.inspiration_accounts.map(acc => `
-                <div class="inspiration-card">
+            document.getElementById('inspiration-container').innerHTML = inspirationPosts.map(post => `
+                <div class="inspiration-card" onclick="window.open('https://www.instagram.com/p/${post.id}/', '_blank')" style="cursor:pointer;">
                     <div class="inspiration-header">
-                        <div class="inspiration-avatar"></div>
+                        <img src="${post.avatar}" class="inspiration-avatar" onerror="this.style.background='#333'" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
                         <div>
-                            <div class="inspiration-name">${acc.username}</div>
-                            <div class="inspiration-handle">${acc.platform}</div>
+                            <div class="inspiration-name">@${post.username}</div>
+                            <div class="inspiration-handle">${post.time}</div>
                         </div>
                     </div>
-                    <p style="color:#888;font-size:13px;">${acc.notes || ''}</p>
+                    ${post.image ? `<img src="${post.image}" style="width:100%;border-radius:8px;margin:12px 0;max-height:300px;object-fit:cover;" onerror="this.style.display='none'">` : ''}
+                    <p style="color:#aaa;font-size:13px;line-height:1.4;margin-bottom:12px;">${post.caption || ''}</p>
+                    <div class="inspiration-stats">
+                        <span>❤️ ${formatNumber(post.likes)}</span>
+                        <span>💬 ${formatNumber(post.comments)}</span>
+                    </div>
                 </div>
             `).join('');
         }
