@@ -12,231 +12,98 @@
             min-height: 100vh;
             color: #fff;
         }
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
-        /* Layout */
-        .app {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 240px;
-            background: #111;
-            border-right: 1px solid #222;
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-        }
-        .logo {
-            padding: 0 20px 24px;
-            font-size: 18px;
-            font-weight: 700;
-            color: #fff;
-            border-bottom: 1px solid #222;
-            margin-bottom: 16px;
-        }
-        .logo span { color: #ff6b9d; }
-        .nav-section {
-            padding: 0 12px;
-            margin-bottom: 24px;
-        }
-        .nav-label {
-            font-size: 11px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0 8px;
-            margin-bottom: 8px;
-        }
-        .nav-item {
+        /* Header */
+        .header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            color: #888;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-        .nav-item:hover { background: #1a1a1a; color: #fff; }
-        .nav-item.active { background: linear-gradient(90deg, #ff6b9d22, #ff6b9d11); color: #ff6b9d; }
-        .nav-item .icon { font-size: 18px; width: 24px; text-align: center; }
-        .nav-item .badge {
-            margin-left: auto;
-            background: #ff6b9d;
-            color: #fff;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-
-        /* Main Content */
-        .main {
-            flex: 1;
-            margin-left: 240px;
-            padding: 24px;
-        }
-
-        /* Creator Card */
-        .creator-card {
-            background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
-            border: 1px solid #222;
-            border-radius: 20px;
-            padding: 28px;
-            margin-bottom: 24px;
-            display: flex;
             gap: 24px;
+            padding: 32px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            border-radius: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #222;
         }
-        .creator-avatar {
-            width: 100px;
-            height: 100px;
+        .avatar {
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             border: 3px solid #ff6b9d;
             object-fit: cover;
         }
-        .creator-info { flex: 1; }
-        .creator-name {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .creator-handle {
-            color: #888;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-        .creator-bio {
-            color: #aaa;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-        .creator-stats {
-            display: flex;
-            gap: 32px;
-        }
-        .creator-stat .value {
-            font-size: 24px;
-            font-weight: 700;
-        }
-        .creator-stat .label {
-            font-size: 12px;
-            color: #666;
-        }
-        .creator-stat .trend {
-            font-size: 12px;
-            color: #4ade80;
-            margin-left: 6px;
-        }
-        .creator-stat .trend.down { color: #f87171; }
+        .profile-info h1 { font-size: 28px; font-weight: 600; margin-bottom: 4px; }
+        .profile-info .username { color: #888; font-size: 16px; margin-bottom: 8px; }
+        .profile-info .bio { color: #aaa; font-size: 14px; }
 
-        /* Growth Cards */
-        .growth-cards {
-            display: flex;
-            gap: 12px;
-            margin-left: auto;
+        /* Stats */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
         }
-        .growth-card {
-            background: #0d0d0d;
+        .stat-card {
+            background: #141414;
             border: 1px solid #222;
-            border-radius: 12px;
-            padding: 16px 20px;
-            min-width: 140px;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
         }
-        .growth-card .title {
-            font-size: 11px;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .growth-card .value {
-            font-size: 28px;
-            font-weight: 700;
-            color: #4ade80;
-        }
-        .growth-card .period {
-            font-size: 11px;
-            color: #555;
-            margin-top: 4px;
-        }
+        .stat-card:hover { transform: translateY(-2px); border-color: #ff6b9d; }
+        .stat-card .value { font-size: 36px; font-weight: 700; margin-bottom: 4px; }
+        .stat-card .label { font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Section Header */
+        /* Section */
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        .section-subtitle {
-            font-size: 13px;
-            color: #666;
-            margin-top: 4px;
-        }
-        .last-updated {
-            font-size: 12px;
-            color: #555;
-        }
-        .last-updated .dot {
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            background: #4ade80;
-            border-radius: 50%;
-            margin-right: 6px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        .section-title { font-size: 20px; font-weight: 600; }
+        .section-subtitle { font-size: 13px; color: #666; }
+        .update-badge { font-size: 12px; color: #ff6b9d; }
 
         /* Posts Grid */
         .posts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 16px;
         }
         .post-card {
             background: #141414;
             border: 1px solid #222;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            transition: transform 0.2s, border-color 0.2s;
-            cursor: pointer;
+            transition: transform 0.2s;
         }
-        .post-card:hover {
-            transform: translateY(-4px);
-            border-color: #333;
-        }
+        .post-card:hover { transform: translateY(-4px); border-color: #333; }
         .post-card .thumbnail {
             width: 100%;
             aspect-ratio: 1;
             object-fit: cover;
+            cursor: pointer;
             background: #1a1a1a;
         }
-        .post-card .info { padding: 14px; }
-        .post-card .metrics {
+        .post-card .info { padding: 16px; }
+        .post-card .engagement {
             display: flex;
             gap: 16px;
             margin-bottom: 8px;
         }
-        .post-card .metric {
+        .post-card .engagement span {
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 13px;
+            gap: 6px;
+            font-size: 14px;
             color: #888;
         }
         .post-card .caption {
             font-size: 13px;
             color: #aaa;
-            line-height: 1.4;
+            line-height: 1.5;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -244,466 +111,136 @@
         }
         .post-card .type-badge {
             display: inline-block;
-            font-size: 10px;
+            font-size: 11px;
             padding: 3px 8px;
             background: rgba(255,107,157,0.15);
             color: #ff6b9d;
             border-radius: 4px;
             margin-bottom: 8px;
         }
-        .post-card .external-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            color: #555;
-            margin-top: 8px;
-        }
 
-        /* Users List (Following/Followers) */
-        .users-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 12px;
-        }
-        .user-card {
-            display: flex;
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            justify-content: center;
             align-items: center;
-            gap: 12px;
-            background: #141414;
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 14px;
+        }
+        .modal.active { display: flex; }
+        .modal img { max-width: 90%; max-height: 90%; border-radius: 12px; }
+        .modal-close {
+            position: absolute;
+            top: 20px; right: 30px;
+            font-size: 32px;
+            color: #fff;
             cursor: pointer;
-            transition: all 0.2s;
+            opacity: 0.7;
         }
-        .user-card:hover {
-            border-color: #333;
-            background: #1a1a1a;
-        }
-        .user-card .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .user-card .name {
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .user-card .handle {
-            font-size: 12px;
-            color: #666;
-        }
+        .modal-close:hover { opacity: 1; }
 
-        /* Inspiration Feed */
-        .inspiration-feed {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 16px;
-        }
-        .inspiration-card {
-            background: #141414;
-            border: 1px solid #222;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .inspiration-card:hover {
-            border-color: #333;
-            transform: translateY(-2px);
-        }
-        .inspiration-card .header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px;
-            border-bottom: 1px solid #222;
-        }
-        .inspiration-card .header .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-        }
-        .inspiration-card .header .name {
-            font-size: 13px;
-            font-weight: 500;
-        }
-        .inspiration-card .header .time {
-            font-size: 11px;
-            color: #555;
-            margin-left: auto;
-        }
-        .inspiration-card .thumbnail {
-            width: 100%;
-            aspect-ratio: 9/16;
-            object-fit: cover;
-            max-height: 400px;
-        }
-        .inspiration-card .caption {
-            padding: 12px;
-            font-size: 13px;
-            color: #aaa;
-            line-height: 1.4;
-        }
-
-        /* Page Content */
-        .page { display: none; }
-        .page.active { display: block; }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .main { margin-left: 0; }
-            .creator-card { flex-direction: column; }
-            .growth-cards { margin-left: 0; margin-top: 16px; }
+            .container { padding: 16px; }
+            .header { flex-direction: column; text-align: center; padding: 24px; }
+            .avatar { width: 100px; height: 100px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .stat-card { padding: 16px; }
+            .stat-card .value { font-size: 28px; }
+            .posts-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
         }
     </style>
 </head>
 <body>
-    <div class="app">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">Creator <span>Studio</span></div>
-            <nav class="nav-section">
-                <div class="nav-label">Content</div>
-                <div class="nav-item active" data-page="posts">
-                    <span class="icon">📸</span>
-                    Posts
-                    <span class="badge">30</span>
-                </div>
-                <div class="nav-item" data-page="followers">
-                    <span class="icon">👥</span>
-                    Followers
-                    <span class="badge">33</span>
-                </div>
-                <div class="nav-item" data-page="following">
-                    <span class="icon">➕</span>
-                    Following
-                    <span class="badge">30</span>
-                </div>
-            </nav>
-            <nav class="nav-section">
-                <div class="nav-label">Discover</div>
-                <div class="nav-item" data-page="inspiration">
-                    <span class="icon">✨</span>
-                    Inspiration
-                </div>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main">
-            <!-- Creator Card -->
-            <div class="creator-card">
-                <img src="images/profile.jpg" alt="Yiumo" class="creator-avatar">
-                <div class="creator-info">
-                    <h1 class="creator-name">Yiumo (幼末)</h1>
-                    <p class="creator-handle">@saka.yiumo</p>
-                    <p class="creator-bio">20 y 🇰🇷 • Dance & lifestyle content creator</p>
-                    <div class="creator-stats">
-                        <div class="creator-stat">
-                            <span class="value">30</span>
-                            <span class="label">Posts</span>
-                        </div>
-                        <div class="creator-stat">
-                            <span class="value">33</span>
-                            <span class="trend">+3</span>
-                            <span class="label">Followers</span>
-                        </div>
-                        <div class="creator-stat">
-                            <span class="value">1.2K</span>
-                            <span class="trend">+156</span>
-                            <span class="label">Views</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="growth-cards">
-                    <div class="growth-card">
-                        <div class="title">Follower Growth</div>
-                        <div class="value">+3</div>
-                        <div class="period">Last 7 days</div>
-                    </div>
-                    <div class="growth-card">
-                        <div class="title">Views Growth</div>
-                        <div class="value">+156</div>
-                        <div class="period">Last 7 days</div>
-                    </div>
-                </div>
+    <div class="container">
+        <header class="header">
+            <img src="images/profile.jpg" alt="Yiumo" class="avatar">
+            <div class="profile-info">
+                <h1>Yiumo</h1>
+                <p class="username">@saka.yiumo</p>
+                <p class="bio">20 y 🇰🇷</p>
             </div>
+        </header>
 
-            <!-- Posts Page -->
-            <div class="page active" id="page-posts">
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">Your Posts</h2>
-                        <p class="section-subtitle">All content from your Instagram</p>
-                    </div>
-                    <div class="last-updated">
-                        <span class="dot"></span>
-                        Updated: <span id="last-update-time">--</span>
-                    </div>
-                </div>
-                <div class="posts-grid" id="posts-container"></div>
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="value">32</div>
+                <div class="label">Posts</div>
             </div>
+            <div class="stat-card">
+                <div class="value">34</div>
+                <div class="label">Followers</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">30</div>
+                <div class="label">Following</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">153</div>
+                <div class="label">Total Likes</div>
+            </div>
+        </div>
 
-            <!-- Followers Page -->
-            <div class="page" id="page-followers">
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">Followers</h2>
-                        <p class="section-subtitle">People who follow you</p>
-                    </div>
-                </div>
-                <div class="users-grid" id="followers-container"></div>
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Content</h2>
+                <p class="section-subtitle">All posts from @saka.yiumo</p>
             </div>
+            <span class="update-badge">🔄 Auto-updated: Mar 11, 2026</span>
+        </div>
 
-            <!-- Following Page -->
-            <div class="page" id="page-following">
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">Following</h2>
-                        <p class="section-subtitle">People you follow</p>
-                    </div>
-                </div>
-                <div class="users-grid" id="following-container"></div>
-            </div>
+        <div class="posts-grid" id="posts-container"></div>
+    </div>
 
-            <!-- Inspiration Page -->
-            <div class="page" id="page-inspiration">
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">Inspiration</h2>
-                        <p class="section-subtitle">Latest posts from creators you follow</p>
-                    </div>
-                </div>
-                <div class="inspiration-feed" id="inspiration-container"></div>
-            </div>
-        </main>
+    <div class="modal" id="modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img src="" alt="" id="modal-img">
     </div>
 
     <script>
-        // Data state
-        let posts = [];
-        let following = [];
-        let followers = [];
-        let inspirationPosts = [];
-        let profile = null;
+        const posts = [{"image":"images/thumb_01.jpg","caption":"You can count to ❤️❤️❤️","likes":24,"comments":1,"type":"Reel","pinned":true,"url":"https://www.instagram.com/reel/DVkOW71EcXA/"},{"image":"images/thumb_02.jpg","caption":"soft moments ✨\n\n#aesthetic #softgirl #koreanstyle #viral #fyp #reels #trending #ethereal #dreamy #vi","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVw8vlXgv1l/"},{"image":"images/thumb_03.jpg","caption":"amber eyes hit different 👀✨ #koreanbeauty #contactlens #fyp","likes":1,"comments":1,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVwtPwSFAeZ/"},{"image":"images/thumb_04.jpg","caption":"Love you 3000","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVwZ72ikgFc/"},{"image":"images/thumb_05.jpg","caption":"Take his bxll","likes":17,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVvDWSwESI2/"},{"image":"images/thumb_06.jpg","caption":"I think I’m right🥱🥱","likes":7,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVvDSiFkdJc/"},{"image":"images/thumb_07.jpg","caption":"Have you see my… ❤️ #dancing","likes":5,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVvBoEAETYn/"},{"image":"images/thumb_08.jpg","caption":"Jin Jin 🤪🤪","likes":4,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVu-Q9DkWIn/"},{"image":"images/thumb_09.jpg","caption":"feeling myself 💅✨ #dance #fyp #vibes","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVuLRWRidyg/"},{"image":"images/thumb_10.jpg","caption":"vibes only ✨💃 #dance #fyp #vibes","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVuKDLzk7LX/"},{"image":"images/thumb_11.jpg","caption":"gotta move my body 💃✨ #dance #fyp #vibes","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVuJaREiMtR/"},{"image":"images/thumb_12.jpg","caption":"Feeling the beat tonight, dancing like nobody's watching! 재미있게 춰봤어 💃✨ #DanceVibes #KPopMoves #SakaD","likes":2,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVuG8dHjput/"},{"image":"images/thumb_13.jpg","caption":"Feeling the beat tonight, just letting loose in my room 💃 Who’s joining the dance? #DanceVibes #Kpo","likes":18,"comments":1,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZ7qaEbyV/"},{"image":"images/thumb_14.jpg","caption":"Dancing my heart out tonight, feeling that 재미 (fun) vibe! 💃✨ #DanceVibes #KpopMoves #OnlyfansTease","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZ4LgEWSj/"},{"image":"images/thumb_15.jpg","caption":"Feeling the beat and just letting loose tonight! 💃 Who’s dancing with me? #DanceVibes #KPopMoves #O","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZ1CzkXGI/"},{"image":"images/thumb_16.jpg","caption":"Feeling the rhythm tonight, just dancing my heart out in my room. Who’s joining? 💃 #DanceVibes #KPo","likes":4,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZxXjEef4/"},{"image":"images/thumb_17.jpg","caption":"Feeling the beat and letting loose tonight! 💃 Who’s joining me?\n#DanceVibes #KoreanGirl #OnlyFansFu","likes":8,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZsqAEQIR/"},{"image":"images/thumb_18.jpg","caption":"can't stop won't stop 💃 #dance #kpop","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsVdF7D_ek/"},{"image":"images/thumb_19.jpg","caption":"just had to 💃 #dance #fyp","likes":8,"comments":1,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsOOCtDfMX/"},{"image":"images/thumb_20.jpg","caption":"main character moment 🎬 #aesthetic #viral #fyp","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsB1cljpgS/"},{"image":"images/thumb_21.jpg","caption":"오늘 메이크업 💄 soft girl era ✨ #makeup #kbeauty #softmakeup #glowyskin #koreanmakeup","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVr7eE9EXeZ/"},{"image":"images/thumb_22.jpg","caption":"Though this was trend? Isn’t it 👀","likes":6,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVkOKRMESG0/"},{"image":"images/thumb_23.jpg","caption":"오늘 춤 연습 영상! 피곤하지만 재미있었어~ 💃\n#댄스 #춤추기 #onlyfans","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVkOHMdET2P/"},{"image":"images/thumb_24.jpg","caption":"Feeling the rhythm tonight, just letting loose in my latest dance vid! Who’s joining me? 💃 #DanceVi","likes":7,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVkN7yWkb8F/"},{"image":"images/thumb_25.jpg","caption":"Oh baby why don’t you … ❤️❤️","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVkN3oikdMP/"},{"image":"images/thumb_26.jpg","caption":"Ohhhhh omg so embarrassing and olddddd school 😶‍🌫️😶‍🌫️😶‍🌫️","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVhccFoDxIT/"},{"image":"images/thumb_27.jpg","caption":"❤️❤️❤️🤩","likes":2,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVfzGvEEe0S/"},{"image":"images/thumb_28.jpg","caption":"Ooops❤️","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVfzA2zka1E/"},{"image":"images/thumb_29.jpg","caption":"Every speak is true ❤️❤️💦💦","likes":0,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVfumWckW2U/"},{"image":"images/thumb_30.jpg","caption":"오늘 하루도 웃으면서 마무리하세요! 여러분의 미소가 가장 예뻐요 ✨💖","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVfuRo1kZt-/"},{"image":"images/thumb_31.jpg","caption":"New post ❤️","likes":2,"comments":0,"type":"Post","pinned":false,"url":"https://www.instagram.com/reel/DUDG3PRlauc/"},{"image":"images/thumb_32.jpg","caption":"","likes":3,"comments":0,"type":"Post","pinned":false,"url":"https://www.instagram.com/reel/DT9v9TzFOA1/"}];
 
-        // Fallback static data
-        const fallbackPosts = [
-            { id: "DVkOW71EcXA", image: "images/thumb_01.jpg", caption: "You can count to ❤️❤️❤️", likes: 24, comments: 1, views: 245, type: "Reel", pinned: true },
-            { id: "DVwZ72ikgFc", image: "images/thumb_02.jpg", caption: "Love you 3000", likes: 8, comments: 0, views: 89, type: "Reel" },
-            { id: "DVvDWSwESI2", image: "images/thumb_03.jpg", caption: "Take his bxll", likes: 14, comments: 0, views: 156, type: "Reel" },
-            { id: "DVvDSiFkdJc", image: "images/thumb_04.jpg", caption: "I think I'm right🥱🥱", likes: 5, comments: 0, views: 67, type: "Reel" },
-            { id: "DVvBoEAETYn", image: "images/thumb_05.jpg", caption: "Have you see my… ❤️ #dancing", likes: 5, comments: 0, views: 58, type: "Reel" }
-        ];
-        const fallbackFollowing = [
-            { username: "jennie", name: "J", avatar: "https://i.pravatar.cc/100?img=1" },
-            { username: "lisa", name: "Lalisa", avatar: "https://i.pravatar.cc/100?img=2" }
-        ];
-        const fallbackFollowers = [
-            { username: "dance_lover_01", name: "Dance Lover", avatar: "https://i.pravatar.cc/100?img=10" },
-            { username: "kpop_fan_22", name: "K-Pop Fan", avatar: "https://i.pravatar.cc/100?img=11" }
-        ];
-
-        // API fetch functions
-        async function fetchProfile() {
-            try {
-                const res = await fetch('/api/profile');
-                const data = await res.json();
-                if (data.success && data.data) {
-                    profile = data.data;
-                    updateProfileUI();
-                }
-            } catch (e) { console.log('Using fallback profile'); }
-        }
-
-        async function fetchPosts() {
-            try {
-                const res = await fetch('/api/posts');
-                const data = await res.json();
-                if (data.success && data.data && data.data.length > 0) {
-                    posts = data.data;
-                } else {
-                    posts = fallbackPosts;
-                }
-            } catch (e) {
-                posts = fallbackPosts;
-            }
-            renderPosts();
-        }
-
-        async function fetchFollowers() {
-            try {
-                const res = await fetch('/api/followers');
-                const data = await res.json();
-                if (data.success && data.data && data.data.length > 0) {
-                    followers = data.data;
-                } else {
-                    followers = fallbackFollowers;
-                }
-            } catch (e) {
-                followers = fallbackFollowers;
-            }
-            renderUsers(followers, 'followers-container');
-        }
-
-        async function fetchFollowing() {
-            try {
-                const res = await fetch('/api/following');
-                const data = await res.json();
-                if (data.success && data.data && data.data.length > 0) {
-                    following = data.data;
-                } else {
-                    following = fallbackFollowing;
-                }
-            } catch (e) {
-                following = fallbackFollowing;
-            }
-            renderUsers(following, 'following-container');
-        }
-
-        function updateProfileUI() {
-            if (!profile) return;
-            const avatar = document.querySelector('.creator-avatar');
-            const name = document.querySelector('.creator-name');
-            const handle = document.querySelector('.creator-handle');
-            const bio = document.querySelector('.creator-bio');
-            const statsValues = document.querySelectorAll('.creator-stat .value');
-
-            if (profile.avatar) avatar.src = profile.avatar;
-            if (profile.name) name.textContent = profile.name;
-            if (profile.username) handle.textContent = '@' + profile.username;
-            if (profile.bio) bio.textContent = profile.bio;
-            if (statsValues[0]) statsValues[0].textContent = profile.posts || 0;
-            if (statsValues[1]) statsValues[1].textContent = formatNumber(profile.followers || 0);
-
-            // Update nav badges
-            const postsBadge = document.querySelector('[data-page="posts"] .badge');
-            const followersBadge = document.querySelector('[data-page="followers"] .badge');
-            const followingBadge = document.querySelector('[data-page="following"] .badge');
-            if (postsBadge) postsBadge.textContent = profile.posts || 0;
-            if (followersBadge) followersBadge.textContent = profile.followers || 0;
-            if (followingBadge) followingBadge.textContent = profile.following || 0;
-        }
-
-        async function fetchInspiration() {
-            try {
-                const res = await fetch('/api/inspiration');
-                const data = await res.json();
-                if (data.success && data.data && data.data.length > 0) {
-                    inspirationPosts = data.data;
-                }
-            } catch (e) {
-                console.log('Using empty inspiration');
-            }
-            renderInspiration();
-        }
-
-        // Load all data
-        async function loadAllData() {
-            await Promise.all([fetchProfile(), fetchPosts(), fetchFollowers(), fetchFollowing(), fetchInspiration()]);
-            updateTime();
-        }
-
-        // Render functions
         function formatNumber(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
             if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
             return num.toString();
         }
 
-        function getInstagramUrl(postId) {
-            return `https://www.instagram.com/reel/${postId}/`;
-        }
-
         function renderPosts() {
-            const container = document.getElementById('posts-container');
-            container.innerHTML = posts.map(post => `
-                <div class="post-card" onclick="window.open('${getInstagramUrl(post.id)}', '_blank')">
-                    <img src="${post.image}" alt="Post" class="thumbnail" onerror="this.style.background='#222'">
+            document.getElementById('posts-container').innerHTML = posts.map(post => `
+                <div class="post-card">
+                    <img src="${post.image}" alt="Post" class="thumbnail" onclick="openModal('${post.image}')" onerror="this.style.background='#222'">
                     <div class="info">
-                        <span class="type-badge">${post.type}${post.pinned ? ' • 📌 Pinned' : ''}</span>
-                        <div class="metrics">
-                            <span class="metric">❤️ ${formatNumber(post.likes)}</span>
-                            <span class="metric">💬 ${formatNumber(post.comments)}</span>
-                            <span class="metric">👁️ ${formatNumber(post.views)}</span>
+                        <span class="type-badge">${post.type}${post.pinned ? ' • Pinned' : ''}</span>
+                        <div class="engagement">
+                            <span>❤️ ${formatNumber(post.likes)}</span>
+                            <span>💬 ${formatNumber(post.comments)}</span>
                         </div>
                         <p class="caption">${post.caption}</p>
-                        <span class="external-link">↗ Open in Instagram</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        function renderUsers(users, containerId, baseUrl = 'https://www.instagram.com/') {
-            const container = document.getElementById(containerId);
-            container.innerHTML = users.map(user => `
-                <div class="user-card" onclick="window.open('${baseUrl}${user.username}/', '_blank')">
-                    <img src="${user.avatar}" alt="${user.name}" class="avatar">
-                    <div>
-                        <div class="name">${user.name}</div>
-                        <div class="handle">@${user.username}</div>
-                    </div>
-                </div>
-            `).join('');
+        function openModal(src) {
+            document.getElementById('modal-img').src = src;
+            document.getElementById('modal').classList.add('active');
         }
 
-        function renderInspiration() {
-            const container = document.getElementById('inspiration-container');
-            container.innerHTML = inspirationPosts.map(post => `
-                <div class="inspiration-card" onclick="window.open('https://www.instagram.com/p/${post.id}/', '_blank')">
-                    <div class="header">
-                        <img src="${post.avatar}" alt="${post.name}" class="avatar">
-                        <div>
-                            <div class="name">@${post.username}</div>
-                        </div>
-                        <span class="time">${post.time}</span>
-                    </div>
-                    <img src="${post.image}" alt="Post" class="thumbnail">
-                    <p class="caption">${post.caption}</p>
-                </div>
-            `).join('');
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
         }
 
-        // Navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const page = item.dataset.page;
-
-                // Update nav
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-
-                // Update page
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(`page-${page}`).classList.add('active');
-            });
+        document.getElementById('modal').addEventListener('click', e => {
+            if (e.target.id === 'modal') closeModal();
         });
 
-        // Update time
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('last-update-time').textContent =
-                now.toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
 
-        // Auto-refresh every hour
-        setInterval(() => {
-            updateTime();
-            // In production, fetch new data here
-            console.log('Data refreshed at', new Date().toISOString());
-        }, 3600000); // 1 hour
-
-        // Initial load - fetch from API
-        loadAllData();
+        renderPosts();
     </script>
 </body>
 </html>
