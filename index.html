@@ -484,62 +484,116 @@
     </div>
 
     <script>
-        // Data
-        const posts = [
+        // Data state
+        let posts = [];
+        let following = [];
+        let followers = [];
+        let inspirationPosts = [];
+        let profile = null;
+
+        // Fallback static data
+        const fallbackPosts = [
             { id: "DVkOW71EcXA", image: "images/thumb_01.jpg", caption: "You can count to ❤️❤️❤️", likes: 24, comments: 1, views: 245, type: "Reel", pinned: true },
             { id: "DVwZ72ikgFc", image: "images/thumb_02.jpg", caption: "Love you 3000", likes: 8, comments: 0, views: 89, type: "Reel" },
             { id: "DVvDWSwESI2", image: "images/thumb_03.jpg", caption: "Take his bxll", likes: 14, comments: 0, views: 156, type: "Reel" },
             { id: "DVvDSiFkdJc", image: "images/thumb_04.jpg", caption: "I think I'm right🥱🥱", likes: 5, comments: 0, views: 67, type: "Reel" },
-            { id: "DVvBoEAETYn", image: "images/thumb_05.jpg", caption: "Have you see my… ❤️ #dancing", likes: 5, comments: 0, views: 58, type: "Reel" },
-            { id: "DVu-Q9DkWIn", image: "images/thumb_06.jpg", caption: "Jin Jin 🤪🤪", likes: 3, comments: 0, views: 42, type: "Reel" },
-            { id: "DVuLRWRidyg", image: "images/thumb_07.jpg", caption: "feeling myself 💅✨ #dance #fyp #vibes", likes: 3, comments: 0, views: 38, type: "Reel" },
-            { id: "DVuKDLzk7LX", image: "images/thumb_08.jpg", caption: "vibes only ✨💃 #dance #fyp #vibes", likes: 1, comments: 0, views: 29, type: "Reel" },
-            { id: "DVuJaREiMtR", image: "images/thumb_09.jpg", caption: "gotta move my body 💃✨ #dance #fyp #vibes", likes: 3, comments: 0, views: 35, type: "Reel" },
-            { id: "DVuG8dHjput", image: "images/thumb_10.jpg", caption: "Feeling the beat tonight, dancing like nobody's watching! 재미있게 춰봤어 💃✨", likes: 2, comments: 0, views: 31, type: "Reel" },
-            { id: "DVsZ7qaEbyV", image: "images/thumb_11.jpg", caption: "Feeling the beat tonight, just letting loose in my room 💃", likes: 2, comments: 0, views: 28, type: "Reel" },
-            { id: "DVsZ4LgEWSj", image: "images/thumb_12.jpg", caption: "Dancing my heart out tonight, feeling that 재미 (fun) vibe! 💃✨", likes: 1, comments: 0, views: 25, type: "Reel" },
-            { id: "DVsZ1CzkXGI", image: "images/thumb_13.jpg", caption: "Feeling the beat and just letting loose tonight! 💃", likes: 1, comments: 0, views: 22, type: "Reel" },
-            { id: "DVsZxXjEef4", image: "images/thumb_14.jpg", caption: "Feeling the rhythm tonight, just dancing my heart out 💃", likes: 1, comments: 0, views: 21, type: "Reel" },
-            { id: "DVsZsqAEQIR", image: "images/thumb_15.jpg", caption: "Feeling the beat and letting loose tonight! 💃", likes: 1, comments: 0, views: 20, type: "Reel" },
-            { id: "DVsVdF7D_ek", image: "images/thumb_16.jpg", caption: "can't stop won't stop 💃 #dance #kpop", likes: 1, comments: 0, views: 19, type: "Reel" },
-            { id: "DVsOOCtDfMX", image: "images/thumb_17.jpg", caption: "just had to 💃 #dance #fyp", likes: 1, comments: 0, views: 18, type: "Reel" },
-            { id: "DVsB1cljpgS", image: "images/thumb_18.jpg", caption: "main character moment 🎬 #aesthetic #viral #fyp", likes: 2, comments: 0, views: 24, type: "Reel" },
-            { id: "DVr7eE9EXeZ", image: "images/thumb_19.jpg", caption: "오늘 메이크업 💄 soft girl era ✨ #makeup #kbeauty", likes: 2, comments: 0, views: 26, type: "Reel" },
-            { id: "DVkOKRMESG0", image: "images/thumb_20.jpg", caption: "Though this was trend? Isn't it 👀", likes: 1, comments: 0, views: 17, type: "Reel" },
-            { id: "DVkOHMdET2P", image: "images/thumb_21.jpg", caption: "오늘 춤 연습 영상! 피곤하지만 재미있었어~ 💃", likes: 1, comments: 0, views: 16, type: "Reel" },
-            { id: "DVkN7yWkb8F", image: "images/thumb_22.jpg", caption: "Feeling the rhythm tonight, just letting loose 💃", likes: 1, comments: 0, views: 15, type: "Reel" },
-            { id: "DVkN3oikdMP", image: "images/thumb_23.jpg", caption: "Oh baby why don't you … ❤️❤️", likes: 2, comments: 0, views: 23, type: "Reel" },
-            { id: "DVhccFoDxIT", image: "images/thumb_24.jpg", caption: "Ohhhhh omg so embarrassing and olddddd school 😶‍🌫️", likes: 1, comments: 0, views: 14, type: "Reel" },
-            { id: "post25", image: "images/thumb_25.jpg", caption: "Dance practice 💃", likes: 1, comments: 0, views: 13, type: "Reel" },
-            { id: "post26", image: "images/thumb_26.jpg", caption: "New moves 🔥", likes: 1, comments: 0, views: 12, type: "Reel" },
-            { id: "post27", image: "images/thumb_27.jpg", caption: "Weekend vibes ✨", likes: 1, comments: 0, views: 11, type: "Reel" },
-            { id: "post28", image: "images/thumb_28.jpg", caption: "Just dancing 💃", likes: 1, comments: 0, views: 10, type: "Reel" },
-            { id: "post29", image: "images/thumb_29.jpg", caption: "Good day 🌸", likes: 1, comments: 0, views: 9, type: "Reel" }
+            { id: "DVvBoEAETYn", image: "images/thumb_05.jpg", caption: "Have you see my… ❤️ #dancing", likes: 5, comments: 0, views: 58, type: "Reel" }
         ];
-
-        // Sample following/followers data
-        const following = [
+        const fallbackFollowing = [
             { username: "jennie", name: "J", avatar: "https://i.pravatar.cc/100?img=1" },
-            { username: "lisa", name: "Lalisa", avatar: "https://i.pravatar.cc/100?img=2" },
-            { username: "rose_are_rosie", name: "ROSÉ", avatar: "https://i.pravatar.cc/100?img=3" },
-            { username: "jisoo", name: "Jisoo", avatar: "https://i.pravatar.cc/100?img=4" },
-            { username: "itzy_official", name: "ITZY", avatar: "https://i.pravatar.cc/100?img=5" },
-            { username: "aespa_official", name: "aespa", avatar: "https://i.pravatar.cc/100?img=6" },
+            { username: "lisa", name: "Lalisa", avatar: "https://i.pravatar.cc/100?img=2" }
         ];
-
-        const followers = [
+        const fallbackFollowers = [
             { username: "dance_lover_01", name: "Dance Lover", avatar: "https://i.pravatar.cc/100?img=10" },
-            { username: "kpop_fan_22", name: "K-Pop Fan", avatar: "https://i.pravatar.cc/100?img=11" },
-            { username: "seoul_vibes", name: "Seoul Vibes", avatar: "https://i.pravatar.cc/100?img=12" },
+            { username: "kpop_fan_22", name: "K-Pop Fan", avatar: "https://i.pravatar.cc/100?img=11" }
         ];
 
-        // Sample inspiration feed
-        const inspirationPosts = [
-            { username: "jennie", name: "J", avatar: "https://i.pravatar.cc/100?img=1", image: "https://picsum.photos/400/700?random=1", caption: "New day new energy ✨", time: "2h ago", id: "abc123" },
-            { username: "lisa", name: "Lalisa", avatar: "https://i.pravatar.cc/100?img=2", image: "https://picsum.photos/400/700?random=2", caption: "Dance practice 💃🔥", time: "4h ago", id: "def456" },
-            { username: "rose_are_rosie", name: "ROSÉ", avatar: "https://i.pravatar.cc/100?img=3", image: "https://picsum.photos/400/700?random=3", caption: "On my way 🎵", time: "6h ago", id: "ghi789" },
-            { username: "itzy_official", name: "ITZY", avatar: "https://i.pravatar.cc/100?img=5", image: "https://picsum.photos/400/700?random=4", caption: "MIDZY we love you! 💕", time: "8h ago", id: "jkl012" },
-        ];
+        // API fetch functions
+        async function fetchProfile() {
+            try {
+                const res = await fetch('/api/profile');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    profile = data.data;
+                    updateProfileUI();
+                }
+            } catch (e) { console.log('Using fallback profile'); }
+        }
+
+        async function fetchPosts() {
+            try {
+                const res = await fetch('/api/posts');
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    posts = data.data;
+                } else {
+                    posts = fallbackPosts;
+                }
+            } catch (e) {
+                posts = fallbackPosts;
+            }
+            renderPosts();
+        }
+
+        async function fetchFollowers() {
+            try {
+                const res = await fetch('/api/followers');
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    followers = data.data;
+                } else {
+                    followers = fallbackFollowers;
+                }
+            } catch (e) {
+                followers = fallbackFollowers;
+            }
+            renderUsers(followers, 'followers-container');
+        }
+
+        async function fetchFollowing() {
+            try {
+                const res = await fetch('/api/following');
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    following = data.data;
+                } else {
+                    following = fallbackFollowing;
+                }
+            } catch (e) {
+                following = fallbackFollowing;
+            }
+            renderUsers(following, 'following-container');
+        }
+
+        function updateProfileUI() {
+            if (!profile) return;
+            const avatar = document.querySelector('.creator-avatar');
+            const name = document.querySelector('.creator-name');
+            const handle = document.querySelector('.creator-handle');
+            const bio = document.querySelector('.creator-bio');
+            const statsValues = document.querySelectorAll('.creator-stat .value');
+
+            if (profile.avatar) avatar.src = profile.avatar;
+            if (profile.name) name.textContent = profile.name;
+            if (profile.username) handle.textContent = '@' + profile.username;
+            if (profile.bio) bio.textContent = profile.bio;
+            if (statsValues[0]) statsValues[0].textContent = profile.posts || 0;
+            if (statsValues[1]) statsValues[1].textContent = formatNumber(profile.followers || 0);
+
+            // Update nav badges
+            const postsBadge = document.querySelector('[data-page="posts"] .badge');
+            const followersBadge = document.querySelector('[data-page="followers"] .badge');
+            const followingBadge = document.querySelector('[data-page="following"] .badge');
+            if (postsBadge) postsBadge.textContent = profile.posts || 0;
+            if (followersBadge) followersBadge.textContent = profile.followers || 0;
+            if (followingBadge) followingBadge.textContent = profile.following || 0;
+        }
+
+        // Load all data
+        async function loadAllData() {
+            await Promise.all([fetchProfile(), fetchPosts(), fetchFollowers(), fetchFollowing()]);
+            updateTime();
+        }
 
         // Render functions
         function formatNumber(num) {
@@ -635,12 +689,9 @@
             console.log('Data refreshed at', new Date().toISOString());
         }, 3600000); // 1 hour
 
-        // Initial render
-        renderPosts();
-        renderUsers(followers, 'followers-container');
-        renderUsers(following, 'following-container');
+        // Initial load - fetch from API
+        loadAllData();
         renderInspiration();
-        updateTime();
     </script>
 </body>
 </html>
