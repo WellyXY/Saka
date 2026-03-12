@@ -284,6 +284,26 @@
         }
         .source-link:hover { text-decoration: underline; }
 
+        /* Growth indicator */
+        .growth-positive { color: #4caf50; }
+        .growth-negative { color: #f44336; }
+        .growth-neutral { color: #888; }
+        .engagement-current { font-weight: 600; }
+        .tracking-caption {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .source-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 6px;
+            background: rgba(33,150,243,0.15);
+            color: #2196f3;
+            border-radius: 4px;
+        }
+
         @media (max-width: 768px) {
             .container { padding: 16px; }
             .header { flex-direction: column; text-align: center; padding: 20px; }
@@ -306,6 +326,7 @@
         <nav class="nav">
             <button class="nav-btn active" onclick="showPage('posts')">Posts</button>
             <button class="nav-btn" onclick="showPage('history')">Content History</button>
+            <button class="nav-btn" onclick="showPage('tracking')">Post Tracking</button>
             <button class="nav-btn" onclick="showPage('inspiration')">Inspiration</button>
         </nav>
 
@@ -383,6 +404,31 @@
             </div>
         </div>
 
+        <!-- Post Tracking Page -->
+        <div class="page" id="page-tracking">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Post Tracking</h2>
+                    <p class="section-subtitle">Monitor published posts and engagement growth</p>
+                </div>
+            </div>
+            <div id="tracking-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Post</th>
+                            <th>Caption</th>
+                            <th>Published</th>
+                            <th>Source</th>
+                            <th>Engagement</th>
+                            <th>Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tracking-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Inspiration Page -->
         <div class="page" id="page-inspiration">
             <div class="section-header">
@@ -401,63 +447,32 @@
     </div>
 
     <script>
-        // Posts data
+        // Posts data (loaded from API)
         const posts = [{"image":"images/thumb_01.jpg","caption":"You can count to ❤️❤️❤️","likes":24,"comments":1,"type":"Reel","pinned":true,"url":"https://www.instagram.com/reel/DVkOW71EcXA/"},{"image":"images/thumb_02.jpg","caption":"soft moments ✨","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVw8vlXgv1l/"},{"image":"images/thumb_03.jpg","caption":"amber eyes hit different 👀✨","likes":1,"comments":1,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVwtPwSFAeZ/"},{"image":"images/thumb_04.jpg","caption":"Love you 3000","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVwZ72ikgFc/"},{"image":"images/thumb_05.jpg","caption":"Take his bxll","likes":17,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVvDWSwESI2/"},{"image":"images/thumb_06.jpg","caption":"I think I'm right🥱🥱","likes":7,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVvDSiFkdJc/"},{"image":"images/thumb_07.jpg","caption":"Have you see my… ❤️","likes":5,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVvBoEAETYn/"},{"image":"images/thumb_08.jpg","caption":"Jin Jin 🤪🤪","likes":4,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVu-Q9DkWIn/"},{"image":"images/thumb_09.jpg","caption":"feeling myself 💅✨","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVuLRWRidyg/"},{"image":"images/thumb_10.jpg","caption":"vibes only ✨💃","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVuKDLzk7LX/"},{"image":"images/thumb_11.jpg","caption":"gotta move my body 💃✨","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVuJaREiMtR/"},{"image":"images/thumb_12.jpg","caption":"Feeling the beat tonight 💃✨","likes":2,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVuG8dHjput/"},{"image":"images/thumb_13.jpg","caption":"Feeling the beat tonight 💃","likes":18,"comments":1,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZ7qaEbyV/"},{"image":"images/thumb_14.jpg","caption":"Dancing my heart out tonight 💃✨","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZ4LgEWSj/"},{"image":"images/thumb_15.jpg","caption":"Feeling the beat 💃","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZ1CzkXGI/"},{"image":"images/thumb_16.jpg","caption":"Feeling the rhythm tonight 💃","likes":4,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZxXjEef4/"},{"image":"images/thumb_17.jpg","caption":"Feeling the beat and letting loose 💃","likes":8,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsZsqAEQIR/"},{"image":"images/thumb_18.jpg","caption":"can't stop won't stop 💃","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsVdF7D_ek/"},{"image":"images/thumb_19.jpg","caption":"just had to 💃","likes":8,"comments":1,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsOOCtDfMX/"},{"image":"images/thumb_20.jpg","caption":"main character moment 🎬","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVsB1cljpgS/"},{"image":"images/thumb_21.jpg","caption":"오늘 메이크업 💄 soft girl era ✨","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVr7eE9EXeZ/"},{"image":"images/thumb_22.jpg","caption":"Though this was trend? 👀","likes":6,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVkOKRMESG0/"},{"image":"images/thumb_23.jpg","caption":"오늘 춤 연습 영상! 💃","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVkOHMdET2P/"},{"image":"images/thumb_24.jpg","caption":"Feeling the rhythm tonight 💃","likes":7,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVkN7yWkb8F/"},{"image":"images/thumb_25.jpg","caption":"Oh baby why don't you … ❤️❤️","likes":3,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVkN3oikdMP/"},{"image":"images/thumb_26.jpg","caption":"Ohhhhh omg so embarrassing 😶‍🌫️","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVhccFoDxIT/"},{"image":"images/thumb_27.jpg","caption":"❤️❤️❤️🤩","likes":2,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVfzGvEEe0S/"},{"image":"images/thumb_28.jpg","caption":"Ooops❤️","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVfzA2zka1E/"},{"image":"images/thumb_29.jpg","caption":"Every speak is true ❤️❤️💦💦","likes":0,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVfumWckW2U/"},{"image":"images/thumb_30.jpg","caption":"오늘 하루도 웃으면서 마무리하세요! ✨💖","likes":1,"comments":0,"type":"Reel","pinned":false,"url":"https://www.instagram.com/reel/DVfuRo1kZt-/"},{"image":"images/thumb_31.jpg","caption":"New post ❤️","likes":2,"comments":0,"type":"Post","pinned":false,"url":"https://www.instagram.com/reel/DUDG3PRlauc/"},{"image":"images/thumb_32.jpg","caption":"","likes":3,"comments":0,"type":"Post","pinned":false,"url":"https://www.instagram.com/reel/DT9v9TzFOA1/"}];
 
-        // Content history data (will be loaded from content-history.json)
+        // Content history data (loaded from content-history.json)
         let contentHistory = {
-            tasks: [
-                {
-                    id: "task-001",
-                    type: "ref-video",
-                    status: "completed",
-                    input: {
-                        url: "https://www.instagram.com/reel/DVkOW71EcXA/",
-                        source_account: "@dance_inspo",
-                        source_stats: { plays: 28000, likes: 1900 }
-                    },
-                    output: {
-                        thumbnail: "images/thumb_01.jpg"
-                    },
-                    created_at: "2026-03-10T10:00:00Z"
-                },
-                {
-                    id: "task-002",
-                    type: "ref-video",
-                    status: "completed",
-                    input: {
-                        url: "https://www.instagram.com/reel/example2/",
-                        source_account: "@kpop_dance",
-                        source_stats: { plays: 45000, likes: 3200 }
-                    },
-                    output: {
-                        thumbnail: "images/thumb_05.jpg"
-                    },
-                    created_at: "2026-03-09T14:30:00Z"
-                },
-                {
-                    id: "task-003",
-                    type: "image",
-                    status: "completed",
-                    input: {
-                        url: null,
-                        source_account: null,
-                        source_stats: null
-                    },
-                    output: {
-                        thumbnail: "images/thumb_21.jpg"
-                    },
-                    created_at: "2026-03-08T09:15:00Z"
-                }
-            ],
-            inspiration_accounts: [
-                { username: "@dance_inspo", platform: "instagram", notes: "Great dance transitions" },
-                { username: "@kpop_dance", platform: "instagram", notes: "Trending K-pop moves" },
-                { username: "@aesthetic_vibes", platform: "tiktok", notes: "Soft aesthetic content" }
-            ]
+            tasks: [],
+            inspiration_accounts: [],
+            post_tracking: []
         };
 
         let currentFilter = 'all';
+
+        // Load content history from JSON file
+        async function loadContentHistory() {
+            try {
+                const response = await fetch('content-history.json?t=' + Date.now());
+                if (response.ok) {
+                    contentHistory = await response.json();
+                    renderHistory();
+                    renderInspiration();
+                    renderTracking();
+                }
+            } catch (e) {
+                console.log('Using default content history');
+            }
+        }
 
         function formatNumber(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -558,6 +573,50 @@
             `).join('');
         }
 
+        function renderTracking() {
+            const tracking = contentHistory.post_tracking || [];
+
+            if (tracking.length === 0) {
+                document.getElementById('tracking-tbody').innerHTML = `
+                    <tr><td colspan="6" class="empty-state">
+                        <h3>No tracked posts yet</h3>
+                        <p>Published posts will appear here with engagement tracking</p>
+                    </td></tr>
+                `;
+                return;
+            }
+
+            document.getElementById('tracking-tbody').innerHTML = tracking.map(post => {
+                const snapshots = post.engagement_snapshots || [];
+                const latest = snapshots[snapshots.length - 1] || { likes: 0, comments: 0 };
+                const first = snapshots[0] || { likes: 0, comments: 0 };
+                const growth = latest.likes - first.likes;
+                const growthClass = growth > 0 ? 'growth-positive' : (growth < 0 ? 'growth-negative' : 'growth-neutral');
+                const growthText = growth > 0 ? `+${growth}` : growth.toString();
+
+                // Find the source task
+                const sourceTask = contentHistory.tasks.find(t => t.id === post.source_task);
+                const sourceAccount = sourceTask?.input?.source_account || '-';
+
+                // Get thumbnail from posts array
+                const postData = posts.find(p => p.url.includes(post.post_id));
+                const thumb = postData?.image || 'images/placeholder.jpg';
+
+                return `
+                    <tr>
+                        <td>
+                            <img src="${thumb}" class="history-thumb" onclick="openModal('${thumb}')" onerror="this.style.background='#333'">
+                        </td>
+                        <td class="tracking-caption" title="${post.caption}">${post.caption}</td>
+                        <td>${formatDate(post.published_at)}</td>
+                        <td>${sourceAccount !== '-' ? `<span class="source-badge">${sourceAccount}</span>` : '-'}</td>
+                        <td class="engagement-current">❤️ ${latest.likes} 💬 ${latest.comments || 0}</td>
+                        <td class="${growthClass}">${growthText} likes</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         function openModal(src) {
             if (!src) return;
             document.getElementById('modal-img').src = src;
@@ -578,8 +637,7 @@
 
         // Initialize
         renderPosts();
-        renderHistory();
-        renderInspiration();
+        loadContentHistory();
     </script>
 </body>
 </html>
