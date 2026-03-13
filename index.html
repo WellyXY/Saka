@@ -559,267 +559,142 @@
         .task-item-time { font-size: 11px; color: #555; flex-shrink: 0; }
         .no-tasks { color: #555; font-size: 13px; font-style: italic; }
 
-        /* ─── AI Town Rooms ─── */
-        .town-world {
+        /* ─── AI Town (pixel game world) ─── */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        .game-frame {
+            border: 6px solid #5a3a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #1a0e08;
+            box-shadow: 0 0 0 2px #3a2210, 0 8px 40px rgba(0,0,0,0.6);
+        }
+        .game-header {
+            background: linear-gradient(180deg, #1a0a2e 0%, #2d1654 40%, #4a2060 60%, #d46030 85%, #e8a040 100%);
+            text-align: center;
+            padding: 18px 20px 14px;
             position: relative;
+            overflow: hidden;
+        }
+        .game-header::before {
+            content: '';
+            position: absolute;
+            bottom: 20%;
+            left: 10%; right: 10%;
+            height: 30px;
+            background: radial-gradient(ellipse, rgba(232,160,64,0.15) 0%, transparent 70%);
+        }
+        .game-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 28px;
+            color: #f0c048;
+            text-shadow: 3px 3px 0 #8a4010, -1px -1px 0 #ffd870, 0 0 20px rgba(240,192,72,0.3);
+            margin-bottom: 8px;
+            letter-spacing: 4px;
+        }
+        .game-subtitle {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 1px;
+        }
+        .game-body {
+            display: flex;
+            height: 520px;
+            border-top: 3px solid #3a2210;
+        }
+        .game-canvas-wrap {
+            flex: 1;
+            position: relative;
+            border-right: 3px solid #3a2210;
+            overflow: hidden;
+        }
+        .game-canvas-wrap canvas {
+            display: block;
             width: 100%;
-            height: 680px;
-            background:
-                radial-gradient(ellipse at 50% 30%, #1a1a2e 0%, #0d0d1a 70%),
-                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px),
-                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px);
-            border-radius: 16px;
-            border: 1px solid #1a1a28;
-            overflow: hidden;
-            user-select: none;
-        }
-        .town-world::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 20% 80%, rgba(255,107,157,0.03) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(79,172,254,0.03) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        .town-label {
-            position: absolute;
-            font-size: 9px;
-            color: rgba(255,255,255,0.12);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 600;
-            pointer-events: none;
-        }
-
-        /* Agent in world */
-        .town-agent {
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            height: 100%;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
             cursor: pointer;
-            transition: transform 0.3s;
-            z-index: 10;
         }
-        .town-agent:hover { transform: scale(1.08); z-index: 20; }
-        .town-agent:hover .agent-sprite { box-shadow: 0 0 20px rgba(255,107,157,0.4); }
-
-        /* Speech bubble */
-        .speech-bubble {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(20,20,28,0.95);
-            border: 1px solid #2a2a3a;
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 11px;
-            color: #ccc;
-            line-height: 1.4;
-            white-space: nowrap;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            backdrop-filter: blur(8px);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-        .speech-bubble::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: #2a2a3a;
-        }
-        .town-agent:hover .speech-bubble,
-        .town-agent.working .speech-bubble { opacity: 1; }
-        .town-agent.working .speech-bubble { white-space: normal; }
-
-        /* Agent sprite (circle avatar) */
-        .agent-sprite {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
+        /* Right chat panel */
+        .game-chat {
+            width: 280px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            border: 3px solid #222;
-            transition: all 0.3s;
-            position: relative;
-        }
-        .town-agent.working .agent-sprite { border-color: #4caf50; }
-        .town-agent.completed .agent-sprite { border-color: #2196f3; }
-        .town-agent.idle .agent-sprite { border-color: #333; }
-
-        /* Status ring animation */
-        .town-agent.working .agent-sprite::after {
-            content: '';
-            position: absolute;
-            inset: -6px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            border-top-color: #4caf50;
-            animation: orbit 2s linear infinite;
-        }
-        @keyframes orbit { to { transform: rotate(360deg); } }
-
-        /* Idle bobbing */
-        .town-agent.idle { animation: bob 3s ease-in-out infinite; }
-        .town-agent.working { animation: workBob 1.5s ease-in-out infinite; }
-        @keyframes bob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
-        @keyframes workBob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-2px); }
-        }
-        .town-agent:hover { animation: none; }
-
-        /* Name tag */
-        .agent-nametag {
-            margin-top: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #ddd;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-        }
-        .agent-role-tag {
-            font-size: 9px;
-            color: #666;
-            margin-top: 1px;
-        }
-
-        /* Status indicator dot */
-        .sprite-status {
-            position: absolute;
-            bottom: 2px; right: 2px;
-            width: 12px; height: 12px;
-            border-radius: 50%;
-            border: 2px solid #0d0d1a;
-            background: #555;
-        }
-        .town-agent.working .sprite-status { background: #4caf50; }
-        .town-agent.completed .sprite-status { background: #2196f3; }
-
-        /* Room zones (subtle floor areas) */
-        .room-zone {
-            position: absolute;
-            border: 1px dashed rgba(255,255,255,0.04);
-            border-radius: 12px;
-            background: rgba(255,255,255,0.01);
-        }
-
-        /* Room Detail Panel (slide-over) */
-        .room-detail {
-            display: none;
-            position: fixed;
-            top: 0; right: 0; bottom: 0;
-            width: 440px;
-            background: #111116;
-            border-left: 1px solid #1a1a22;
-            z-index: 900;
             flex-direction: column;
-            box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+            background: #f0e8d8;
+            font-family: 'Press Start 2P', monospace;
         }
-        .room-detail.open { display: flex; }
-        .room-detail-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #1a1a22;
-            display: flex; align-items: center; gap: 14px;
+        .game-chat-header {
+            padding: 12px;
+            font-size: 8px;
+            color: #333;
+            border-bottom: 2px solid #c8b898;
+            background: #e8dcc8;
+            min-height: 36px;
         }
-        .room-detail-header .close-btn {
-            margin-left: auto; background: none; border: none;
-            color: #666; font-size: 20px; cursor: pointer;
-        }
-        .room-detail-header .close-btn:hover { color: #fff; }
-        .room-detail-messages {
+        .game-chat-msgs {
             flex: 1;
             overflow-y: auto;
-            padding: 16px 24px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 14px;
         }
-        .room-msg {
-            max-width: 85%;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            line-height: 1.5;
-            word-break: break-word;
-        }
-        .room-msg.system {
-            align-self: center;
-            background: rgba(255,255,255,0.04);
-            color: #666;
-            font-size: 11px;
-            text-align: center;
-            max-width: 90%;
-            border-radius: 8px;
-        }
-        .room-msg.agent {
-            align-self: flex-start;
-            background: #1a1a24;
-            color: #ccc;
-            border: 1px solid #252530;
-        }
-        .room-msg.user {
-            align-self: flex-end;
-            background: rgba(255,107,157,0.15);
-            color: #eee;
-            border: 1px solid rgba(255,107,157,0.25);
-        }
-        .room-msg .msg-time {
-            font-size: 10px;
+        .game-chat-msgs::-webkit-scrollbar { width: 6px; }
+        .game-chat-msgs::-webkit-scrollbar-thumb { background: #b8a888; border-radius: 3px; }
+        .gchat-name {
+            font-size: 7px;
             color: #555;
-            margin-top: 4px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
         }
-        .room-detail-input {
-            padding: 16px 24px;
-            border-top: 1px solid #1a1a22;
-            display: flex; gap: 10px;
+        .gchat-bubble {
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 2px;
+            padding: 10px;
+            font-size: 8px;
+            line-height: 1.8;
+            color: #111;
         }
-        .room-detail-input input {
+        .gchat-time {
+            font-size: 6px;
+            color: #999;
+            margin-top: 3px;
+        }
+        .game-chat-input {
+            padding: 8px;
+            border-top: 2px solid #c8b898;
+            display: flex;
+            gap: 6px;
+            background: #e8dcc8;
+        }
+        .game-chat-input input {
             flex: 1;
-            background: #1a1a22;
-            border: 1px solid #2a2a35;
-            border-radius: 10px;
-            padding: 10px 16px;
-            color: #fff;
-            font-size: 13px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            padding: 8px;
+            border: 2px solid #888;
+            border-radius: 2px;
+            background: #fff;
+            color: #111;
             outline: none;
         }
-        .room-detail-input input:focus { border-color: #ff6b9d; }
-        .room-detail-input button {
-            background: #ff6b9d;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 18px;
+        .game-chat-input button {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            padding: 8px 12px;
+            background: #333;
             color: #fff;
-            font-size: 13px;
-            font-weight: 600;
+            border: 2px solid #111;
+            border-radius: 2px;
             cursor: pointer;
         }
-        .room-detail-input button:hover { background: #e05588; }
-        .room-overlay {
-            display: none;
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.4);
-            z-index: 899;
-        }
-        .room-overlay.open { display: block; }
-
+        .game-chat-input button:hover { background: #555; }
         @media (max-width: 768px) {
-            .town-world { height: 500px; }
-            .agent-sprite { width: 44px; height: 44px; font-size: 20px; }
-            .speech-bubble { max-width: 140px; font-size: 10px; }
-            .room-detail { width: 100%; }
+            .game-body { flex-direction: column; height: auto; }
+            .game-canvas-wrap { height: 400px; border-right: none; border-bottom: 3px solid #3a2210; }
+            .game-chat { width: 100%; height: 300px; }
         }
 
         /* Loading state */
@@ -1033,49 +908,24 @@
 
         <!-- Rooms Page (AI Town) -->
         <div class="page" id="page-rooms">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">Agent Town</h2>
-                    <p class="section-subtitle">Click an agent to see details and chat</p>
+            <div class="game-frame">
+                <div class="game-header">
+                    <div class="game-title">AGENT TOWN</div>
+                    <div class="game-subtitle">A virtual studio where AI agents live, work and create.</div>
                 </div>
-                <button class="filter-btn" onclick="fetchRooms()" style="background:#ff6b9d;color:#fff;border-color:#ff6b9d;">↻ Refresh</button>
-            </div>
-            <div class="town-world" id="town-world">
-                <!-- Zone labels -->
-                <div class="town-label" style="top:12px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,0.08);">YIUMO CREATOR STUDIO</div>
-
-                <!-- Room zones -->
-                <div class="room-zone" style="top:30px;left:50%;transform:translateX(-50%);width:160px;height:140px;" title="CEO Office"></div>
-                <div class="room-zone" style="top:220px;left:40px;width:200px;height:180px;" title="Creative Lab"></div>
-                <div class="room-zone" style="top:220px;right:40px;width:200px;height:180px;" title="Dev Workshop"></div>
-                <div class="room-zone" style="bottom:40px;left:50%;transform:translateX(-50%);width:320px;height:160px;" title="Common Area"></div>
-
-                <!-- Zone labels -->
-                <div class="town-label" style="top:38px;left:50%;transform:translateX(-50%);">CEO Office</div>
-                <div class="town-label" style="top:228px;left:50px;">Creative Lab</div>
-                <div class="town-label" style="top:228px;right:50px;">Dev Workshop</div>
-                <div class="town-label" style="bottom:48px;left:50%;transform:translateX(-50%);">Common Area</div>
-
-                <!-- Agents will be injected here by JS -->
-                <div id="town-agents"></div>
-            </div>
-        </div>
-
-        <!-- Room Detail Panel -->
-        <div class="room-overlay" id="room-overlay" onclick="closeRoomDetail()"></div>
-        <div class="room-detail" id="room-detail">
-            <div class="room-detail-header">
-                <div class="agent-avatar" id="rd-avatar" style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;"></div>
-                <div>
-                    <div id="rd-name" style="font-size:16px;font-weight:600;"></div>
-                    <div id="rd-status" style="font-size:12px;color:#888;"></div>
+                <div class="game-body">
+                    <div class="game-canvas-wrap">
+                        <canvas id="town-canvas"></canvas>
+                    </div>
+                    <div class="game-chat" id="game-chat">
+                        <div class="game-chat-header" id="game-chat-header">Click an agent to chat...</div>
+                        <div class="game-chat-msgs" id="game-chat-msgs"></div>
+                        <div class="game-chat-input" id="game-chat-input-wrap" style="display:none;">
+                            <input type="text" id="game-chat-input" placeholder="Say something..." onkeydown="if(event.key==='Enter')sendTownMsg()">
+                            <button onclick="sendTownMsg()">SEND</button>
+                        </div>
+                    </div>
                 </div>
-                <button class="close-btn" onclick="closeRoomDetail()">✕</button>
-            </div>
-            <div class="room-detail-messages" id="rd-messages"></div>
-            <div class="room-detail-input">
-                <input type="text" id="rd-input" placeholder="Send a message..." onkeydown="if(event.key==='Enter')sendRoomMessage()">
-                <button onclick="sendRoomMessage()">Send</button>
             </div>
         </div>
 
@@ -1152,6 +1002,7 @@
             }
             if (page === 'rooms') {
                 fetchRooms();
+                setTimeout(initTownCanvas, 100);
             }
         }
 
@@ -1453,123 +1304,406 @@
             }).join('');
         }
 
-        // ─── AI Town Rooms ───
+        // ─── AI Town: Pixel Game World ───
         let roomsData = [];
         let activeRoom = null;
+        let townCanvas, townCtx, townW, townH;
+        let townAnimFrame = null;
+        const PX = 4; // pixel scale factor
+        const TILE = 32;
 
-        const townMeta = {
-            saka:  { name: 'Saka',  role: 'CEO',            icon: '👑', bg: 'linear-gradient(135deg, #ff6b9d, #c44569)', x: '50%', y: '90px'  },
-            muse:  { name: 'Muse',  role: 'Content Creator', icon: '✨', bg: 'linear-gradient(135deg, #f093fb, #f5576c)', x: '18%', y: '290px' },
-            echo:  { name: 'Echo',  role: 'Social Media',    icon: '📱', bg: 'linear-gradient(135deg, #4facfe, #00f2fe)', x: '32%', y: '330px' },
-            bolt:  { name: 'Bolt',  role: 'Developer',       icon: '⚡', bg: 'linear-gradient(135deg, #fa709a, #fee140)', x: '78%', y: '290px' },
-            saga:  { name: 'Saga',  role: 'Researcher',      icon: '🔍', bg: 'linear-gradient(135deg, #a18cd1, #fbc2eb)', x: '68%', y: '340px' },
-            nova:  { name: 'Nova',  role: 'HR Manager',      icon: '🌟', bg: 'linear-gradient(135deg, #f6d365, #fda085)', x: '36%', y: '540px' },
-            atlas: { name: 'Atlas', role: 'General',          icon: '📊', bg: 'linear-gradient(135deg, #667eea, #764ba2)', x: '62%', y: '540px' }
+        const agentDefs = {
+            saka:  { name:'Saka',  role:'CEO',             hair:'#e8c030', shirt:'#d03040', skin:'#f0c8a0', tx:9,  ty:3 },
+            muse:  { name:'Muse',  role:'Content Creator',  hair:'#f060a0', shirt:'#c020c0', skin:'#f0c8a0', tx:4,  ty:7 },
+            echo:  { name:'Echo',  role:'Social Media',     hair:'#40b0f0', shirt:'#2080d0', skin:'#e8c098', tx:7,  ty:8 },
+            bolt:  { name:'Bolt',  role:'Developer',        hair:'#f0a020', shirt:'#f06040', skin:'#f0c8a0', tx:14, ty:6 },
+            saga:  { name:'Saga',  role:'Researcher',       hair:'#b0b0c0', shirt:'#8060c0', skin:'#e8c098', tx:13, ty:10},
+            nova:  { name:'Nova',  role:'HR Manager',       hair:'#f0d060', shirt:'#40b060', skin:'#f0c8a0', tx:6,  ty:12},
+            atlas: { name:'Atlas', role:'General',           hair:'#504060', shirt:'#4060a0', skin:'#d0a880', tx:11, ty:12}
         };
+
+        // Tilemap: 0=grass 1=darkgrass 2=path 3=flowers 4=water 5=soil 6=plants
+        const COLS=18, ROWS=15;
+        const tileMap = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,1],
+            [1,0,3,0,0,0,0,0,2,2,0,0,0,0,3,0,0,1],
+            [1,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,1],
+            [1,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,1],
+            [1,0,0,0,0,0,2,2,0,0,0,5,5,5,5,0,0,1],
+            [1,0,0,0,0,2,2,0,0,0,0,5,6,6,5,0,0,1],
+            [1,0,3,0,2,2,0,0,0,0,0,5,6,6,5,0,0,1],
+            [1,0,0,2,2,0,0,0,0,0,0,5,5,5,5,0,0,1],
+            [1,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,3,1],
+            [1,2,2,0,0,0,0,0,2,2,2,2,2,2,0,0,0,1],
+            [1,2,0,0,0,0,0,2,2,0,0,0,0,2,2,0,0,1],
+            [1,0,0,0,0,0,2,2,0,0,0,0,0,0,2,0,0,1],
+            [1,0,0,3,0,0,2,0,0,0,0,3,0,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        // Trees: [col, row] positions
+        const trees = [
+            [0,0],[1,0],[2,0],[3,0],[5,0],[6,0],[8,0],[10,0],[12,0],[14,0],[15,0],[16,0],[17,0],
+            [0,1],[17,1],[0,2],[17,2],[0,3],[17,3],
+            [0,6],[0,7],[0,9],[0,10],
+            [17,5],[17,8],[17,10],[17,13],
+            [0,13],[0,14],[1,14],[2,14],[4,14],[6,14],[8,14],[10,14],[12,14],[14,14],[16,14],[17,14],
+            [3,3],[4,2],
+            [15,2],[16,3],
+        ];
+
+        const COLORS = {
+            grass: '#6ab04c', grassAlt: '#78c85c', grassDark: '#5a9840',
+            path: '#c8a870', pathEdge: '#b09060',
+            soil: '#7a5830', plant: '#40a040',
+            water: '#4890d0', waterLight: '#60a8e0',
+            treeTrunk: '#7a5030', treeTop: '#2d8040', treeTopLight: '#3a9850',
+            flower1: '#f04080', flower2: '#f0e040', flower3: '#e0e0f0',
+        };
+
+        function initTownCanvas() {
+            townCanvas = document.getElementById('town-canvas');
+            if (!townCanvas) return;
+            const wrap = townCanvas.parentElement;
+            townW = COLS * TILE;
+            townH = ROWS * TILE;
+            townCanvas.width = townW;
+            townCanvas.height = townH;
+            townCtx = townCanvas.getContext('2d');
+            townCanvas.addEventListener('click', onTownClick);
+            startTownLoop();
+        }
+
+        function drawTile(x, y, type) {
+            const px = x * TILE, py = y * TILE;
+            switch(type) {
+                case 0: // grass
+                    townCtx.fillStyle = COLORS.grass;
+                    townCtx.fillRect(px, py, TILE, TILE);
+                    // texture
+                    townCtx.fillStyle = COLORS.grassAlt;
+                    if ((x+y)%3===0) townCtx.fillRect(px+4, py+8, 2, 2);
+                    if ((x*7+y*3)%5===0) townCtx.fillRect(px+16, py+20, 2, 2);
+                    if ((x*3+y*11)%7===0) townCtx.fillRect(px+24, py+4, 2, 2);
+                    break;
+                case 1: // dark grass / border
+                    townCtx.fillStyle = COLORS.grassDark;
+                    townCtx.fillRect(px, py, TILE, TILE);
+                    townCtx.fillStyle = '#4a8830';
+                    townCtx.fillRect(px+8, py+12, 3, 3);
+                    break;
+                case 2: // path
+                    townCtx.fillStyle = COLORS.path;
+                    townCtx.fillRect(px, py, TILE, TILE);
+                    townCtx.fillStyle = COLORS.pathEdge;
+                    townCtx.fillRect(px, py, TILE, 2);
+                    townCtx.fillRect(px, py, 2, TILE);
+                    // pebble texture
+                    townCtx.fillStyle = '#b8986a';
+                    if ((x+y)%2===0) { townCtx.fillRect(px+10, py+14, 3, 2); townCtx.fillRect(px+22, py+6, 2, 2); }
+                    break;
+                case 3: // flowers on grass
+                    townCtx.fillStyle = COLORS.grass;
+                    townCtx.fillRect(px, py, TILE, TILE);
+                    const fc = [COLORS.flower1, COLORS.flower2, COLORS.flower3];
+                    for (let i = 0; i < 3; i++) {
+                        townCtx.fillStyle = fc[(x*3+y*7+i)%3];
+                        townCtx.fillRect(px+6+i*9, py+8+((i*7)%12), 3, 3);
+                    }
+                    break;
+                case 4: // water
+                    townCtx.fillStyle = COLORS.water;
+                    townCtx.fillRect(px, py, TILE, TILE);
+                    townCtx.fillStyle = COLORS.waterLight;
+                    townCtx.fillRect(px+4, py+10, 8, 2);
+                    townCtx.fillRect(px+18, py+20, 6, 2);
+                    break;
+                case 5: // soil
+                    townCtx.fillStyle = COLORS.soil;
+                    townCtx.fillRect(px, py, TILE, TILE);
+                    townCtx.fillStyle = '#6a4828';
+                    townCtx.fillRect(px+4, py+4, TILE-8, 2);
+                    townCtx.fillRect(px+4, py+14, TILE-8, 2);
+                    townCtx.fillRect(px+4, py+24, TILE-8, 2);
+                    break;
+                case 6: // plants on soil
+                    townCtx.fillStyle = COLORS.soil;
+                    townCtx.fillRect(px, py, TILE, TILE);
+                    townCtx.fillStyle = COLORS.plant;
+                    for (let r = 0; r < 3; r++) {
+                        for (let c = 0; c < 3; c++) {
+                            townCtx.fillRect(px+4+c*10, py+2+r*10, 4, 6);
+                        }
+                    }
+                    break;
+            }
+        }
+
+        function drawTree(x, y) {
+            const px = x * TILE + TILE/2, py = y * TILE + TILE/2;
+            // trunk
+            townCtx.fillStyle = COLORS.treeTrunk;
+            townCtx.fillRect(px-3, py, 6, 14);
+            // canopy (layered circles via rectangles for pixel look)
+            townCtx.fillStyle = COLORS.treeTop;
+            townCtx.fillRect(px-12, py-10, 24, 16);
+            townCtx.fillRect(px-10, py-14, 20, 4);
+            townCtx.fillRect(px-8, py-16, 16, 4);
+            // highlight
+            townCtx.fillStyle = COLORS.treeTopLight;
+            townCtx.fillRect(px-8, py-12, 10, 6);
+            townCtx.fillRect(px-6, py-14, 8, 4);
+        }
+
+        function drawCharacter(agent, time) {
+            const def = agentDefs[agent.type];
+            if (!def) return;
+            const cx = def.tx * TILE + TILE/2;
+            const bobOffset = Math.sin(time/600 + def.tx) * 2;
+            const isWorking = agent.status === 'working';
+            const walkOffset = isWorking ? Math.sin(time/300 + def.ty) * 4 : 0;
+            const cy = def.ty * TILE + TILE/2 + bobOffset;
+            const bx = cx + walkOffset;
+
+            // Shadow
+            townCtx.fillStyle = 'rgba(0,0,0,0.2)';
+            townCtx.fillRect(bx-8, cy+16, 16, 4);
+
+            // Legs
+            townCtx.fillStyle = '#404060';
+            const legAnim = isWorking ? Math.sin(time/200)*2 : 0;
+            townCtx.fillRect(bx-5, cy+8+legAnim, 4, 8);
+            townCtx.fillRect(bx+1, cy+8-legAnim, 4, 8);
+
+            // Body
+            townCtx.fillStyle = def.shirt;
+            townCtx.fillRect(bx-7, cy-2, 14, 12);
+            // shirt detail
+            townCtx.fillStyle = shadeColor(def.shirt, -20);
+            townCtx.fillRect(bx-7, cy+6, 14, 2);
+
+            // Arms
+            townCtx.fillStyle = def.skin;
+            const armAnim = isWorking ? Math.sin(time/250)*3 : 0;
+            townCtx.fillRect(bx-10, cy+armAnim, 4, 8);
+            townCtx.fillRect(bx+6, cy-armAnim, 4, 8);
+
+            // Head
+            townCtx.fillStyle = def.skin;
+            townCtx.fillRect(bx-6, cy-14, 12, 12);
+
+            // Hair
+            townCtx.fillStyle = def.hair;
+            townCtx.fillRect(bx-7, cy-16, 14, 6);
+            townCtx.fillRect(bx-8, cy-14, 2, 4);
+            townCtx.fillRect(bx+6, cy-14, 2, 4);
+
+            // Eyes
+            townCtx.fillStyle = '#222';
+            townCtx.fillRect(bx-4, cy-10, 2, 2);
+            townCtx.fillRect(bx+2, cy-10, 2, 2);
+
+            // Selected highlight
+            if (activeRoom === agent.type) {
+                townCtx.strokeStyle = '#fff';
+                townCtx.lineWidth = 2;
+                townCtx.strokeRect(bx-12, cy-20, 24, 40);
+                townCtx.lineWidth = 1;
+            }
+
+            // Working indicator
+            if (isWorking) {
+                townCtx.fillStyle = '#4caf50';
+                townCtx.fillRect(bx+8, cy-18, 6, 6);
+                townCtx.fillStyle = '#fff';
+                townCtx.fillRect(bx+10, cy-16, 2, 2);
+            }
+
+            // Name tag
+            townCtx.fillStyle = 'rgba(0,0,0,0.6)';
+            const nameW = def.name.length * 5 + 6;
+            townCtx.fillRect(bx - nameW/2, cy+20, nameW, 10);
+            townCtx.fillStyle = '#fff';
+            townCtx.font = '7px monospace';
+            townCtx.textAlign = 'center';
+            townCtx.fillText(def.name, bx, cy+28);
+
+            // Speech bubble for working agents
+            if (isWorking && agent.currentActivity) {
+                const bubbleText = agent.currentActivity.slice(0, 20);
+                drawSpeechBubble(bx, cy-28, bubbleText);
+            }
+        }
+
+        function drawSpeechBubble(x, y, text) {
+            const w = text.length * 5 + 12;
+            townCtx.fillStyle = '#fff';
+            townCtx.fillRect(x - w/2, y-16, w, 14);
+            townCtx.fillStyle = '#333';
+            townCtx.strokeStyle = '#333';
+            townCtx.lineWidth = 1;
+            townCtx.strokeRect(x - w/2, y-16, w, 14);
+            // pointer
+            townCtx.fillStyle = '#fff';
+            townCtx.fillRect(x-2, y-2, 4, 4);
+            townCtx.fillStyle = '#333';
+            townCtx.fillRect(x-2, y-2, 1, 4);
+            townCtx.fillRect(x+1, y-2, 1, 4);
+            // text
+            townCtx.fillStyle = '#111';
+            townCtx.font = '7px monospace';
+            townCtx.textAlign = 'center';
+            townCtx.fillText(text, x, y-6);
+        }
+
+        function shadeColor(hex, amt) {
+            let r = parseInt(hex.slice(1,3),16)+amt;
+            let g = parseInt(hex.slice(3,5),16)+amt;
+            let b = parseInt(hex.slice(5,7),16)+amt;
+            r = Math.max(0,Math.min(255,r));
+            g = Math.max(0,Math.min(255,g));
+            b = Math.max(0,Math.min(255,b));
+            return '#'+[r,g,b].map(c=>c.toString(16).padStart(2,'0')).join('');
+        }
+
+        // Sparkle effects
+        const sparkles = Array.from({length:12}, () => ({
+            x: Math.random()*COLS*TILE, y: Math.random()*ROWS*TILE,
+            phase: Math.random()*Math.PI*2
+        }));
+
+        function drawSparkles(time) {
+            sparkles.forEach(s => {
+                const a = Math.sin(time/800 + s.phase) * 0.5 + 0.5;
+                if (a > 0.3) {
+                    townCtx.fillStyle = `rgba(255,255,240,${a*0.6})`;
+                    townCtx.fillRect(s.x, s.y, 2, 2);
+                    townCtx.fillRect(s.x-2, s.y+2, 2, 2);
+                    townCtx.fillRect(s.x+2, s.y+2, 2, 2);
+                    townCtx.fillRect(s.x, s.y+4, 2, 2);
+                }
+            });
+        }
+
+        function renderFrame(time) {
+            if (!townCtx) return;
+
+            // Draw tiles
+            for (let y = 0; y < ROWS; y++)
+                for (let x = 0; x < COLS; x++)
+                    drawTile(x, y, tileMap[y][x]);
+
+            // Draw trees
+            trees.forEach(([x,y]) => drawTree(x, y));
+
+            // Draw sparkles
+            drawSparkles(time);
+
+            // Build agent list from roomsData + defaults
+            const agents = Object.keys(agentDefs).map(type => {
+                const room = roomsData.find(r => r.type === type);
+                return {
+                    type,
+                    status: room?.status || 'idle',
+                    currentActivity: room?.currentActivity || null
+                };
+            });
+
+            // Draw agents (sorted by y for depth)
+            agents.sort((a, b) => agentDefs[a.type].ty - agentDefs[b.type].ty);
+            agents.forEach(a => drawCharacter(a, time));
+
+            townAnimFrame = requestAnimationFrame(renderFrame);
+        }
+
+        function startTownLoop() {
+            if (townAnimFrame) cancelAnimationFrame(townAnimFrame);
+            townAnimFrame = requestAnimationFrame(renderFrame);
+        }
+
+        function stopTownLoop() {
+            if (townAnimFrame) { cancelAnimationFrame(townAnimFrame); townAnimFrame = null; }
+        }
+
+        function onTownClick(e) {
+            const rect = townCanvas.getBoundingClientRect();
+            const scaleX = townW / rect.width;
+            const scaleY = townH / rect.height;
+            const mx = (e.clientX - rect.left) * scaleX;
+            const my = (e.clientY - rect.top) * scaleY;
+
+            let clicked = null;
+            let minDist = 30;
+            for (const [type, def] of Object.entries(agentDefs)) {
+                const ax = def.tx * TILE + TILE/2;
+                const ay = def.ty * TILE + TILE/2;
+                const dist = Math.hypot(mx - ax, my - ay);
+                if (dist < minDist) { clicked = type; minDist = dist; }
+            }
+            if (clicked) selectAgent(clicked);
+        }
+
+        async function selectAgent(type) {
+            activeRoom = type;
+            const def = agentDefs[type];
+            const room = roomsData.find(r => r.type === type);
+            const status = room?.status || 'idle';
+            const act = room?.currentActivity || '';
+            const hdr = document.getElementById('game-chat-header');
+            hdr.innerHTML = `<b>${def.name}</b> — ${def.role}<br><span style="font-size:6px;color:#888;">${status.toUpperCase()}${act ? ' · '+act.slice(0,30) : ''}</span>`;
+            document.getElementById('game-chat-input-wrap').style.display = 'flex';
+            await fetchTownMsgs(type);
+        }
+
+        async function fetchTownMsgs(type) {
+            const c = document.getElementById('game-chat-msgs');
+            try {
+                const res = await fetch(`/api/rooms/${type}/messages?limit=50`);
+                const data = await res.json();
+                if (!data.success) return;
+                if (data.data.length === 0) {
+                    c.innerHTML = '<div style="text-align:center;color:#999;padding:20px;font-size:7px;">No messages yet.<br>Say hello!</div>';
+                } else {
+                    c.innerHTML = data.data.map(msg => {
+                        const t = new Date(msg.timestamp).toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'});
+                        return `<div><div class="gchat-name">${msg.role === 'user' ? 'YOU' : type.toUpperCase()}  ${t}</div><div class="gchat-bubble">${msg.text}</div></div>`;
+                    }).join('');
+                    c.scrollTop = c.scrollHeight;
+                }
+            } catch(e) { c.innerHTML = '<div style="color:#999;padding:10px;font-size:7px;">Failed to load</div>'; }
+        }
+
+        async function sendTownMsg() {
+            const input = document.getElementById('game-chat-input');
+            const text = input.value.trim();
+            if (!text || !activeRoom) return;
+            input.value = '';
+            const c = document.getElementById('game-chat-msgs');
+            const t = new Date().toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'});
+            c.innerHTML += `<div><div class="gchat-name">YOU  ${t}</div><div class="gchat-bubble">${text}</div></div>`;
+            c.scrollTop = c.scrollHeight;
+            try {
+                await fetch(`/api/rooms/${activeRoom}/message`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({text, role:'user'})
+                });
+            } catch(e) {}
+        }
 
         async function fetchRooms() {
             try {
                 const res = await fetch('/api/rooms');
                 const data = await res.json();
-                if (data.success) { roomsData = data.data; renderTown(); }
-            } catch (e) { console.error('Failed to load rooms'); }
+                if (data.success) roomsData = data.data;
+            } catch(e) {}
         }
 
-        function renderTown() {
-            const container = document.getElementById('town-agents');
-            container.innerHTML = roomsData.map(room => {
-                const m = townMeta[room.type];
-                if (!m) return '';
-                const st = room.status === 'working' ? 'working' : room.status === 'completed' ? 'completed' : 'idle';
-                const bubble = room.currentActivity || room.lastTask?.description || '💤 Idle';
-                const shortBubble = bubble.length > 50 ? bubble.slice(0, 47) + '...' : bubble;
-                return `
-                    <div class="town-agent ${st}" style="left:${m.x};top:${m.y};transform:translateX(-50%)" onclick="openRoomDetail('${room.type}')">
-                        <div class="speech-bubble">${shortBubble}</div>
-                        <div class="agent-sprite" style="background:${m.bg}">
-                            ${m.icon}
-                            <div class="sprite-status"></div>
-                        </div>
-                        <div class="agent-nametag">${m.name}</div>
-                        <div class="agent-role-tag">${m.role}</div>
-                    </div>`;
-            }).join('');
-        }
-
-        async function openRoomDetail(agentType) {
-            activeRoom = agentType;
-            const m = townMeta[agentType] || { name: agentType, role: 'Agent', icon: '🤖', bg: '#333' };
-            document.getElementById('rd-avatar').style.background = m.bg;
-            document.getElementById('rd-avatar').textContent = m.icon;
-            document.getElementById('rd-name').textContent = m.name;
-            const room = roomsData.find(r => r.type === agentType);
-            const st = room?.status === 'working' ? '🟢 Working' : room?.status === 'completed' ? '🔵 Done' : '⚫ Idle';
-            document.getElementById('rd-status').textContent = st + (room?.currentActivity ? ' — ' + room.currentActivity : '');
-            document.getElementById('room-overlay').classList.add('open');
-            document.getElementById('room-detail').classList.add('open');
-            await fetchRoomMessages(agentType);
-        }
-
-        function closeRoomDetail() {
-            activeRoom = null;
-            document.getElementById('room-overlay').classList.remove('open');
-            document.getElementById('room-detail').classList.remove('open');
-        }
-
-        async function fetchRoomMessages(agentType) {
-            const c = document.getElementById('rd-messages');
-            try {
-                const res = await fetch(`/api/rooms/${agentType}/messages?limit=50`);
-                const data = await res.json();
-                if (!data.success) return;
-                if (data.data.length === 0) {
-                    c.innerHTML = '<div style="text-align:center;color:#555;padding:40px;font-size:13px;">No messages yet.</div>';
-                } else {
-                    c.innerHTML = data.data.map(msg => {
-                        const t = new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                        return `<div class="room-msg ${msg.role}"><div>${msg.text}</div><div class="msg-time">${t}</div></div>`;
-                    }).join('');
-                    c.scrollTop = c.scrollHeight;
-                }
-            } catch (e) { c.innerHTML = '<div style="color:#555;padding:20px;">Failed to load</div>'; }
-        }
-
-        async function sendRoomMessage() {
-            const input = document.getElementById('rd-input');
-            const text = input.value.trim();
-            if (!text || !activeRoom) return;
-            input.value = '';
-            const c = document.getElementById('rd-messages');
-            const empty = c.querySelector('div[style*="text-align:center"]');
-            if (empty) empty.remove();
-            const t = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-            c.innerHTML += `<div class="room-msg user"><div>${text}</div><div class="msg-time">${t}</div></div>`;
-            c.scrollTop = c.scrollHeight;
-            try {
-                await fetch(`/api/rooms/${activeRoom}/message`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text, role: 'user' })
-                });
-            } catch (e) {}
-        }
-
-        // Auto-refresh town + detail panel
         setInterval(async () => {
-            const isRoomsVisible = document.getElementById('page-rooms').classList.contains('active');
-            if (!isRoomsVisible && !activeRoom) return;
-            const res = await fetch('/api/rooms').then(r => r.json()).catch(() => null);
-            if (!res?.success) return;
-            roomsData = res.data;
-            if (isRoomsVisible) renderTown();
-            if (activeRoom) {
-                await fetchRoomMessages(activeRoom);
-                const room = roomsData.find(r => r.type === activeRoom);
-                if (room) {
-                    const st = room.status === 'working' ? '🟢 Working' : room.status === 'completed' ? '🔵 Done' : '⚫ Idle';
-                    document.getElementById('rd-status').textContent = st + (room.currentActivity ? ' — ' + room.currentActivity : '');
-                }
-            }
+            const vis = document.getElementById('page-rooms')?.classList.contains('active');
+            if (!vis && !activeRoom) return;
+            await fetchRooms();
+            if (activeRoom) await fetchTownMsgs(activeRoom);
         }, 8000);
 
         // Tasks Board Data
