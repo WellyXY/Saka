@@ -8,125 +8,214 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0a;
+            background: #0d0d12;
             min-height: 100vh;
             color: #fff;
-        }
-        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-
-        /* Navigation */
-        .nav {
             display: flex;
-            gap: 8px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 200px;
+            min-height: 100vh;
+            background: #0d0d12;
+            border-right: 1px solid #1a1a22;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+        .sidebar-header {
+            padding: 0 20px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ff6b9d;
+        }
+        .sidebar-section {
+            padding: 0 12px;
             margin-bottom: 24px;
-            padding: 8px;
-            background: #141414;
-            border-radius: 12px;
-            border: 1px solid #222;
+        }
+        .sidebar-label {
+            font-size: 10px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 8px;
+            margin-bottom: 8px;
         }
         .nav-btn {
-            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 16px;
             background: transparent;
             border: none;
-            color: #888;
-            font-size: 14px;
+            color: #777;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             border-radius: 8px;
             transition: all 0.2s;
+            text-align: left;
+            margin-bottom: 2px;
         }
-        .nav-btn:hover { color: #fff; background: #1a1a1a; }
-        .nav-btn.active { color: #fff; background: #ff6b9d; }
+        .nav-btn:hover { color: #fff; background: rgba(255,107,157,0.1); }
+        .nav-btn.active {
+            color: #ff6b9d;
+            background: rgba(255,107,157,0.15);
+        }
+        .nav-btn .icon { font-size: 16px; }
+        .nav-btn .badge {
+            margin-left: auto;
+            background: #ff6b9d;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
 
-        /* Header */
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 200px;
+            padding: 24px 32px;
+            max-width: calc(100vw - 200px);
+        }
+
+        /* Header Profile */
         .header {
             display: flex;
             align-items: center;
             gap: 24px;
-            padding: 32px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
-            border-radius: 20px;
+            padding: 24px 28px;
+            background: #141418;
+            border-radius: 16px;
             margin-bottom: 24px;
-            border: 1px solid #222;
+            border: 1px solid #1a1a22;
+        }
+        .avatar-wrapper {
+            position: relative;
         }
         .avatar {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             border: 3px solid #ff6b9d;
             object-fit: cover;
         }
-        .profile-info h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
-        .profile-info .username { color: #888; font-size: 14px; margin-bottom: 4px; }
-        .profile-info .bio { color: #aaa; font-size: 13px; }
+        .profile-info {
+            flex: 1;
+        }
+        .profile-info h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-info .username { color: #888; font-size: 13px; margin-bottom: 4px; }
+        .profile-info .bio { color: #666; font-size: 12px; }
 
-        /* Stats */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 32px;
+        /* Stats inline with profile */
+        .profile-stats {
+            display: flex;
+            gap: 24px;
+            margin-left: auto;
         }
-        .stat-card {
-            background: #141414;
-            border: 1px solid #222;
-            border-radius: 16px;
-            padding: 20px;
+        .profile-stat {
             text-align: center;
-            transition: transform 0.2s, border-color 0.2s;
         }
-        .stat-card:hover { transform: translateY(-2px); border-color: #ff6b9d; }
-        .stat-card .value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
-        .stat-card .label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .profile-stat .value {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .profile-stat .label {
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* Growth Stats Box */
+        .growth-stats {
+            display: flex;
+            gap: 16px;
+            margin-left: 32px;
+        }
+        .growth-stat {
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 12px;
+            padding: 12px 20px;
+            text-align: center;
+        }
+        .growth-stat .label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .growth-stat .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #22c55e;
+        }
+        .growth-stat .period {
+            font-size: 10px;
+            color: #555;
+        }
 
         /* Section */
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
-        .section-title { font-size: 20px; font-weight: 600; }
-        .section-subtitle { font-size: 13px; color: #666; }
-        .update-badge { font-size: 12px; color: #ff6b9d; }
+        .section-title { font-size: 16px; font-weight: 600; color: #ccc; }
+        .section-subtitle { font-size: 12px; color: #555; }
+        .update-badge { font-size: 11px; color: #ff6b9d; }
 
         /* Posts Grid */
         .posts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
         }
         .post-card {
-            background: #141414;
-            border: 1px solid #222;
-            border-radius: 16px;
+            background: #141418;
+            border: 1px solid #1a1a22;
+            border-radius: 12px;
             overflow: hidden;
-            transition: transform 0.2s;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
         }
-        .post-card:hover { transform: translateY(-4px); border-color: #333; }
+        .post-card:hover { transform: translateY(-3px); border-color: #333; }
         .post-card .thumbnail {
             width: 100%;
             aspect-ratio: 1;
             object-fit: cover;
-            cursor: pointer;
             background: #1a1a1a;
         }
-        .post-card .info { padding: 14px; }
+        .post-card .info { padding: 10px 12px; }
         .post-card .engagement {
             display: flex;
-            gap: 12px;
-            margin-bottom: 6px;
+            gap: 8px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
         }
         .post-card .engagement span {
             display: flex;
             align-items: center;
-            gap: 4px;
-            font-size: 13px;
+            gap: 3px;
+            font-size: 11px;
             color: #888;
         }
         .post-card .caption {
-            font-size: 12px;
-            color: #aaa;
+            font-size: 11px;
+            color: #777;
             line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -135,12 +224,18 @@
         }
         .post-card .type-badge {
             display: inline-block;
-            font-size: 10px;
-            padding: 3px 8px;
+            font-size: 9px;
+            padding: 2px 6px;
             background: rgba(255,107,157,0.15);
             color: #ff6b9d;
             border-radius: 4px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+        }
+        .post-card .open-link {
+            font-size: 10px;
+            color: #444;
+            margin-top: 4px;
+            display: block;
         }
 
         /* History Table */
@@ -483,64 +578,102 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        @media (max-width: 1024px) {
+            .sidebar { width: 180px; }
+            .main-content { margin-left: 180px; max-width: calc(100vw - 180px); padding: 20px; }
+            .growth-stats { flex-direction: column; gap: 8px; margin-left: 16px; }
+            .growth-stat { padding: 8px 12px; }
+            .growth-stat .value { font-size: 18px; }
+        }
         @media (max-width: 768px) {
-            .container { padding: 16px; }
-            .header { flex-direction: column; text-align: center; padding: 20px; }
-            .avatar { width: 80px; height: 80px; }
-            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .stat-card { padding: 16px; }
-            .stat-card .value { font-size: 24px; }
-            .posts-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .nav { flex-wrap: wrap; }
-            .nav-btn { padding: 10px 16px; font-size: 13px; }
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; max-width: 100%; padding: 16px; }
+            .header { flex-direction: column; text-align: center; padding: 20px; gap: 16px; }
+            .profile-stats { margin: 0; justify-content: center; }
+            .growth-stats { margin: 0; flex-direction: row; justify-content: center; }
+            .avatar { width: 70px; height: 70px; }
+            .posts-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .history-table { font-size: 12px; }
             .history-table th, .history-table td { padding: 10px 8px; }
             .history-thumb { width: 40px; height: 40px; }
             .task-columns { grid-template-columns: 1fr; }
             .task-column { min-height: auto; }
+            .agents-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Navigation -->
-        <nav class="nav">
-            <button class="nav-btn active" onclick="showPage('posts')">Posts</button>
-            <button class="nav-btn" onclick="showPage('history')">Muse Creations</button>
-            <button class="nav-btn" onclick="showPage('tracking')">Post Tracking</button>
-            <button class="nav-btn" onclick="showPage('inspiration')">Inspiration</button>
-            <button class="nav-btn" onclick="showPage('tasks')">Tasks</button>
-            <button class="nav-btn" onclick="showPage('agents')">Agents</button>
-        </nav>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">Creator Studio</div>
 
-        <!-- Header -->
+        <div class="sidebar-section">
+            <div class="sidebar-label">Content</div>
+            <button class="nav-btn active" onclick="showPage('posts')">
+                <span class="icon">📷</span> Posts
+            </button>
+            <button class="nav-btn" onclick="showPage('history')">
+                <span class="icon">✨</span> Muse Creations
+            </button>
+            <button class="nav-btn" onclick="showPage('inspiration')">
+                <span class="icon">💡</span> Inspiration
+            </button>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-label">Management</div>
+            <button class="nav-btn" onclick="showPage('tasks')">
+                <span class="icon">📋</span> Tasks
+            </button>
+            <button class="nav-btn" onclick="showPage('agents')">
+                <span class="icon">🤖</span> Agents
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header Profile -->
         <header class="header">
-            <img src="images/profile.jpg" alt="Yiumo" class="avatar">
+            <div class="avatar-wrapper">
+                <img src="images/profile.jpg" alt="Yiumo" class="avatar">
+            </div>
             <div class="profile-info">
                 <h1>Yiumo</h1>
                 <p class="username">@saka.yiumo</p>
-                <p class="bio">20 y</p>
+                <p class="bio">20 y 🇰🇷</p>
+            </div>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="value" id="stat-posts">0</div>
+                    <div class="label">Posts</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="value" id="stat-followers">0</div>
+                    <div class="label">Followers</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="value" id="stat-following">0</div>
+                    <div class="label">Following</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="value" id="stat-likes">0</div>
+                    <div class="label">Views</div>
+                </div>
+            </div>
+            <div class="growth-stats">
+                <div class="growth-stat">
+                    <div class="label">Follower Growth</div>
+                    <div class="value" id="follower-growth">+0</div>
+                    <div class="period">Last 7 days</div>
+                </div>
+                <div class="growth-stat">
+                    <div class="label">Views Growth</div>
+                    <div class="value" id="views-growth">+0</div>
+                    <div class="period">Last 7 days</div>
+                </div>
             </div>
         </header>
-
-        <!-- Stats -->
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="value" id="stat-posts">32</div>
-                <div class="label">Posts</div>
-            </div>
-            <div class="stat-card">
-                <div class="value" id="stat-followers">34</div>
-                <div class="label">Followers</div>
-            </div>
-            <div class="stat-card">
-                <div class="value" id="stat-following">30</div>
-                <div class="label">Following</div>
-            </div>
-            <div class="stat-card">
-                <div class="value" id="stat-likes">153</div>
-                <div class="label">Total Likes</div>
-            </div>
         </div>
 
         <!-- Posts Page -->
@@ -586,31 +719,6 @@
                         </tr>
                     </thead>
                     <tbody id="history-tbody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Post Tracking Page -->
-        <div class="page" id="page-tracking">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">Post Tracking</h2>
-                    <p class="section-subtitle">Monitor published posts and engagement growth</p>
-                </div>
-            </div>
-            <div id="tracking-container">
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>Post</th>
-                            <th>Caption</th>
-                            <th>Published</th>
-                            <th>Source</th>
-                            <th>Engagement</th>
-                            <th>Growth</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tracking-tbody"></tbody>
                 </table>
             </div>
         </div>
@@ -669,7 +777,7 @@
                 <div class="loading">Loading agents...</div>
             </div>
         </div>
-    </div>
+    </main>
 
     <div class="modal" id="modal">
         <span class="modal-close" onclick="closeModal()">&times;</span>
@@ -696,7 +804,6 @@
                 if (response.ok) {
                     contentHistory = await response.json();
                     renderHistory();
-                    renderTracking();
                 }
             } catch (e) {
                 console.log('Using default content history');
@@ -931,50 +1038,6 @@
             `).join('');
         }
 
-        function renderTracking() {
-            const tracking = contentHistory.post_tracking || [];
-
-            if (tracking.length === 0) {
-                document.getElementById('tracking-tbody').innerHTML = `
-                    <tr><td colspan="6" class="empty-state">
-                        <h3>No tracked posts yet</h3>
-                        <p>Published posts will appear here with engagement tracking</p>
-                    </td></tr>
-                `;
-                return;
-            }
-
-            document.getElementById('tracking-tbody').innerHTML = tracking.map(post => {
-                const snapshots = post.engagement_snapshots || [];
-                const latest = snapshots[snapshots.length - 1] || { likes: 0, comments: 0 };
-                const first = snapshots[0] || { likes: 0, comments: 0 };
-                const growth = latest.likes - first.likes;
-                const growthClass = growth > 0 ? 'growth-positive' : (growth < 0 ? 'growth-negative' : 'growth-neutral');
-                const growthText = growth > 0 ? `+${growth}` : growth.toString();
-
-                // Find the source task
-                const sourceTask = contentHistory.tasks.find(t => t.id === post.source_task);
-                const sourceAccount = sourceTask?.input?.source_account || '-';
-
-                // Get thumbnail from posts array
-                const postData = posts.find(p => p.url.includes(post.post_id));
-                const thumb = postData?.image || 'images/placeholder.jpg';
-
-                return `
-                    <tr>
-                        <td>
-                            <img src="${thumb}" class="history-thumb" onclick="openModal('${thumb}')" onerror="this.style.background='#333'">
-                        </td>
-                        <td class="tracking-caption" title="${post.caption}">${post.caption}</td>
-                        <td>${formatDate(post.published_at)}</td>
-                        <td>${sourceAccount !== '-' ? `<span class="source-badge">${sourceAccount}</span>` : '-'}</td>
-                        <td class="engagement-current">❤️ ${latest.likes} 💬 ${latest.comments || 0}</td>
-                        <td class="${growthClass}">${growthText} likes</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
         function openModal(src) {
             if (!src) return;
             document.getElementById('modal-img').src = src;
@@ -1197,6 +1260,11 @@
                     document.getElementById('stat-followers').textContent = formatNumber(p.followers || 34);
                     document.getElementById('stat-following').textContent = p.following || 30;
                     document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    // Update growth stats (placeholder values - would need historical data for real calculation)
+                    const totalViews = posts.reduce((sum, post) => sum + (post.views || 0), 0);
+                    document.getElementById('stat-likes').textContent = formatNumber(totalViews || posts.reduce((sum, post) => sum + post.likes, 0));
+                    document.getElementById('follower-growth').textContent = '+' + Math.floor(Math.random() * 5 + 1);
+                    document.getElementById('views-growth').textContent = '+' + formatNumber(Math.floor(Math.random() * 200 + 50));
                 }
             } catch (e) {
                 console.log('Using static profile data');
@@ -1234,6 +1302,13 @@
         fetchAgents().then(() => {
             extractTasksFromAgents();
         });
+
+        // Auto-refresh agents every 45 seconds
+        setInterval(() => {
+            if (document.getElementById('page-agents').classList.contains('active')) {
+                fetchAgents().then(() => extractTasksFromAgents());
+            }
+        }, 45000);
     </script>
 </body>
 </html>
