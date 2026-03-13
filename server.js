@@ -617,17 +617,145 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// Agent Task Dashboard
+// Agent Task Dashboard - reads from task-log.md for real-time updates
 app.get('/api/agents', async (req, res) => {
   try {
-    // Read from agents-data.json
-    const dataPath = path.join(__dirname, 'agents-data.json');
-    const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    res.json({ success: true, data: data.agents });
+    // Try to read from task-log.md first for real-time data
+    const taskLogPath = '/workspace/agent-memory/task-log.md';
+    let agentsData = [];
+
+    // Default agent structure
+    const defaultAgents = {
+      muse: { type: 'muse', status: 'idle', tasks: [] },
+      echo: { type: 'echo', status: 'idle', tasks: [] },
+      bolt: { type: 'bolt', status: 'idle', tasks: [] },
+      saga: { type: 'saga', status: 'idle', tasks: [] },
+      nova: { type: 'nova', status: 'idle', tasks: [] },
+      atlas: { type: 'atlas', status: 'idle', tasks: [] }
+    };
+
+    // Parse task-log.md if it exists
+    if (fs.existsSync(taskLogPath)) {
+      const taskLogContent = fs.readFileSync(taskLogPath, 'utf8');
+      const entries = parseTaskLogEntries(taskLogContent);
+
+      // Group entries by agent type
+      entries.forEach(entry => {
+        const agentType = entry.agentType;
+        if (defaultAgents[agentType]) {
+          defaultAgents[agentType].tasks.push({
+            date: entry.date,
+            description: entry.description,
+            status: entry.status,
+            time: entry.time
+          });
+          // Update agent status based on most recent task
+          if (entry.status === 'in_progress') {
+            defaultAgents[agentType].status = 'working';
+          } else if (defaultAgents[agentType].status !== 'working') {
+            defaultAgents[agentType].status = entry.status === 'completed' ? 'completed' : 'idle';
+          }
+        }
+      });
+    }
+
+    // Convert to array and limit tasks to most recent 5 per agent
+    agentsData = Object.values(defaultAgents).map(agent => ({
+      ...agent,
+      tasks: agent.tasks.slice(0, 5)
+    }));
+
+    res.json({ success: true, data: agentsData });
   } catch (e) {
-    res.json({ success: false, error: e.message });
+    console.error('Error loading agents:', e.message);
+    // Fallback to agents-data.json
+    try {
+      const dataPath = path.join(__dirname, 'agents-data.json');
+      const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+      res.json({ success: true, data: data.agents });
+    } catch (fallbackError) {
+      res.json({ success: false, error: e.message });
+    }
   }
 });
+
+// Parse task-log.md entries
+function parseTaskLogEntries(content) {
+  const entries = [];
+  const lines = content.split('\n');
+  let currentEntry = null;
+
+  for (const line of lines) {
+    // Match entry header: ### YYYY-MM-DD — Task description
+    const headerMatch = line.match(/^###\s+(\d{4}-\d{2}-\d{2})\s+[-—]\s+(.+)$/);
+    if (headerMatch) {
+      if (currentEntry) {
+        entries.push(currentEntry);
+      }
+      currentEntry = {
+        date: headerMatch[1],
+        description: headerMatch[2],
+        agentType: 'bolt', // Default to bolt (developer tasks)
+        status: 'completed',
+        time: 'Recently'
+      };
+      continue;
+    }
+
+    // Match date format: ### Mar 12, 2026 — Task description
+    const altHeaderMatch = line.match(/^###\s+([A-Z][a-z]{2}\s+\d{1,2},?\s+\d{4})\s+[-—]\s+(.+)$/);
+    if (altHeaderMatch) {
+      if (currentEntry) {
+        entries.push(currentEntry);
+      }
+      // Convert to ISO date format
+      const dateObj = new Date(altHeaderMatch[1]);
+      const isoDate = dateObj.toISOString().split('T')[0];
+      currentEntry = {
+        date: isoDate,
+        description: altHeaderMatch[2],
+        agentType: 'bolt',
+        status: 'completed',
+        time: 'Recently'
+      };
+      continue;
+    }
+
+    // Detect agent type from content
+    if (currentEntry) {
+      const agentPatterns = [
+        { pattern: /muse|content|caption|script|creative/i, type: 'muse' },
+        { pattern: /echo|social|engagement|follower|following|instagram|post/i, type: 'echo' },
+        { pattern: /bolt|dev|code|fix|build|deploy|server|api|dashboard/i, type: 'bolt' },
+        { pattern: /saga|story|narrative|character|voice/i, type: 'saga' },
+        { pattern: /nova|research|trend|hashtag|audio|benchmark/i, type: 'nova' },
+        { pattern: /atlas|data|analytic|report|growth|metric/i, type: 'atlas' }
+      ];
+
+      for (const { pattern, type } of agentPatterns) {
+        if (pattern.test(line)) {
+          currentEntry.agentType = type;
+          break;
+        }
+      }
+
+      // Detect status
+      if (/in progress|working|started|doing/i.test(line)) {
+        currentEntry.status = 'in_progress';
+        currentEntry.time = 'Now';
+      } else if (/completed|done|finished|fixed|built|created/i.test(line)) {
+        currentEntry.status = 'completed';
+        currentEntry.time = 'Recently';
+      }
+    }
+  }
+
+  if (currentEntry) {
+    entries.push(currentEntry);
+  }
+
+  return entries;
+}
 
 // Tasks API - extract tasks from all agents
 const AGENTS_DATA_FILE = path.join(__dirname, 'agents-data.json');
