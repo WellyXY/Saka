@@ -153,7 +153,7 @@ function transformUser(user) {
 }
 
 // Fetch posts from a user for inspiration feed
-async function fetchUserPostsById(userId, count = 3) {
+async function fetchUserPostsById(userId, count = 12) {
   try {
     const res = await tikhubGet('/api/v1/instagram/v1/fetch_user_posts', { user_id: userId, count });
     if (res.code !== 200) return [];
@@ -163,18 +163,18 @@ async function fetchUserPostsById(userId, count = 3) {
   }
 }
 
-// Fetch inspiration posts from followed accounts
+// Fetch inspiration posts from ALL followed accounts
 async function fetchInspiration(followingList) {
   const inspirationPosts = [];
-  // Get posts from up to 10 followed accounts (increased from 5)
-  const accountsToFetch = followingList.slice(0, 10);
+  // Fetch from ALL following accounts
+  const accountsToFetch = followingList;
 
   console.log(`Fetching inspiration from ${accountsToFetch.length} accounts...`);
 
   for (const user of accountsToFetch) {
     try {
       // Use user.pk (not user.id) - TikHub API returns pk field
-      const posts = await fetchUserPostsById(user.pk, 3);
+      const posts = await fetchUserPostsById(user.pk, 12);
       for (const post of posts) {
         inspirationPosts.push({
           username: user.username,
@@ -191,7 +191,7 @@ async function fetchInspiration(followingList) {
           views: post.play_count || post.view_count || 0
         });
       }
-      await new Promise(r => setTimeout(r, 400)); // Rate limit (300-500ms as per Brain's instructions)
+      await new Promise(r => setTimeout(r, 400)); // Rate limit
     } catch (e) {
       console.error('Error fetching posts for', user.username, e.message);
     }
@@ -301,7 +301,22 @@ app.get('/api/following', async (req, res) => {
 app.get('/api/inspiration', async (req, res) => {
   await refreshCache();
   if (cache.inspiration) {
-    res.json({ success: true, data: cache.inspiration, count: cache.inspiration.length });
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage) || 30;
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    const paginated = cache.inspiration.slice(start, end);
+    const totalPages = Math.ceil(cache.inspiration.length / perPage);
+
+    res.json({
+      success: true,
+      data: paginated,
+      count: cache.inspiration.length,
+      page,
+      perPage,
+      totalPages,
+      hasMore: page < totalPages
+    });
   } else {
     res.json({ success: false, error: 'No data available' });
   }
@@ -459,22 +474,38 @@ app.post('/api/inspiration/save', (req, res) => {
     // Merge (avoid duplicates by id)
     const existingIds = new Set(existing.map(i => i.id));
     const newItems = items.filter(i => !existingIds.has(i.id));
-    const merged = [...newItems, ...existing].slice(0, 100); // Keep last 100
+    // Sort all by timestamp (most recent first)
+    const merged = [...newItems, ...existing].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
     fs.writeFileSync(INSPIRATION_FILE, JSON.stringify(merged, null, 2));
-    res.json({ success: true, saved: newItems.length });
+    res.json({ success: true, saved: newItems.length, total: merged.length });
   } catch (e) {
     res.json({ success: false, error: e.message });
   }
 });
 
-// Get saved inspiration
+// Get saved inspiration with pagination
 app.get('/api/inspiration/saved', (req, res) => {
   try {
     const data = JSON.parse(fs.readFileSync(INSPIRATION_FILE, 'utf8'));
-    res.json({ success: true, data });
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage) || 30;
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    const paginated = data.slice(start, end);
+    const totalPages = Math.ceil(data.length / perPage);
+
+    res.json({
+      success: true,
+      data: paginated,
+      count: data.length,
+      page,
+      perPage,
+      totalPages,
+      hasMore: page < totalPages
+    });
   } catch (e) {
-    res.json({ success: true, data: [] });
+    res.json({ success: true, data: [], count: 0 });
   }
 });
 

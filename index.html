@@ -622,8 +622,10 @@
                     <h2 class="section-title">Inspiration Feed</h2>
                     <p class="section-subtitle">Latest posts from accounts you follow</p>
                 </div>
+                <div id="inspiration-page-info" style="color:#888;font-size:13px;"></div>
             </div>
             <div class="inspiration-grid" id="inspiration-container"></div>
+            <div id="inspiration-pagination" style="display:flex;justify-content:center;gap:12px;margin-top:24px;"></div>
         </div>
 
         <!-- Tasks Page -->
@@ -822,28 +824,39 @@
             `).join('');
         }
 
-        // Inspiration posts from API
+        // Inspiration posts from API with pagination
         let inspirationPosts = [];
+        let inspirationPage = 1;
+        let inspirationTotalPages = 1;
+        let inspirationTotal = 0;
 
-        async function fetchInspirationPosts() {
+        async function fetchInspirationPosts(page = 1) {
             const container = document.getElementById('inspiration-container');
             container.innerHTML = '<div style="color:#666;padding:40px;text-align:center;">Loading posts from accounts you follow...</div>';
 
             try {
-                const res = await fetch('/api/inspiration');
+                const res = await fetch(`/api/inspiration?page=${page}&perPage=30`);
                 const data = await res.json();
                 if (data.success && data.data && data.data.length > 0) {
                     inspirationPosts = data.data;
+                    inspirationPage = data.page;
+                    inspirationTotalPages = data.totalPages;
+                    inspirationTotal = data.count;
                     renderInspiration();
-                    // Save inspiration posts to backend for persistence
-                    saveInspirationPosts(data.data);
+                    renderInspirationPagination();
+                    // Save all inspiration posts to backend for persistence
+                    if (page === 1) saveInspirationPosts(data.data);
                 } else {
                     // Try loading saved inspiration
-                    const savedRes = await fetch('/api/inspiration/saved');
+                    const savedRes = await fetch(`/api/inspiration/saved?page=${page}&perPage=30`);
                     const savedData = await savedRes.json();
                     if (savedData.success && savedData.data && savedData.data.length > 0) {
                         inspirationPosts = savedData.data;
+                        inspirationPage = savedData.page;
+                        inspirationTotalPages = savedData.totalPages;
+                        inspirationTotal = savedData.count;
                         renderInspiration();
+                        renderInspirationPagination();
                     } else {
                         container.innerHTML = '<div class="empty-state"><h3>No posts found</h3><p>Follow some accounts to see their latest posts here</p></div>';
                     }
@@ -851,6 +864,27 @@
             } catch (e) {
                 container.innerHTML = '<div class="empty-state"><h3>Failed to load</h3><p>Could not fetch inspiration posts</p></div>';
             }
+        }
+
+        function renderInspirationPagination() {
+            const info = document.getElementById('inspiration-page-info');
+            info.textContent = `${inspirationTotal} posts total`;
+
+            const pagination = document.getElementById('inspiration-pagination');
+            if (inspirationTotalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            if (inspirationPage > 1) {
+                html += `<button class="filter-btn" onclick="fetchInspirationPosts(${inspirationPage - 1})">← Prev</button>`;
+            }
+            html += `<span style="color:#888;padding:8px;">Page ${inspirationPage} of ${inspirationTotalPages}</span>`;
+            if (inspirationPage < inspirationTotalPages) {
+                html += `<button class="filter-btn" onclick="fetchInspirationPosts(${inspirationPage + 1})">Next →</button>`;
+            }
+            pagination.innerHTML = html;
         }
 
         async function saveInspirationPosts(posts) {
