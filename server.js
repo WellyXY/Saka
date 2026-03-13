@@ -63,6 +63,39 @@ let agentsCache = {
 };
 const AGENTS_CACHE_TTL = 60 * 1000; // 1 minute for agents
 
+// In-memory agent tasks storage (for Railway where filesystem is ephemeral)
+let inMemoryAgentTasks = null;
+
+// Initialize in-memory agents from file
+function initInMemoryAgents() {
+  if (inMemoryAgentTasks) return inMemoryAgentTasks;
+
+  // Default agents structure
+  inMemoryAgentTasks = {
+    muse: { type: 'muse', status: 'idle', tasks: [] },
+    echo: { type: 'echo', status: 'idle', tasks: [] },
+    bolt: { type: 'bolt', status: 'idle', tasks: [] },
+    saga: { type: 'saga', status: 'idle', tasks: [] },
+    nova: { type: 'nova', status: 'idle', tasks: [] },
+    atlas: { type: 'atlas', status: 'idle', tasks: [] }
+  };
+
+  // Try to load initial data from agents-data.json
+  try {
+    const dataPath = path.join(__dirname, 'agents-data.json');
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    (data.agents || []).forEach(agent => {
+      if (inMemoryAgentTasks[agent.type]) {
+        inMemoryAgentTasks[agent.type] = { ...agent };
+      }
+    });
+  } catch (e) {
+    console.log('Could not load initial agents data');
+  }
+
+  return inMemoryAgentTasks;
+}
+
 // Persistent data directory (fallback when no DB)
 const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname;
 if (DATA_DIR !== __dirname && !fs.existsSync(DATA_DIR)) {
@@ -683,29 +716,12 @@ function loadAgentsData() {
   }
 }
 
-// Agent Task Dashboard - with caching for performance
+// Agent Task Dashboard - always read fresh data for real-time updates
 app.get('/api/agents', async (req, res) => {
   try {
-    const taskLogPath = '/workspace/agent-memory/task-log.md';
-    const now = Date.now();
-
-    // If task-log.md exists (local dev), read it fresh every time for real-time updates
-    if (fs.existsSync(taskLogPath)) {
-      const agentsData = loadAgentsData();
-      res.json({ success: true, data: agentsData });
-      return;
-    }
-
-    // Otherwise use cached data (Railway production)
-    const cacheAge = agentsCache.lastFetch ? (now - agentsCache.lastFetch) : Infinity;
-
-    // Refresh cache if stale
-    if (cacheAge > AGENTS_CACHE_TTL || agentsCache.agents.length === 0) {
-      agentsCache.agents = loadAgentsData();
-      agentsCache.lastFetch = now;
-    }
-
-    res.json({ success: true, data: agentsCache.agents });
+    // Always read fresh data - no caching for real-time updates
+    const agentsData = loadAgentsData();
+    res.json({ success: true, data: agentsData });
   } catch (e) {
     console.error('Error loading agents:', e.message);
     res.json({ success: false, error: e.message });

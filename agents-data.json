@@ -22,8 +22,9 @@
     },
     {
       "type": "bolt",
-      "status": "completed",
+      "status": "working",
       "tasks": [
+        {"date": "2026-03-13", "description": "TEST: Auto-refresh fix verification task", "status": "in_progress", "time": "Now"},
         {"date": "2026-03-12", "description": "Updated posts data from TikHub API (35 posts, 226 likes)", "status": "completed", "time": "Now"},
         {"date": "2026-03-12", "description": "Fixed Dashboard caching and posts display", "status": "completed", "time": "Today"},
         {"date": "2026-03-12", "description": "Added Agent Task Dashboard", "status": "completed", "time": "Today"},

@@ -1305,8 +1305,17 @@
 
         // Auto-refresh agents every 45 seconds
         setInterval(() => {
-            if (document.getElementById('page-agents').classList.contains('active')) {
+            const isAgentsPage = document.getElementById('page-agents').classList.contains('active');
+            const isTasksPage = document.getElementById('page-tasks').classList.contains('active');
+
+            if (isAgentsPage) {
                 fetchAgents().then(() => extractTasksFromAgents());
+            } else if (isTasksPage) {
+                // Refresh tasks on Task Board page
+                loadTasks().then(() => {
+                    // Also refresh agents data in background for consistency
+                    fetchAgents();
+                });
             }
         }, 45000);
     </script>
