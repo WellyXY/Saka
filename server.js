@@ -269,7 +269,56 @@ function getTimeAgo(timestamp) {
   return Math.floor(diff / 604800) + 'w ago';
 }
 
-// Refresh cache
+// Track if background refresh is running
+let isRefreshing = false;
+
+// Background refresh (doesn't block requests)
+async function backgroundRefresh() {
+  if (isRefreshing) return;
+  isRefreshing = true;
+
+  try {
+    console.log('Background refresh: Fetching fresh data from TikHub...');
+    const userInfo = await getUserId(TARGET_USERNAME);
+
+    cache.profile = {
+      username: userInfo.username,
+      name: userInfo.full_name || 'Yiumo',
+      bio: userInfo.biography || '',
+      avatar: userInfo.profile_pic_url,
+      posts: userInfo.media_count || 0,
+      followers: userInfo.follower_count || 0,
+      following: userInfo.following_count || 0,
+      isVerified: userInfo.is_verified
+    };
+
+    const posts = await fetchAllPosts(userInfo.id);
+    cache.posts = posts.map((p, i) => transformPost(p, i));
+
+    const followers = await fetchFollowers(userInfo.id);
+    cache.followers = followers.map(transformUser);
+
+    const following = await fetchFollowing(userInfo.id, userInfo.username);
+    cache.following = following.map(transformUser);
+
+    // Fetch inspiration from followed accounts (use raw following data for user IDs)
+    cache.inspiration = await fetchInspiration(following);
+
+    // Save inspiration to file for fast cold starts
+    if (cache.inspiration && cache.inspiration.length > 0) {
+      saveInspiration(cache.inspiration);
+    }
+
+    cache.lastFetch = Date.now();
+    console.log(`Background refresh complete: ${cache.posts.length} posts, ${cache.followers.length} followers, ${cache.following.length} following, ${cache.inspiration.length} inspiration`);
+  } catch (e) {
+    console.error('Background refresh error:', e.message);
+  } finally {
+    isRefreshing = false;
+  }
+}
+
+// Refresh cache - returns immediately with stale data if available
 async function refreshCache() {
   // Load fallback data first if cache is empty
   if (!cache.posts || !cache.profile) {
@@ -287,13 +336,23 @@ async function refreshCache() {
   }
 
   const now = Date.now();
-  if (cache.lastFetch && (now - cache.lastFetch) < CACHE_TTL) {
-    console.log('Using cached data');
+  const cacheAge = cache.lastFetch ? (now - cache.lastFetch) : Infinity;
+
+  // If cache is fresh, use it
+  if (cacheAge < CACHE_TTL) {
     return true;
   }
 
+  // If we have stale data, return it immediately and refresh in background
+  if (cache.inspiration && cache.inspiration.length > 0) {
+    console.log('Returning stale data, triggering background refresh');
+    backgroundRefresh(); // Don't await - runs in background
+    return true;
+  }
+
+  // No cached data at all - must wait for initial fetch
   try {
-    console.log('Fetching fresh data from TikHub...');
+    console.log('First fetch: Getting initial data from TikHub...');
     const userInfo = await getUserId(TARGET_USERNAME);
 
     cache.profile = {
@@ -325,11 +384,10 @@ async function refreshCache() {
     }
 
     cache.lastFetch = now;
-    console.log(`Cache refreshed: ${cache.posts.length} posts, ${cache.followers.length} followers, ${cache.following.length} following, ${cache.inspiration.length} inspiration`);
+    console.log(`Initial fetch complete: ${cache.posts.length} posts, ${cache.followers.length} followers, ${cache.following.length} following, ${cache.inspiration.length} inspiration`);
     return true;
   } catch (e) {
-    console.error('Error refreshing cache:', e.message);
-    // Return true if we have fallback data
+    console.error('Error in initial fetch:', e.message);
     return cache.posts ? true : false;
   }
 }
