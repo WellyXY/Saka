@@ -559,7 +559,7 @@
         .task-item-time { font-size: 11px; color: #555; flex-shrink: 0; }
         .no-tasks { color: #555; font-size: 13px; font-style: italic; }
 
-        /* ─── AI Town (pixel game world) ─── */
+        /* ─── AI Town (pixel game world 9:16) ─── */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         .game-frame {
             border: 6px solid #5a3a1a;
@@ -567,134 +567,123 @@
             overflow: hidden;
             background: #1a0e08;
             box-shadow: 0 0 0 2px #3a2210, 0 8px 40px rgba(0,0,0,0.6);
+            max-width: 520px;
+            margin: 0 auto;
         }
         .game-header {
-            background: linear-gradient(180deg, #1a0a2e 0%, #2d1654 40%, #4a2060 60%, #d46030 85%, #e8a040 100%);
+            background: linear-gradient(180deg, #0e0620 0%, #1a0a2e 20%, #2d1654 45%, #4a2060 60%, #d46030 85%, #e8a040 100%);
             text-align: center;
-            padding: 18px 20px 14px;
+            padding: 16px 20px 12px;
             position: relative;
-            overflow: hidden;
-        }
-        .game-header::before {
-            content: '';
-            position: absolute;
-            bottom: 20%;
-            left: 10%; right: 10%;
-            height: 30px;
-            background: radial-gradient(ellipse, rgba(232,160,64,0.15) 0%, transparent 70%);
         }
         .game-title {
             font-family: 'Press Start 2P', monospace;
-            font-size: 28px;
+            font-size: 22px;
             color: #f0c048;
-            text-shadow: 3px 3px 0 #8a4010, -1px -1px 0 #ffd870, 0 0 20px rgba(240,192,72,0.3);
-            margin-bottom: 8px;
-            letter-spacing: 4px;
+            text-shadow: 2px 2px 0 #8a4010, -1px -1px 0 #ffd870, 0 0 16px rgba(240,192,72,0.3);
+            margin-bottom: 6px;
+            letter-spacing: 3px;
         }
         .game-subtitle {
             font-family: 'Press Start 2P', monospace;
-            font-size: 8px;
-            color: rgba(255,255,255,0.7);
+            font-size: 7px;
+            color: rgba(255,255,255,0.6);
             letter-spacing: 1px;
         }
-        .game-body {
-            display: flex;
-            height: 520px;
-            border-top: 3px solid #3a2210;
-        }
-        .game-canvas-wrap {
-            flex: 1;
+        .game-viewport {
             position: relative;
-            border-right: 3px solid #3a2210;
+            border-top: 3px solid #3a2210;
             overflow: hidden;
         }
-        .game-canvas-wrap canvas {
+        .game-viewport canvas {
             display: block;
             width: 100%;
-            height: 100%;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
             cursor: pointer;
         }
-        /* Right chat panel */
-        .game-chat {
-            width: 280px;
-            display: flex;
+        /* Chat overlay (right side, like ai-town) */
+        .game-chat-overlay {
+            position: absolute;
+            top: 0; right: 0; bottom: 0;
+            width: 220px;
+            background: rgba(240,232,216,0.96);
+            border-left: 3px solid #5a3a1a;
+            display: none;
             flex-direction: column;
-            background: #f0e8d8;
             font-family: 'Press Start 2P', monospace;
+            z-index: 10;
         }
+        .game-chat-overlay.open { display: flex; }
         .game-chat-header {
-            padding: 12px;
-            font-size: 8px;
+            padding: 10px 8px;
+            font-size: 7px;
             color: #333;
             border-bottom: 2px solid #c8b898;
             background: #e8dcc8;
-            min-height: 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
+        .game-chat-close {
+            background: none; border: none;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px; color: #666; cursor: pointer;
+        }
+        .game-chat-close:hover { color: #333; }
         .game-chat-msgs {
             flex: 1;
             overflow-y: auto;
-            padding: 12px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 10px;
         }
-        .game-chat-msgs::-webkit-scrollbar { width: 6px; }
-        .game-chat-msgs::-webkit-scrollbar-thumb { background: #b8a888; border-radius: 3px; }
+        .game-chat-msgs::-webkit-scrollbar { width: 4px; }
+        .game-chat-msgs::-webkit-scrollbar-thumb { background: #b8a888; border-radius: 2px; }
         .gchat-name {
-            font-size: 7px;
-            color: #555;
-            margin-bottom: 4px;
+            font-size: 6px;
+            color: #666;
+            margin-bottom: 3px;
             text-transform: uppercase;
         }
         .gchat-bubble {
             background: #fff;
             border: 2px solid #333;
-            border-radius: 2px;
-            padding: 10px;
-            font-size: 8px;
-            line-height: 1.8;
+            padding: 8px;
+            font-size: 7px;
+            line-height: 1.7;
             color: #111;
         }
-        .gchat-time {
-            font-size: 6px;
-            color: #999;
-            margin-top: 3px;
-        }
         .game-chat-input {
-            padding: 8px;
+            padding: 6px;
             border-top: 2px solid #c8b898;
             display: flex;
-            gap: 6px;
+            gap: 4px;
             background: #e8dcc8;
         }
         .game-chat-input input {
             flex: 1;
             font-family: 'Press Start 2P', monospace;
-            font-size: 7px;
-            padding: 8px;
+            font-size: 6px;
+            padding: 6px;
             border: 2px solid #888;
-            border-radius: 2px;
             background: #fff;
             color: #111;
             outline: none;
         }
         .game-chat-input button {
             font-family: 'Press Start 2P', monospace;
-            font-size: 7px;
-            padding: 8px 12px;
+            font-size: 6px;
+            padding: 6px 8px;
             background: #333;
             color: #fff;
             border: 2px solid #111;
-            border-radius: 2px;
             cursor: pointer;
         }
-        .game-chat-input button:hover { background: #555; }
         @media (max-width: 768px) {
-            .game-body { flex-direction: column; height: auto; }
-            .game-canvas-wrap { height: 400px; border-right: none; border-bottom: 3px solid #3a2210; }
-            .game-chat { width: 100%; height: 300px; }
+            .game-frame { max-width: 100%; }
+            .game-chat-overlay { width: 180px; }
         }
 
         /* Loading state */
@@ -913,16 +902,17 @@
                     <div class="game-title">AGENT TOWN</div>
                     <div class="game-subtitle">A virtual studio where AI agents live, work and create.</div>
                 </div>
-                <div class="game-body">
-                    <div class="game-canvas-wrap">
-                        <canvas id="town-canvas"></canvas>
-                    </div>
-                    <div class="game-chat" id="game-chat">
-                        <div class="game-chat-header" id="game-chat-header">Click an agent to chat...</div>
+                <div class="game-viewport" id="game-viewport">
+                    <canvas id="town-canvas"></canvas>
+                    <div class="game-chat-overlay" id="game-chat-overlay">
+                        <div class="game-chat-header">
+                            <div id="game-chat-header-text">Chat</div>
+                            <button class="game-chat-close" onclick="closeTownChat()">X</button>
+                        </div>
                         <div class="game-chat-msgs" id="game-chat-msgs"></div>
-                        <div class="game-chat-input" id="game-chat-input-wrap" style="display:none;">
-                            <input type="text" id="game-chat-input" placeholder="Say something..." onkeydown="if(event.key==='Enter')sendTownMsg()">
-                            <button onclick="sendTownMsg()">SEND</button>
+                        <div class="game-chat-input">
+                            <input type="text" id="game-chat-input" placeholder="Say..." onkeydown="if(event.key==='Enter')sendTownMsg()">
+                            <button onclick="sendTownMsg()">OK</button>
                         </div>
                     </div>
                 </div>
@@ -1304,68 +1294,98 @@
             }).join('');
         }
 
-        // ─── AI Town: Pixel Game World ───
+        // ─── AI Town: Pixel RPG Game World (9:16) ───
         let roomsData = [];
         let activeRoom = null;
         let townCanvas, townCtx, townW, townH;
         let townAnimFrame = null;
-        const PX = 4; // pixel scale factor
+
         const TILE = 32;
+        const COLS = 14, ROWS = 25;
+        const SP = 3; // sprite pixel scale
+
+        // 12x16 pixel character template (0=transparent,1=outline,2=skin,3=hair,4=shirt,5=pants,6=shoes,7=eye)
+        const charTemplate = [
+            [0,0,0,0,3,3,3,3,0,0,0,0],
+            [0,0,0,3,3,3,3,3,3,0,0,0],
+            [0,0,1,3,3,3,3,3,3,1,0,0],
+            [0,1,2,2,2,2,2,2,2,2,1,0],
+            [0,1,2,7,2,2,2,2,7,2,1,0],
+            [0,1,2,2,2,2,2,2,2,2,1,0],
+            [0,0,1,2,2,1,2,2,2,1,0,0],
+            [0,0,0,1,2,2,2,2,1,0,0,0],
+            [0,0,1,4,4,4,4,4,4,1,0,0],
+            [0,1,2,4,4,4,4,4,4,2,1,0],
+            [0,1,2,4,4,4,4,4,4,2,1,0],
+            [0,0,1,4,4,4,4,4,4,1,0,0],
+            [0,0,1,5,5,1,1,5,5,1,0,0],
+            [0,0,1,5,5,1,1,5,5,1,0,0],
+            [0,0,1,5,5,0,0,5,5,1,0,0],
+            [0,0,1,6,6,0,0,6,6,1,0,0],
+        ];
 
         const agentDefs = {
-            saka:  { name:'Saka',  role:'CEO',             hair:'#e8c030', shirt:'#d03040', skin:'#f0c8a0', tx:9,  ty:3 },
-            muse:  { name:'Muse',  role:'Content Creator',  hair:'#f060a0', shirt:'#c020c0', skin:'#f0c8a0', tx:4,  ty:7 },
-            echo:  { name:'Echo',  role:'Social Media',     hair:'#40b0f0', shirt:'#2080d0', skin:'#e8c098', tx:7,  ty:8 },
-            bolt:  { name:'Bolt',  role:'Developer',        hair:'#f0a020', shirt:'#f06040', skin:'#f0c8a0', tx:14, ty:6 },
-            saga:  { name:'Saga',  role:'Researcher',       hair:'#b0b0c0', shirt:'#8060c0', skin:'#e8c098', tx:13, ty:10},
-            nova:  { name:'Nova',  role:'HR Manager',       hair:'#f0d060', shirt:'#40b060', skin:'#f0c8a0', tx:6,  ty:12},
-            atlas: { name:'Atlas', role:'General',           hair:'#504060', shirt:'#4060a0', skin:'#d0a880', tx:11, ty:12}
+            saka:  { name:'Saka',  role:'CEO',  hair:'#e8c030', shirt:'#c83040', skin:'#f5d0a8', pants:'#303850', shoes:'#6a3020', eye:'#222', tx:7, ty:3 },
+            muse:  { name:'Muse',  role:'Creative', hair:'#f068a8', shirt:'#b830b0', skin:'#f5d0a8', pants:'#484058', shoes:'#805030', eye:'#222', tx:3, ty:8 },
+            echo:  { name:'Echo',  role:'Social',   hair:'#48b8f0', shirt:'#2880d0', skin:'#e8c8a0', pants:'#384060', shoes:'#504838', eye:'#222', tx:6, ty:10 },
+            bolt:  { name:'Bolt',  role:'Dev',      hair:'#f0a030', shirt:'#e85840', skin:'#f5d0a8', pants:'#404058', shoes:'#583828', eye:'#222', tx:10, ty:7 },
+            saga:  { name:'Saga',  role:'Research',  hair:'#b0b0c8', shirt:'#7858b8', skin:'#e8c8a0', pants:'#404050', shoes:'#4a3830', eye:'#222', tx:11, ty:12 },
+            nova:  { name:'Nova',  role:'HR',        hair:'#f0d060', shirt:'#40a858', skin:'#f5d0a8', pants:'#384848', shoes:'#5a4030', eye:'#222', tx:4, ty:16 },
+            atlas: { name:'Atlas', role:'General',   hair:'#484058', shirt:'#4868a0', skin:'#d8a880', pants:'#383848', shoes:'#403830', eye:'#222', tx:9, ty:18 }
         };
 
-        // Tilemap: 0=grass 1=darkgrass 2=path 3=flowers 4=water 5=soil 6=plants
-        const COLS=18, ROWS=15;
+        // 14 cols x 25 rows tilemap: 0=grass 1=darkgrass 2=path 3=flowers 4=water 5=soil 6=plants 7=stone
         const tileMap = [
-            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-            [1,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,1],
-            [1,0,3,0,0,0,0,0,2,2,0,0,0,0,3,0,0,1],
-            [1,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,1],
-            [1,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,1],
-            [1,0,0,0,0,0,2,2,0,0,0,5,5,5,5,0,0,1],
-            [1,0,0,0,0,2,2,0,0,0,0,5,6,6,5,0,0,1],
-            [1,0,3,0,2,2,0,0,0,0,0,5,6,6,5,0,0,1],
-            [1,0,0,2,2,0,0,0,0,0,0,5,5,5,5,0,0,1],
-            [1,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,3,1],
-            [1,2,2,0,0,0,0,0,2,2,2,2,2,2,0,0,0,1],
-            [1,2,0,0,0,0,0,2,2,0,0,0,0,2,2,0,0,1],
-            [1,0,0,0,0,0,2,2,0,0,0,0,0,0,2,0,0,1],
-            [1,0,0,3,0,0,2,0,0,0,0,3,0,0,0,0,0,1],
-            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,0,2,2,0,0,0,0,0,1],
+            [1,0,3,0,0,0,2,2,0,0,0,3,0,1],
+            [1,0,0,0,0,0,2,2,0,0,0,0,0,1],
+            [1,0,0,0,0,2,2,0,0,0,0,0,0,1],
+            [1,0,0,0,2,2,0,0,0,7,7,0,0,1],
+            [1,0,3,2,2,0,0,0,0,7,7,0,0,1],
+            [1,0,2,2,0,0,0,0,0,0,0,0,3,1],
+            [1,0,2,0,0,0,0,0,0,0,0,0,0,1],
+            [1,2,2,0,0,0,0,0,5,5,5,0,0,1],
+            [1,0,0,0,0,0,0,0,5,6,5,0,0,1],
+            [1,0,0,0,0,0,2,2,5,6,5,0,0,1],
+            [1,0,0,3,0,2,2,0,5,5,5,0,0,1],
+            [1,0,0,0,2,2,0,0,0,0,0,0,0,1],
+            [1,0,0,2,2,0,0,0,0,0,0,3,0,1],
+            [1,0,2,2,0,0,0,0,0,0,0,0,0,1],
+            [1,0,2,0,0,0,0,0,0,0,0,0,0,1],
+            [1,2,2,0,0,0,0,4,4,0,0,0,0,1],
+            [1,0,0,0,0,0,0,4,4,4,0,0,0,1],
+            [1,0,0,0,0,0,2,2,0,0,0,0,3,1],
+            [1,0,3,0,0,2,2,0,0,0,0,0,0,1],
+            [1,0,0,0,2,2,0,0,0,0,0,3,0,1],
+            [1,0,0,2,2,0,0,0,0,3,0,0,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1]
         ];
 
-        // Trees: [col, row] positions
         const trees = [
-            [0,0],[1,0],[2,0],[3,0],[5,0],[6,0],[8,0],[10,0],[12,0],[14,0],[15,0],[16,0],[17,0],
-            [0,1],[17,1],[0,2],[17,2],[0,3],[17,3],
-            [0,6],[0,7],[0,9],[0,10],
-            [17,5],[17,8],[17,10],[17,13],
-            [0,13],[0,14],[1,14],[2,14],[4,14],[6,14],[8,14],[10,14],[12,14],[14,14],[16,14],[17,14],
-            [3,3],[4,2],
-            [15,2],[16,3],
+            [0,0],[1,0],[2,0],[4,0],[6,0],[8,0],[10,0],[12,0],[13,0],
+            [0,1],[13,1],[0,3],[13,4],[0,6],[13,7],
+            [0,9],[13,10],[0,12],[13,13],
+            [0,15],[13,16],[0,19],[13,20],
+            [0,22],[13,23],
+            [0,24],[1,24],[3,24],[5,24],[7,24],[9,24],[11,24],[13,24],
+            [2,5],[11,3],[4,14],[12,8],[1,17],[12,19]
         ];
 
-        const COLORS = {
-            grass: '#6ab04c', grassAlt: '#78c85c', grassDark: '#5a9840',
-            path: '#c8a870', pathEdge: '#b09060',
-            soil: '#7a5830', plant: '#40a040',
-            water: '#4890d0', waterLight: '#60a8e0',
-            treeTrunk: '#7a5030', treeTop: '#2d8040', treeTopLight: '#3a9850',
-            flower1: '#f04080', flower2: '#f0e040', flower3: '#e0e0f0',
+        const CL = {
+            grass:'#6ab04c', grassAlt:'#78c85c', grassDk:'#5a9840',
+            path:'#c8a870', pathE:'#b09060',
+            soil:'#7a5830', plant:'#40a040',
+            water:'#4890d0', waterL:'#60a8e0',
+            trunk:'#7a5030', tree:'#2d8040', treeL:'#3a9850',
+            fl1:'#f04080', fl2:'#f0e040', fl3:'#e0e0f0',
+            stone:'#888898', stoneD:'#707080',
         };
 
         function initTownCanvas() {
             townCanvas = document.getElementById('town-canvas');
             if (!townCanvas) return;
-            const wrap = townCanvas.parentElement;
             townW = COLS * TILE;
             townH = ROWS * TILE;
             townCanvas.width = townW;
@@ -1376,242 +1396,180 @@
         }
 
         function drawTile(x, y, type) {
-            const px = x * TILE, py = y * TILE;
+            const px = x*TILE, py = y*TILE;
+            const c = townCtx;
             switch(type) {
-                case 0: // grass
-                    townCtx.fillStyle = COLORS.grass;
-                    townCtx.fillRect(px, py, TILE, TILE);
-                    // texture
-                    townCtx.fillStyle = COLORS.grassAlt;
-                    if ((x+y)%3===0) townCtx.fillRect(px+4, py+8, 2, 2);
-                    if ((x*7+y*3)%5===0) townCtx.fillRect(px+16, py+20, 2, 2);
-                    if ((x*3+y*11)%7===0) townCtx.fillRect(px+24, py+4, 2, 2);
+                case 0:
+                    c.fillStyle = CL.grass; c.fillRect(px,py,TILE,TILE);
+                    c.fillStyle = CL.grassAlt;
+                    if((x+y)%3===0) c.fillRect(px+6,py+10,2,2);
+                    if((x*7+y*3)%5===0) c.fillRect(px+18,py+22,2,2);
+                    if((x*3+y*11)%7===0) c.fillRect(px+24,py+4,2,2);
                     break;
-                case 1: // dark grass / border
-                    townCtx.fillStyle = COLORS.grassDark;
-                    townCtx.fillRect(px, py, TILE, TILE);
-                    townCtx.fillStyle = '#4a8830';
-                    townCtx.fillRect(px+8, py+12, 3, 3);
+                case 1:
+                    c.fillStyle = CL.grassDk; c.fillRect(px,py,TILE,TILE);
+                    c.fillStyle = '#4a8830'; c.fillRect(px+10,py+14,3,3);
                     break;
-                case 2: // path
-                    townCtx.fillStyle = COLORS.path;
-                    townCtx.fillRect(px, py, TILE, TILE);
-                    townCtx.fillStyle = COLORS.pathEdge;
-                    townCtx.fillRect(px, py, TILE, 2);
-                    townCtx.fillRect(px, py, 2, TILE);
-                    // pebble texture
-                    townCtx.fillStyle = '#b8986a';
-                    if ((x+y)%2===0) { townCtx.fillRect(px+10, py+14, 3, 2); townCtx.fillRect(px+22, py+6, 2, 2); }
+                case 2:
+                    c.fillStyle = CL.path; c.fillRect(px,py,TILE,TILE);
+                    c.fillStyle = CL.pathE; c.fillRect(px,py,TILE,2); c.fillRect(px,py,2,TILE);
+                    c.fillStyle='#b89868'; if((x+y)%2===0){c.fillRect(px+12,py+16,3,2);c.fillRect(px+22,py+8,2,2);}
                     break;
-                case 3: // flowers on grass
-                    townCtx.fillStyle = COLORS.grass;
-                    townCtx.fillRect(px, py, TILE, TILE);
-                    const fc = [COLORS.flower1, COLORS.flower2, COLORS.flower3];
-                    for (let i = 0; i < 3; i++) {
-                        townCtx.fillStyle = fc[(x*3+y*7+i)%3];
-                        townCtx.fillRect(px+6+i*9, py+8+((i*7)%12), 3, 3);
-                    }
+                case 3:
+                    c.fillStyle = CL.grass; c.fillRect(px,py,TILE,TILE);
+                    [CL.fl1,CL.fl2,CL.fl3].forEach((f,i)=>{ c.fillStyle=f; c.fillRect(px+5+i*9,py+6+((i*7)%14),3,3); });
                     break;
-                case 4: // water
-                    townCtx.fillStyle = COLORS.water;
-                    townCtx.fillRect(px, py, TILE, TILE);
-                    townCtx.fillStyle = COLORS.waterLight;
-                    townCtx.fillRect(px+4, py+10, 8, 2);
-                    townCtx.fillRect(px+18, py+20, 6, 2);
+                case 4:
+                    c.fillStyle = CL.water; c.fillRect(px,py,TILE,TILE);
+                    c.fillStyle = CL.waterL; c.fillRect(px+4,py+12,10,2); c.fillRect(px+18,py+22,6,2);
                     break;
-                case 5: // soil
-                    townCtx.fillStyle = COLORS.soil;
-                    townCtx.fillRect(px, py, TILE, TILE);
-                    townCtx.fillStyle = '#6a4828';
-                    townCtx.fillRect(px+4, py+4, TILE-8, 2);
-                    townCtx.fillRect(px+4, py+14, TILE-8, 2);
-                    townCtx.fillRect(px+4, py+24, TILE-8, 2);
+                case 5:
+                    c.fillStyle = CL.soil; c.fillRect(px,py,TILE,TILE);
+                    c.fillStyle='#6a4828'; for(let r=0;r<3;r++) c.fillRect(px+4,py+4+r*10,TILE-8,2);
                     break;
-                case 6: // plants on soil
-                    townCtx.fillStyle = COLORS.soil;
-                    townCtx.fillRect(px, py, TILE, TILE);
-                    townCtx.fillStyle = COLORS.plant;
-                    for (let r = 0; r < 3; r++) {
-                        for (let c = 0; c < 3; c++) {
-                            townCtx.fillRect(px+4+c*10, py+2+r*10, 4, 6);
-                        }
-                    }
+                case 6:
+                    c.fillStyle = CL.soil; c.fillRect(px,py,TILE,TILE);
+                    c.fillStyle = CL.plant; for(let r=0;r<3;r++) for(let cl=0;cl<3;cl++) c.fillRect(px+3+cl*10,py+2+r*10,4,6);
+                    break;
+                case 7:
+                    c.fillStyle = CL.grass; c.fillRect(px,py,TILE,TILE);
+                    c.fillStyle = CL.stone; c.fillRect(px+4,py+8,24,18);
+                    c.fillStyle = CL.stoneD; c.fillRect(px+4,py+8,24,2); c.fillRect(px+4,py+8,2,18);
                     break;
             }
         }
 
         function drawTree(x, y) {
-            const px = x * TILE + TILE/2, py = y * TILE + TILE/2;
-            // trunk
-            townCtx.fillStyle = COLORS.treeTrunk;
-            townCtx.fillRect(px-3, py, 6, 14);
-            // canopy (layered circles via rectangles for pixel look)
-            townCtx.fillStyle = COLORS.treeTop;
-            townCtx.fillRect(px-12, py-10, 24, 16);
-            townCtx.fillRect(px-10, py-14, 20, 4);
-            townCtx.fillRect(px-8, py-16, 16, 4);
-            // highlight
-            townCtx.fillStyle = COLORS.treeTopLight;
-            townCtx.fillRect(px-8, py-12, 10, 6);
-            townCtx.fillRect(px-6, py-14, 8, 4);
+            const px=x*TILE+TILE/2, py=y*TILE+TILE/2;
+            const c=townCtx;
+            c.fillStyle=CL.trunk; c.fillRect(px-3,py+2,6,12);
+            c.fillStyle='#1a5028'; c.fillRect(px-14,py-8,28,18); c.fillRect(px-12,py-12,24,4); c.fillRect(px-8,py-14,16,4);
+            c.fillStyle=CL.tree; c.fillRect(px-12,py-6,24,14); c.fillRect(px-10,py-10,20,4); c.fillRect(px-6,py-12,12,4);
+            c.fillStyle=CL.treeL; c.fillRect(px-8,py-8,12,6); c.fillRect(px-4,py-10,8,4);
+        }
+
+        function drawSprite(cx, cy, pal, time, isWorking) {
+            const c = townCtx;
+            const bob = Math.sin(time/600 + cx)*2;
+            const walk = isWorking ? Math.sin(time/300 + cy)*3 : 0;
+            const ox = cx + walk;
+            const oy = cy + bob;
+            const colorMap = { 1:'#1a1018', 2:pal.skin, 3:pal.hair, 4:pal.shirt, 5:pal.pants, 6:pal.shoes, 7:pal.eye };
+
+            // shadow
+            c.fillStyle = 'rgba(0,0,0,0.18)';
+            c.fillRect(ox-12, oy+SP*16+2, 24, 4);
+
+            // walk anim: shift leg rows
+            const legShift = isWorking ? Math.sin(time/200)*SP : 0;
+
+            for (let row = 0; row < 16; row++) {
+                for (let col = 0; col < 12; col++) {
+                    const v = charTemplate[row][col];
+                    if (v === 0) continue;
+                    c.fillStyle = colorMap[v] || '#f0f';
+                    let rx = ox + (col-6)*SP;
+                    let ry = oy + row*SP;
+                    if (row >= 14 && row <= 15) {
+                        if (col < 6) ry += legShift; else ry -= legShift;
+                    }
+                    c.fillRect(rx, ry, SP, SP);
+                }
+            }
         }
 
         function drawCharacter(agent, time) {
             const def = agentDefs[agent.type];
             if (!def) return;
-            const cx = def.tx * TILE + TILE/2;
-            const bobOffset = Math.sin(time/600 + def.tx) * 2;
+            const cx = def.tx*TILE + TILE/2;
+            const cy = def.ty*TILE;
             const isWorking = agent.status === 'working';
-            const walkOffset = isWorking ? Math.sin(time/300 + def.ty) * 4 : 0;
-            const cy = def.ty * TILE + TILE/2 + bobOffset;
-            const bx = cx + walkOffset;
+            const c = townCtx;
 
-            // Shadow
-            townCtx.fillStyle = 'rgba(0,0,0,0.2)';
-            townCtx.fillRect(bx-8, cy+16, 16, 4);
+            drawSprite(cx, cy, def, time, isWorking);
 
-            // Legs
-            townCtx.fillStyle = '#404060';
-            const legAnim = isWorking ? Math.sin(time/200)*2 : 0;
-            townCtx.fillRect(bx-5, cy+8+legAnim, 4, 8);
-            townCtx.fillRect(bx+1, cy+8-legAnim, 4, 8);
-
-            // Body
-            townCtx.fillStyle = def.shirt;
-            townCtx.fillRect(bx-7, cy-2, 14, 12);
-            // shirt detail
-            townCtx.fillStyle = shadeColor(def.shirt, -20);
-            townCtx.fillRect(bx-7, cy+6, 14, 2);
-
-            // Arms
-            townCtx.fillStyle = def.skin;
-            const armAnim = isWorking ? Math.sin(time/250)*3 : 0;
-            townCtx.fillRect(bx-10, cy+armAnim, 4, 8);
-            townCtx.fillRect(bx+6, cy-armAnim, 4, 8);
-
-            // Head
-            townCtx.fillStyle = def.skin;
-            townCtx.fillRect(bx-6, cy-14, 12, 12);
-
-            // Hair
-            townCtx.fillStyle = def.hair;
-            townCtx.fillRect(bx-7, cy-16, 14, 6);
-            townCtx.fillRect(bx-8, cy-14, 2, 4);
-            townCtx.fillRect(bx+6, cy-14, 2, 4);
-
-            // Eyes
-            townCtx.fillStyle = '#222';
-            townCtx.fillRect(bx-4, cy-10, 2, 2);
-            townCtx.fillRect(bx+2, cy-10, 2, 2);
-
-            // Selected highlight
+            // Selected ring
             if (activeRoom === agent.type) {
-                townCtx.strokeStyle = '#fff';
-                townCtx.lineWidth = 2;
-                townCtx.strokeRect(bx-12, cy-20, 24, 40);
-                townCtx.lineWidth = 1;
+                c.strokeStyle = '#f0c048';
+                c.lineWidth = 2;
+                c.beginPath();
+                c.ellipse(cx, cy+SP*16+4, 16, 6, 0, 0, Math.PI*2);
+                c.stroke();
             }
 
-            // Working indicator
-            if (isWorking) {
-                townCtx.fillStyle = '#4caf50';
-                townCtx.fillRect(bx+8, cy-18, 6, 6);
-                townCtx.fillStyle = '#fff';
-                townCtx.fillRect(bx+10, cy-16, 2, 2);
-            }
+            // Name + status tag
+            const label = def.name;
+            c.font = '8px "Press Start 2P", monospace';
+            c.textAlign = 'center';
+            const tw = c.measureText(label).width + 8;
 
-            // Name tag
-            townCtx.fillStyle = 'rgba(0,0,0,0.6)';
-            const nameW = def.name.length * 5 + 6;
-            townCtx.fillRect(bx - nameW/2, cy+20, nameW, 10);
-            townCtx.fillStyle = '#fff';
-            townCtx.font = '7px monospace';
-            townCtx.textAlign = 'center';
-            townCtx.fillText(def.name, bx, cy+28);
+            // Status color
+            const stColor = isWorking ? '#4caf50' : agent.status === 'completed' ? '#4090e0' : '#888';
 
-            // Speech bubble for working agents
-            if (isWorking && agent.currentActivity) {
-                const bubbleText = agent.currentActivity.slice(0, 20);
-                drawSpeechBubble(bx, cy-28, bubbleText);
+            // Name background
+            c.fillStyle = 'rgba(0,0,0,0.7)';
+            c.fillRect(cx-tw/2, cy+SP*16+8, tw, 12);
+            c.fillStyle = '#fff';
+            c.fillText(label, cx, cy+SP*16+17);
+
+            // Status dot
+            c.fillStyle = stColor;
+            c.fillRect(cx+tw/2+3, cy+SP*16+10, 6, 6);
+
+            // Speech bubble with status/task info
+            const activity = agent.currentActivity || agent.lastTask || null;
+            if (activity || isWorking) {
+                const text = isWorking ? (agent.currentActivity || 'Working...').slice(0,28) : activity ? activity.slice(0,28) : '';
+                if (text) {
+                    const bw = Math.min(text.length*5+16, 160);
+                    c.fillStyle = '#fff';
+                    c.fillRect(cx-bw/2, cy-20, bw, 16);
+                    c.strokeStyle = '#333'; c.lineWidth = 1;
+                    c.strokeRect(cx-bw/2, cy-20, bw, 16);
+                    // pointer
+                    c.fillStyle = '#fff';
+                    c.fillRect(cx-2, cy-4, 4, 5);
+                    c.strokeStyle='#333';
+                    c.beginPath(); c.moveTo(cx-3,cy-4); c.lineTo(cx,cy+2); c.lineTo(cx+3,cy-4); c.stroke();
+                    // text
+                    c.fillStyle = '#111';
+                    c.font = '6px "Press Start 2P", monospace';
+                    c.fillText(text, cx, cy-9);
+                }
             }
         }
 
-        function drawSpeechBubble(x, y, text) {
-            const w = text.length * 5 + 12;
-            townCtx.fillStyle = '#fff';
-            townCtx.fillRect(x - w/2, y-16, w, 14);
-            townCtx.fillStyle = '#333';
-            townCtx.strokeStyle = '#333';
-            townCtx.lineWidth = 1;
-            townCtx.strokeRect(x - w/2, y-16, w, 14);
-            // pointer
-            townCtx.fillStyle = '#fff';
-            townCtx.fillRect(x-2, y-2, 4, 4);
-            townCtx.fillStyle = '#333';
-            townCtx.fillRect(x-2, y-2, 1, 4);
-            townCtx.fillRect(x+1, y-2, 1, 4);
-            // text
-            townCtx.fillStyle = '#111';
-            townCtx.font = '7px monospace';
-            townCtx.textAlign = 'center';
-            townCtx.fillText(text, x, y-6);
-        }
-
-        function shadeColor(hex, amt) {
-            let r = parseInt(hex.slice(1,3),16)+amt;
-            let g = parseInt(hex.slice(3,5),16)+amt;
-            let b = parseInt(hex.slice(5,7),16)+amt;
-            r = Math.max(0,Math.min(255,r));
-            g = Math.max(0,Math.min(255,g));
-            b = Math.max(0,Math.min(255,b));
-            return '#'+[r,g,b].map(c=>c.toString(16).padStart(2,'0')).join('');
-        }
-
-        // Sparkle effects
-        const sparkles = Array.from({length:12}, () => ({
-            x: Math.random()*COLS*TILE, y: Math.random()*ROWS*TILE,
+        const sparkles = Array.from({length:15}, ()=>({
+            x: (1+Math.random()*12)*TILE, y: (1+Math.random()*23)*TILE,
             phase: Math.random()*Math.PI*2
         }));
 
-        function drawSparkles(time) {
-            sparkles.forEach(s => {
-                const a = Math.sin(time/800 + s.phase) * 0.5 + 0.5;
-                if (a > 0.3) {
-                    townCtx.fillStyle = `rgba(255,255,240,${a*0.6})`;
-                    townCtx.fillRect(s.x, s.y, 2, 2);
-                    townCtx.fillRect(s.x-2, s.y+2, 2, 2);
-                    townCtx.fillRect(s.x+2, s.y+2, 2, 2);
-                    townCtx.fillRect(s.x, s.y+4, 2, 2);
-                }
-            });
-        }
-
         function renderFrame(time) {
             if (!townCtx) return;
+            const c = townCtx;
 
-            // Draw tiles
-            for (let y = 0; y < ROWS; y++)
-                for (let x = 0; x < COLS; x++)
-                    drawTile(x, y, tileMap[y][x]);
+            for (let y=0; y<ROWS; y++) for (let x=0; x<COLS; x++) drawTile(x,y,tileMap[y][x]);
+            trees.forEach(([x,y])=>drawTree(x,y));
 
-            // Draw trees
-            trees.forEach(([x,y]) => drawTree(x, y));
+            // sparkles
+            sparkles.forEach(s => {
+                const a = Math.sin(time/800+s.phase)*0.5+0.5;
+                if (a>0.3) {
+                    c.fillStyle = `rgba(255,255,240,${a*0.5})`;
+                    c.fillRect(s.x,s.y,2,2); c.fillRect(s.x-2,s.y+2,2,2); c.fillRect(s.x+2,s.y+2,2,2); c.fillRect(s.x,s.y+4,2,2);
+                }
+            });
 
-            // Draw sparkles
-            drawSparkles(time);
-
-            // Build agent list from roomsData + defaults
             const agents = Object.keys(agentDefs).map(type => {
                 const room = roomsData.find(r => r.type === type);
                 return {
                     type,
                     status: room?.status || 'idle',
-                    currentActivity: room?.currentActivity || null
+                    currentActivity: room?.currentActivity || null,
+                    lastTask: room?.lastTask?.description || null
                 };
             });
-
-            // Draw agents (sorted by y for depth)
-            agents.sort((a, b) => agentDefs[a.type].ty - agentDefs[b.type].ty);
+            agents.sort((a,b) => agentDefs[a.type].ty - agentDefs[b.type].ty);
             agents.forEach(a => drawCharacter(a, time));
 
             townAnimFrame = requestAnimationFrame(renderFrame);
@@ -1622,38 +1580,36 @@
             townAnimFrame = requestAnimationFrame(renderFrame);
         }
 
-        function stopTownLoop() {
-            if (townAnimFrame) { cancelAnimationFrame(townAnimFrame); townAnimFrame = null; }
-        }
-
         function onTownClick(e) {
             const rect = townCanvas.getBoundingClientRect();
-            const scaleX = townW / rect.width;
-            const scaleY = townH / rect.height;
-            const mx = (e.clientX - rect.left) * scaleX;
-            const my = (e.clientY - rect.top) * scaleY;
-
-            let clicked = null;
-            let minDist = 30;
+            const sx = townW/rect.width, sy = townH/rect.height;
+            const mx = (e.clientX-rect.left)*sx, my = (e.clientY-rect.top)*sy;
+            let clicked = null, minD = 40;
             for (const [type, def] of Object.entries(agentDefs)) {
-                const ax = def.tx * TILE + TILE/2;
-                const ay = def.ty * TILE + TILE/2;
-                const dist = Math.hypot(mx - ax, my - ay);
-                if (dist < minDist) { clicked = type; minDist = dist; }
+                const ax = def.tx*TILE+TILE/2, ay = def.ty*TILE+TILE/2;
+                const d = Math.hypot(mx-ax, my-ay);
+                if (d < minD) { clicked = type; minD = d; }
             }
             if (clicked) selectAgent(clicked);
+            else closeTownChat();
         }
 
         async function selectAgent(type) {
             activeRoom = type;
             const def = agentDefs[type];
             const room = roomsData.find(r => r.type === type);
-            const status = room?.status || 'idle';
+            const st = room?.status || 'idle';
             const act = room?.currentActivity || '';
-            const hdr = document.getElementById('game-chat-header');
-            hdr.innerHTML = `<b>${def.name}</b> — ${def.role}<br><span style="font-size:6px;color:#888;">${status.toUpperCase()}${act ? ' · '+act.slice(0,30) : ''}</span>`;
-            document.getElementById('game-chat-input-wrap').style.display = 'flex';
+            const task = room?.lastTask?.description || '';
+            document.getElementById('game-chat-header-text').innerHTML =
+                `<b>${def.name}</b> ${def.role}<br><span style="font-size:5px;color:#888">${st.toUpperCase()}${act?' · '+act.slice(0,24):''}${task?' | '+task.slice(0,24):''}</span>`;
+            document.getElementById('game-chat-overlay').classList.add('open');
             await fetchTownMsgs(type);
+        }
+
+        function closeTownChat() {
+            activeRoom = null;
+            document.getElementById('game-chat-overlay').classList.remove('open');
         }
 
         async function fetchTownMsgs(type) {
@@ -1663,15 +1619,15 @@
                 const data = await res.json();
                 if (!data.success) return;
                 if (data.data.length === 0) {
-                    c.innerHTML = '<div style="text-align:center;color:#999;padding:20px;font-size:7px;">No messages yet.<br>Say hello!</div>';
+                    c.innerHTML = '<div style="text-align:center;color:#999;padding:20px;font-size:6px;">No messages yet.<br>Say hello!</div>';
                 } else {
                     c.innerHTML = data.data.map(msg => {
                         const t = new Date(msg.timestamp).toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'});
-                        return `<div><div class="gchat-name">${msg.role === 'user' ? 'YOU' : type.toUpperCase()}  ${t}</div><div class="gchat-bubble">${msg.text}</div></div>`;
+                        return `<div><div class="gchat-name">${msg.role==='user'?'YOU':type.toUpperCase()} ${t}</div><div class="gchat-bubble">${msg.text}</div></div>`;
                     }).join('');
                     c.scrollTop = c.scrollHeight;
                 }
-            } catch(e) { c.innerHTML = '<div style="color:#999;padding:10px;font-size:7px;">Failed to load</div>'; }
+            } catch(e) { c.innerHTML='<div style="color:#999;padding:10px;font-size:6px;">Failed to load</div>'; }
         }
 
         async function sendTownMsg() {
@@ -1681,7 +1637,7 @@
             input.value = '';
             const c = document.getElementById('game-chat-msgs');
             const t = new Date().toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'});
-            c.innerHTML += `<div><div class="gchat-name">YOU  ${t}</div><div class="gchat-bubble">${text}</div></div>`;
+            c.innerHTML += `<div><div class="gchat-name">YOU ${t}</div><div class="gchat-bubble">${text}</div></div>`;
             c.scrollTop = c.scrollHeight;
             try {
                 await fetch(`/api/rooms/${activeRoom}/message`, {
