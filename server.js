@@ -3,9 +3,42 @@ const cors = require('cors');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// PostgreSQL connection (Railway auto-injects DATABASE_URL)
+const pool = process.env.DATABASE_URL ? new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+}) : null;
+
+// Initialize database tables
+async function initDB() {
+  if (!pool) return;
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS inspiration (
+        id TEXT PRIMARY KEY,
+        data JSONB NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS rejected_inspirations (
+        id TEXT PRIMARY KEY,
+        rejected_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS content_history (
+        id SERIAL PRIMARY KEY,
+        data JSONB NOT NULL,
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log('PostgreSQL tables initialized');
+  } catch (e) {
+    console.error('DB init error:', e.message);
+  }
+}
 
 // TikHub API config
 const TIKHUB_API_KEY = process.env.TIKHUB_API_KEY || '';
@@ -23,19 +56,17 @@ let cache = {
 };
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
-// Persistent data directory (use RAILWAY_VOLUME_MOUNT_PATH for Railway volumes)
+// Persistent data directory (fallback when no DB)
 const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname;
-
-// Ensure data directory exists
 if (DATA_DIR !== __dirname && !fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-// Persistent data file paths
+// Persistent data file paths (fallback)
 const INSPIRATION_FILE = path.join(DATA_DIR, 'inspiration-saved.json');
 const CONTENT_HISTORY_FILE = path.join(DATA_DIR, 'content-history.json');
 const REJECTED_INSPIRATIONS_FILE = path.join(DATA_DIR, 'rejected-inspirations.json');
-const DATA_JSON_FILE = path.join(__dirname, 'data.json'); // Keep in app dir (static fallback)
+const DATA_JSON_FILE = path.join(__dirname, 'data.json');
 
 // Load fallback data from data.json on startup
 function loadFallbackData() {
@@ -54,23 +85,63 @@ function loadFallbackData() {
   }
 }
 
-// Load inspiration from saved file (for fast cold starts)
-function loadSavedInspiration() {
+// Load inspiration from DB or file (for fast cold starts)
+async function loadSavedInspiration() {
+  // Try PostgreSQL first
+  if (pool) {
+    try {
+      const result = await pool.query('SELECT data FROM inspiration ORDER BY created_at DESC LIMIT 500');
+      if (result.rows.length > 0) {
+        cache.inspiration = result.rows.map(r => r.data);
+        console.log(`Loaded ${cache.inspiration.length} inspiration posts from PostgreSQL`);
+        return true;
+      }
+    } catch (e) {
+      console.error('DB load error:', e.message);
+    }
+  }
+  // Fallback to file
   try {
     const data = JSON.parse(fs.readFileSync(INSPIRATION_FILE, 'utf8'));
     if (Array.isArray(data) && data.length > 0) {
       cache.inspiration = data;
-      console.log(`Loaded ${data.length} inspiration posts from saved file`);
+      console.log(`Loaded ${data.length} inspiration posts from file`);
       return true;
     }
   } catch (e) {
-    console.log('No saved inspiration file available');
+    console.log('No saved inspiration available');
   }
   return false;
 }
 
-// Save inspiration to file for persistence
-function saveInspiration(inspirationData) {
+// Save inspiration to DB or file for persistence
+async function saveInspiration(inspirationData) {
+  // Save to PostgreSQL if available
+  if (pool) {
+    try {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        for (const item of inspirationData) {
+          await client.query(
+            'INSERT INTO inspiration (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = $2',
+            [item.id, item]
+          );
+        }
+        await client.query('COMMIT');
+        console.log(`Saved ${inspirationData.length} inspiration posts to PostgreSQL`);
+      } catch (e) {
+        await client.query('ROLLBACK');
+        throw e;
+      } finally {
+        client.release();
+      }
+      return;
+    } catch (e) {
+      console.error('DB save error:', e.message);
+    }
+  }
+  // Fallback to file
   try {
     fs.writeFileSync(INSPIRATION_FILE, JSON.stringify(inspirationData, null, 2));
     console.log(`Saved ${inspirationData.length} inspiration posts to file`);
@@ -80,7 +151,15 @@ function saveInspiration(inspirationData) {
 }
 
 // Helper to load/save rejected IDs
-function loadRejectedIds() {
+async function loadRejectedIds() {
+  if (pool) {
+    try {
+      const result = await pool.query('SELECT id FROM rejected_inspirations');
+      return new Set(result.rows.map(r => r.id));
+    } catch (e) {
+      console.error('DB load rejected error:', e.message);
+    }
+  }
   try {
     return new Set(JSON.parse(fs.readFileSync(REJECTED_INSPIRATIONS_FILE, 'utf8')));
   } catch (e) {
@@ -88,7 +167,18 @@ function loadRejectedIds() {
   }
 }
 
-function saveRejectedIds(rejectedSet) {
+async function saveRejectedIds(rejectedSet) {
+  if (pool) {
+    try {
+      await pool.query('DELETE FROM rejected_inspirations');
+      for (const id of rejectedSet) {
+        await pool.query('INSERT INTO rejected_inspirations (id) VALUES ($1) ON CONFLICT DO NOTHING', [id]);
+      }
+      return;
+    } catch (e) {
+      console.error('DB save rejected error:', e.message);
+    }
+  }
   fs.writeFileSync(REJECTED_INSPIRATIONS_FILE, JSON.stringify([...rejectedSet], null, 2));
 }
 
@@ -441,7 +531,7 @@ app.get('/api/inspiration', async (req, res) => {
   await refreshCache();
   if (cache.inspiration) {
     const includeRejected = req.query.includeRejected === 'true';
-    const rejectedIds = loadRejectedIds();
+    const rejectedIds = await loadRejectedIds();
 
     // Filter out rejected posts unless includeRejected=true
     let filteredData = cache.inspiration;
@@ -483,7 +573,7 @@ app.get('/api/refresh', async (req, res) => {
 });
 
 // Mark inspiration post as rejected
-app.patch('/api/inspiration/:id', (req, res) => {
+app.patch('/api/inspiration/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { rejected } = req.body;
@@ -492,7 +582,7 @@ app.patch('/api/inspiration/:id', (req, res) => {
       return res.json({ success: false, error: 'rejected must be a boolean' });
     }
 
-    const rejectedIds = loadRejectedIds();
+    const rejectedIds = await loadRejectedIds();
 
     if (rejected) {
       rejectedIds.add(id);
@@ -500,7 +590,7 @@ app.patch('/api/inspiration/:id', (req, res) => {
       rejectedIds.delete(id);
     }
 
-    saveRejectedIds(rejectedIds);
+    await saveRejectedIds(rejectedIds);
     res.json({ success: true, id, rejected });
   } catch (e) {
     res.json({ success: false, error: e.message });
@@ -508,9 +598,9 @@ app.patch('/api/inspiration/:id', (req, res) => {
 });
 
 // Get list of rejected inspiration IDs
-app.get('/api/inspiration/rejected', (req, res) => {
+app.get('/api/inspiration/rejected', async (req, res) => {
   try {
-    const rejectedIds = loadRejectedIds();
+    const rejectedIds = await loadRejectedIds();
     res.json({ success: true, data: [...rejectedIds], count: rejectedIds.size });
   } catch (e) {
     res.json({ success: false, error: e.message });
@@ -674,11 +764,19 @@ app.post('/api/inspiration/save', (req, res) => {
 });
 
 // Get saved inspiration with pagination
-app.get('/api/inspiration/saved', (req, res) => {
+app.get('/api/inspiration/saved', async (req, res) => {
   try {
-    const data = JSON.parse(fs.readFileSync(INSPIRATION_FILE, 'utf8'));
+    let data = [];
+    // Try PostgreSQL first
+    if (pool) {
+      const result = await pool.query('SELECT data FROM inspiration ORDER BY created_at DESC LIMIT 500');
+      data = result.rows.map(r => r.data);
+    } else {
+      data = JSON.parse(fs.readFileSync(INSPIRATION_FILE, 'utf8'));
+    }
+
     const includeRejected = req.query.includeRejected === 'true';
-    const rejectedIds = loadRejectedIds();
+    const rejectedIds = await loadRejectedIds();
 
     // Filter out rejected posts unless includeRejected=true
     let filteredData = data;
@@ -791,9 +889,15 @@ app.get('/', (req, res) => {
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
 
+  // Initialize PostgreSQL tables if connected
+  if (pool) {
+    console.log('PostgreSQL connected, initializing tables...');
+    await initDB();
+  }
+
   // Load fallback data immediately for fast first response
   loadFallbackData();
-  loadSavedInspiration();
+  await loadSavedInspiration();
 
   if (TIKHUB_API_KEY) {
     console.log('TikHub API key found, fetching initial data in background...');
