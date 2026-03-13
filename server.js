@@ -23,11 +23,19 @@ let cache = {
 };
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
+// Persistent data directory (use RAILWAY_VOLUME_MOUNT_PATH for Railway volumes)
+const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname;
+
+// Ensure data directory exists
+if (DATA_DIR !== __dirname && !fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
 // Persistent data file paths
-const INSPIRATION_FILE = path.join(__dirname, 'inspiration-saved.json');
-const CONTENT_HISTORY_FILE = path.join(__dirname, 'content-history.json');
-const REJECTED_INSPIRATIONS_FILE = path.join(__dirname, 'rejected-inspirations.json');
-const DATA_JSON_FILE = path.join(__dirname, 'data.json');
+const INSPIRATION_FILE = path.join(DATA_DIR, 'inspiration-saved.json');
+const CONTENT_HISTORY_FILE = path.join(DATA_DIR, 'content-history.json');
+const REJECTED_INSPIRATIONS_FILE = path.join(DATA_DIR, 'rejected-inspirations.json');
+const DATA_JSON_FILE = path.join(__dirname, 'data.json'); // Keep in app dir (static fallback)
 
 // Load fallback data from data.json on startup
 function loadFallbackData() {
