@@ -1,7 +1,109 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-03-12T18:13:00Z",
+  "lastUpdated": "2026-03-13T05:40:00Z",
   "tasks": [
+    {
+      "id": "muse-20260312-mishi-004",
+      "type": "ref-video",
+      "status": "draft",
+      "input": {
+        "url": "https://www.instagram.com/mishi_m0shi/",
+        "source_account": "@mishi_m0shi",
+        "source_stats": { "plays": 0, "likes": 0 }
+      },
+      "output": {
+        "file_path": "https://msaocnoosm1a4.pika.art/p:fbcb8c2c-7eec-43d7-b558-1c224710d6c6/fbcb8c2c-7eec-43d7-b558-1c224710d6c6.mp4",
+        "thumbnail": "images/mishi_thumb_01.jpg"
+      },
+      "created_at": "2026-03-12T21:30:00Z",
+      "completed_at": "2026-03-12T21:35:00Z",
+      "notes": "Dance video from @mishi_m0shi - generated via Pika"
+    },
+    {
+      "id": "muse-20260312-mishi-003",
+      "type": "ref-video",
+      "status": "draft",
+      "input": {
+        "url": "https://www.instagram.com/mishi_m0shi/",
+        "source_account": "@mishi_m0shi",
+        "source_stats": { "plays": 0, "likes": 0 }
+      },
+      "output": {
+        "file_path": "https://msaocnoosm1a4.pika.art/p:1a201ef2-1eff-46c2-a25a-2801e173543e/1a201ef2-1eff-46c2-a25a-2801e173543e.mp4",
+        "thumbnail": "images/mishi_thumb_02.jpg"
+      },
+      "created_at": "2026-03-12T21:25:00Z",
+      "completed_at": "2026-03-12T21:30:00Z",
+      "notes": "Dance video from @mishi_m0shi - generated via Pika"
+    },
+    {
+      "id": "muse-20260312-mishi-002",
+      "type": "ref-video",
+      "status": "draft",
+      "input": {
+        "url": "https://www.instagram.com/mishi_m0shi/",
+        "source_account": "@mishi_m0shi",
+        "source_stats": { "plays": 0, "likes": 0 }
+      },
+      "output": {
+        "file_path": "https://msaocnoosm1a4.pika.art/p:eab5ad2d-f5ef-47a1-82ed-eeb617272ded/eab5ad2d-f5ef-47a1-82ed-eeb617272ded.mp4",
+        "thumbnail": "images/mishi_thumb_03.jpg"
+      },
+      "created_at": "2026-03-12T21:20:00Z",
+      "completed_at": "2026-03-12T21:25:00Z",
+      "notes": "Dance video from @mishi_m0shi - generated via Pika"
+    },
+    {
+      "id": "muse-20260312-mishi-001",
+      "type": "ref-video",
+      "status": "draft",
+      "input": {
+        "url": "https://www.instagram.com/mishi_m0shi/",
+        "source_account": "@mishi_m0shi",
+        "source_stats": { "plays": 0, "likes": 0 }
+      },
+      "output": {
+        "file_path": "https://msaocnoosm1a4.pika.art/p:89b9c6c2-15ff-4b01-bd43-a9e087b1357b/89b9c6c2-15ff-4b01-bd43-a9e087b1357b.mp4",
+        "thumbnail": "images/mishi_thumb_04.jpg"
+      },
+      "created_at": "2026-03-12T21:15:00Z",
+      "completed_at": "2026-03-12T21:20:00Z",
+      "notes": "Dance video from @mishi_m0shi - generated via Pika"
+    },
+    {
+      "id": "muse-20260312-onmush-001",
+      "type": "ref-video",
+      "status": "draft",
+      "input": {
+        "url": "https://www.instagram.com/0on.mush/",
+        "source_account": "@0on.mush",
+        "source_stats": { "plays": 0, "likes": 0 }
+      },
+      "output": {
+        "thumbnail": "images/onmush_thumb_01.jpg"
+      },
+      "created_at": "2026-03-12T20:00:00Z",
+      "completed_at": "2026-03-12T20:15:00Z",
+      "notes": "Ref video from @0on.mush - generated"
+    },
+    {
+      "id": "muse-20260312-coco2ia-001",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/coco2ia/",
+        "source_account": "@coco2ia",
+        "source_stats": { "plays": 0, "likes": 0 }
+      },
+      "output": {
+        "thumbnail": "images/coco2ia_thumb_01.jpg",
+        "posted_url": "https://www.instagram.com/saka.yiumo/"
+      },
+      "created_at": "2026-03-12T19:00:00Z",
+      "completed_at": "2026-03-12T19:20:00Z",
+      "published_at": "2026-03-12T19:30:00Z",
+      "notes": "Ref video from @coco2ia - posted to account"
+    },
     {
       "id": "muse-20260312-003",
       "type": "image",
