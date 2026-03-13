@@ -56,6 +56,13 @@ let cache = {
 };
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
+// Agent tasks cache - shared across all environments
+let agentsCache = {
+  agents: [],
+  lastFetch: null
+};
+const AGENTS_CACHE_TTL = 60 * 1000; // 1 minute for agents
+
 // Persistent data directory (fallback when no DB)
 const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname;
 if (DATA_DIR !== __dirname && !fs.existsSync(DATA_DIR)) {
@@ -617,24 +624,22 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// Agent Task Dashboard - reads from task-log.md for real-time updates
-app.get('/api/agents', async (req, res) => {
+// Load agents data - from task-log.md (local) or agents-data.json (fallback)
+function loadAgentsData() {
+  const taskLogPath = '/workspace/agent-memory/task-log.md';
+
+  // Default agent structure
+  const defaultAgents = {
+    muse: { type: 'muse', status: 'idle', tasks: [] },
+    echo: { type: 'echo', status: 'idle', tasks: [] },
+    bolt: { type: 'bolt', status: 'idle', tasks: [] },
+    saga: { type: 'saga', status: 'idle', tasks: [] },
+    nova: { type: 'nova', status: 'idle', tasks: [] },
+    atlas: { type: 'atlas', status: 'idle', tasks: [] }
+  };
+
   try {
-    // Try to read from task-log.md first for real-time data
-    const taskLogPath = '/workspace/agent-memory/task-log.md';
-    let agentsData = [];
-
-    // Default agent structure
-    const defaultAgents = {
-      muse: { type: 'muse', status: 'idle', tasks: [] },
-      echo: { type: 'echo', status: 'idle', tasks: [] },
-      bolt: { type: 'bolt', status: 'idle', tasks: [] },
-      saga: { type: 'saga', status: 'idle', tasks: [] },
-      nova: { type: 'nova', status: 'idle', tasks: [] },
-      atlas: { type: 'atlas', status: 'idle', tasks: [] }
-    };
-
-    // Parse task-log.md if it exists
+    // Try to read from task-log.md first for real-time data (local dev only)
     if (fs.existsSync(taskLogPath)) {
       const taskLogContent = fs.readFileSync(taskLogPath, 'utf8');
       const entries = parseTaskLogEntries(taskLogContent);
@@ -657,25 +662,53 @@ app.get('/api/agents', async (req, res) => {
           }
         }
       });
+
+      return Object.values(defaultAgents).map(agent => ({
+        ...agent,
+        tasks: agent.tasks.slice(0, 5)
+      }));
+    }
+  } catch (e) {
+    console.log('task-log.md not available, using fallback');
+  }
+
+  // Fallback to agents-data.json
+  try {
+    const dataPath = path.join(__dirname, 'agents-data.json');
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    return data.agents;
+  } catch (e) {
+    console.log('agents-data.json not available, using defaults');
+    return Object.values(defaultAgents);
+  }
+}
+
+// Agent Task Dashboard - with caching for performance
+app.get('/api/agents', async (req, res) => {
+  try {
+    const taskLogPath = '/workspace/agent-memory/task-log.md';
+    const now = Date.now();
+
+    // If task-log.md exists (local dev), read it fresh every time for real-time updates
+    if (fs.existsSync(taskLogPath)) {
+      const agentsData = loadAgentsData();
+      res.json({ success: true, data: agentsData });
+      return;
     }
 
-    // Convert to array and limit tasks to most recent 5 per agent
-    agentsData = Object.values(defaultAgents).map(agent => ({
-      ...agent,
-      tasks: agent.tasks.slice(0, 5)
-    }));
+    // Otherwise use cached data (Railway production)
+    const cacheAge = agentsCache.lastFetch ? (now - agentsCache.lastFetch) : Infinity;
 
-    res.json({ success: true, data: agentsData });
+    // Refresh cache if stale
+    if (cacheAge > AGENTS_CACHE_TTL || agentsCache.agents.length === 0) {
+      agentsCache.agents = loadAgentsData();
+      agentsCache.lastFetch = now;
+    }
+
+    res.json({ success: true, data: agentsCache.agents });
   } catch (e) {
     console.error('Error loading agents:', e.message);
-    // Fallback to agents-data.json
-    try {
-      const dataPath = path.join(__dirname, 'agents-data.json');
-      const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-      res.json({ success: true, data: data.agents });
-    } catch (fallbackError) {
-      res.json({ success: false, error: e.message });
-    }
+    res.json({ success: false, error: e.message });
   }
 });
 
@@ -802,6 +835,7 @@ app.post('/api/tasks/update', (req, res) => {
       return res.json({ success: false, error: 'agentType required' });
     }
 
+    // Update agents-data.json
     const data = JSON.parse(fs.readFileSync(AGENTS_DATA_FILE, 'utf8'));
     const agent = data.agents.find(a => a.type === agentType);
 
@@ -824,7 +858,18 @@ app.post('/api/tasks/update', (req, res) => {
       });
     }
 
+    // Update agent status
+    if (status === 'in_progress') {
+      agent.status = 'working';
+    } else if (status === 'completed') {
+      agent.status = 'completed';
+    }
+
     fs.writeFileSync(AGENTS_DATA_FILE, JSON.stringify(data, null, 2));
+
+    // Invalidate agents cache so next fetch gets fresh data
+    agentsCache.lastFetch = null;
+
     res.json({ success: true });
   } catch (e) {
     res.json({ success: false, error: e.message });
@@ -855,7 +900,16 @@ app.post('/api/tasks/add', (req, res) => {
       time: status === 'in_progress' ? 'Now' : 'Pending'
     });
 
+    // Update agent status
+    if (status === 'in_progress') {
+      agent.status = 'working';
+    }
+
     fs.writeFileSync(AGENTS_DATA_FILE, JSON.stringify(data, null, 2));
+
+    // Invalidate agents cache so next fetch gets fresh data
+    agentsCache.lastFetch = null;
+
     res.json({ success: true });
   } catch (e) {
     res.json({ success: false, error: e.message });
