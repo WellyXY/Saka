@@ -1,47 +1,226 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-03-11T21:00:00Z",
+  "lastUpdated": "2026-03-12T17:50:00Z",
   "tasks": [
     {
-      "id": "task-20260311-001",
+      "id": "task-20260312-003",
       "type": "ref-video",
-      "status": "published",
+      "status": "posted",
       "input": {
-        "url": "https://www.instagram.com/reel/DVkOW71EcXA/",
-        "source_account": "@dance_inspo",
-        "source_stats": { "plays": 28000, "likes": 1900 }
+        "url": "https://www.instagram.com/reel/DVw8vlXgv1l/",
+        "source_account": "@hyunah_aa",
+        "source_stats": { "plays": 52000, "likes": 4200 }
       },
       "output": {
-        "thumbnail": "images/thumb_01.jpg",
-        "posted_url": "https://www.instagram.com/reel/DVkOW71EcXA/"
+        "thumbnail": "images/thumb_02.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVw8vlXgv1l/"
       },
-      "created_at": "2026-03-10T10:00:00Z",
-      "completed_at": "2026-03-10T10:05:00Z",
-      "published_at": "2026-03-10T12:00:00Z"
+      "created_at": "2026-03-12T08:00:00Z",
+      "completed_at": "2026-03-12T08:15:00Z",
+      "published_at": "2026-03-12T09:00:00Z",
+      "notes": "soft moments"
     },
     {
-      "id": "task-20260309-001",
+      "id": "task-20260312-002",
       "type": "ref-video",
-      "status": "published",
+      "status": "posted",
       "input": {
-        "url": "https://www.instagram.com/reel/example2/",
-        "source_account": "@kpop_dance",
+        "url": "https://www.instagram.com/reel/DVwtPwSFAeZ/",
+        "source_account": "@hwa.min",
+        "source_stats": { "plays": 38000, "likes": 2800 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_03.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVwtPwSFAeZ/"
+      },
+      "created_at": "2026-03-12T07:00:00Z",
+      "completed_at": "2026-03-12T07:20:00Z",
+      "published_at": "2026-03-12T08:30:00Z",
+      "notes": "amber eyes hit different"
+    },
+    {
+      "id": "task-20260312-001",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVwZ72ikgFc/",
+        "source_account": "@boucheron",
+        "source_stats": { "plays": 125000, "likes": 8900 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_04.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVwZ72ikgFc/"
+      },
+      "created_at": "2026-03-12T06:00:00Z",
+      "completed_at": "2026-03-12T06:25:00Z",
+      "published_at": "2026-03-12T07:00:00Z",
+      "notes": "Love you 3000"
+    },
+    {
+      "id": "task-20260311-008",
+      "type": "ref-video",
+      "status": "draft",
+      "input": {
+        "url": "https://www.instagram.com/reel/DU_OjCKE3Ms/",
+        "source_account": "@rosesarerosie",
+        "source_stats": { "plays": 890000, "likes": 72000 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_07.jpg",
+        "file_path": "/workspace/group/yiumo/videos/rose-ref-20260311.mp4"
+      },
+      "created_at": "2026-03-11T21:00:00Z",
+      "completed_at": "2026-03-11T21:30:00Z",
+      "notes": "Rose reference - pending review"
+    },
+    {
+      "id": "task-20260311-007",
+      "type": "ref-video",
+      "status": "draft",
+      "input": {
+        "url": "https://www.instagram.com/reel/example_iu/",
+        "source_account": "@dlwlrma",
+        "source_stats": { "plays": 1200000, "likes": 95000 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_08.jpg"
+      },
+      "created_at": "2026-03-11T20:30:00Z",
+      "completed_at": "2026-03-11T20:50:00Z",
+      "notes": "IU reference - style analysis"
+    },
+    {
+      "id": "task-20260311-006",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVvDWSwESI2/",
+        "source_account": "@hyunah_aa",
         "source_stats": { "plays": 45000, "likes": 3200 }
       },
       "output": {
         "thumbnail": "images/thumb_05.jpg",
         "posted_url": "https://www.instagram.com/reel/DVvDWSwESI2/"
       },
-      "created_at": "2026-03-09T14:30:00Z",
-      "completed_at": "2026-03-09T14:35:00Z",
-      "published_at": "2026-03-09T15:00:00Z"
+      "created_at": "2026-03-11T18:00:00Z",
+      "completed_at": "2026-03-11T18:20:00Z",
+      "published_at": "2026-03-11T19:00:00Z",
+      "notes": "Take his bxll"
     },
     {
-      "id": "task-20260308-001",
-      "type": "image",
-      "status": "published",
+      "id": "task-20260311-005",
+      "type": "ref-video",
+      "status": "posted",
       "input": {
-        "prompt": "Soft makeup aesthetic",
+        "url": "https://www.instagram.com/reel/DVvDSiFkdJc/",
+        "source_account": "@hwa.min",
+        "source_stats": { "plays": 32000, "likes": 2100 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_06.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVvDSiFkdJc/"
+      },
+      "created_at": "2026-03-11T17:00:00Z",
+      "completed_at": "2026-03-11T17:25:00Z",
+      "published_at": "2026-03-11T18:00:00Z",
+      "notes": "I think I'm right"
+    },
+    {
+      "id": "task-20260311-004",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVsZ7qaEbyV/",
+        "source_account": "@boucheron",
+        "source_stats": { "plays": 98000, "likes": 7500 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_13.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVsZ7qaEbyV/"
+      },
+      "created_at": "2026-03-11T14:00:00Z",
+      "completed_at": "2026-03-11T14:30:00Z",
+      "published_at": "2026-03-11T15:00:00Z",
+      "notes": "Feeling the beat tonight"
+    },
+    {
+      "id": "task-20260311-003",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVsOOCtDfMX/",
+        "source_account": "@hyunah_aa",
+        "source_stats": { "plays": 41000, "likes": 3800 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_19.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVsOOCtDfMX/"
+      },
+      "created_at": "2026-03-11T12:00:00Z",
+      "completed_at": "2026-03-11T12:25:00Z",
+      "published_at": "2026-03-11T13:00:00Z",
+      "notes": "just had to dance"
+    },
+    {
+      "id": "task-20260311-002",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVsZsqAEQIR/",
+        "source_account": "@hwa.min",
+        "source_stats": { "plays": 28000, "likes": 2200 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_17.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVsZsqAEQIR/"
+      },
+      "created_at": "2026-03-11T10:00:00Z",
+      "completed_at": "2026-03-11T10:20:00Z",
+      "published_at": "2026-03-11T11:00:00Z",
+      "notes": "Feeling the beat and letting loose"
+    },
+    {
+      "id": "task-20260311-001",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVkOW71EcXA/",
+        "source_account": "@boucheron",
+        "source_stats": { "plays": 85000, "likes": 6200 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_01.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVkOW71EcXA/"
+      },
+      "created_at": "2026-03-10T10:00:00Z",
+      "completed_at": "2026-03-10T10:30:00Z",
+      "published_at": "2026-03-10T12:00:00Z",
+      "notes": "You can count to hearts"
+    },
+    {
+      "id": "task-20260310-005",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVkN7yWkb8F/",
+        "source_account": "@hyunah_aa",
+        "source_stats": { "plays": 35000, "likes": 2900 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_24.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVkN7yWkb8F/"
+      },
+      "created_at": "2026-03-10T08:00:00Z",
+      "completed_at": "2026-03-10T08:25:00Z",
+      "published_at": "2026-03-10T09:00:00Z",
+      "notes": "Feeling the rhythm"
+    },
+    {
+      "id": "task-20260310-004",
+      "type": "image",
+      "status": "posted",
+      "input": {
+        "prompt": "Soft makeup aesthetic - Korean beauty style",
         "source_account": null
       },
       "output": {
@@ -50,34 +229,219 @@
       },
       "created_at": "2026-03-08T09:15:00Z",
       "completed_at": "2026-03-08T09:20:00Z",
-      "published_at": "2026-03-08T10:00:00Z"
+      "published_at": "2026-03-08T10:00:00Z",
+      "notes": "soft girl era makeup"
+    },
+    {
+      "id": "task-20260310-003",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVkOKRMESG0/",
+        "source_account": "@hwa.min",
+        "source_stats": { "plays": 22000, "likes": 1800 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_22.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVkOKRMESG0/"
+      },
+      "created_at": "2026-03-10T06:00:00Z",
+      "completed_at": "2026-03-10T06:20:00Z",
+      "published_at": "2026-03-10T07:00:00Z",
+      "notes": "Though this was trend"
+    },
+    {
+      "id": "task-20260309-003",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVuLRWRidyg/",
+        "source_account": "@boucheron",
+        "source_stats": { "plays": 78000, "likes": 5600 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_09.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVuLRWRidyg/"
+      },
+      "created_at": "2026-03-09T16:00:00Z",
+      "completed_at": "2026-03-09T16:25:00Z",
+      "published_at": "2026-03-09T17:00:00Z",
+      "notes": "feeling myself"
+    },
+    {
+      "id": "task-20260309-002",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVuKDLzk7LX/",
+        "source_account": "@hyunah_aa",
+        "source_stats": { "plays": 38000, "likes": 3100 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_10.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVuKDLzk7LX/"
+      },
+      "created_at": "2026-03-09T14:30:00Z",
+      "completed_at": "2026-03-09T14:50:00Z",
+      "published_at": "2026-03-09T15:30:00Z",
+      "notes": "vibes only"
+    },
+    {
+      "id": "task-20260309-001",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVuJaREiMtR/",
+        "source_account": "@hwa.min",
+        "source_stats": { "plays": 29000, "likes": 2400 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_11.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVuJaREiMtR/"
+      },
+      "created_at": "2026-03-09T12:00:00Z",
+      "completed_at": "2026-03-09T12:30:00Z",
+      "published_at": "2026-03-09T13:00:00Z",
+      "notes": "gotta move my body"
+    },
+    {
+      "id": "task-20260308-003",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVuG8dHjput/",
+        "source_account": "@boucheron",
+        "source_stats": { "plays": 65000, "likes": 4800 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_12.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVuG8dHjput/"
+      },
+      "created_at": "2026-03-08T14:00:00Z",
+      "completed_at": "2026-03-08T14:25:00Z",
+      "published_at": "2026-03-08T15:00:00Z",
+      "notes": "Feeling the beat tonight"
+    },
+    {
+      "id": "task-20260308-002",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVu-Q9DkWIn/",
+        "source_account": "@hyunah_aa",
+        "source_stats": { "plays": 42000, "likes": 3500 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_08.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVu-Q9DkWIn/"
+      },
+      "created_at": "2026-03-08T11:00:00Z",
+      "completed_at": "2026-03-08T11:20:00Z",
+      "published_at": "2026-03-08T12:00:00Z",
+      "notes": "Jin Jin"
+    },
+    {
+      "id": "task-20260307-003",
+      "type": "ref-video",
+      "status": "posted",
+      "input": {
+        "url": "https://www.instagram.com/reel/DVvBoEAETYn/",
+        "source_account": "@hwa.min",
+        "source_stats": { "plays": 31000, "likes": 2600 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_07.jpg",
+        "posted_url": "https://www.instagram.com/reel/DVvBoEAETYn/"
+      },
+      "created_at": "2026-03-07T16:00:00Z",
+      "completed_at": "2026-03-07T16:25:00Z",
+      "published_at": "2026-03-07T17:00:00Z",
+      "notes": "Have you see my heart"
+    },
+    {
+      "id": "draft-20260312-001",
+      "type": "image",
+      "status": "draft",
+      "input": {
+        "prompt": "Golden hour selfie - warm tones, natural light",
+        "source_account": null
+      },
+      "output": {
+        "thumbnail": "images/thumb_14.jpg"
+      },
+      "created_at": "2026-03-12T10:00:00Z",
+      "completed_at": "2026-03-12T10:15:00Z",
+      "notes": "AI generated - pending caption"
+    },
+    {
+      "id": "draft-20260312-002",
+      "type": "image",
+      "status": "draft",
+      "input": {
+        "prompt": "Mirror selfie - aesthetic outfit, soft lighting",
+        "source_account": null
+      },
+      "output": {
+        "thumbnail": "images/thumb_15.jpg"
+      },
+      "created_at": "2026-03-12T09:30:00Z",
+      "completed_at": "2026-03-12T09:45:00Z",
+      "notes": "AI generated - needs review"
+    },
+    {
+      "id": "rejected-20260311-001",
+      "type": "ref-video",
+      "status": "rejected",
+      "input": {
+        "url": "https://www.instagram.com/reel/example_rejected/",
+        "source_account": "@dance_account",
+        "source_stats": { "plays": 15000, "likes": 800 }
+      },
+      "output": {
+        "thumbnail": "images/thumb_16.jpg"
+      },
+      "created_at": "2026-03-11T09:00:00Z",
+      "completed_at": "2026-03-11T09:20:00Z",
+      "notes": "Rejected - audio quality issues"
     }
   ],
   "inspiration_accounts": [
     {
-      "username": "@dance_inspo",
+      "username": "@boucheron",
       "platform": "instagram",
       "added_at": "2026-03-05T10:00:00Z",
-      "notes": "Great dance transitions, high engagement"
+      "notes": "Luxury jewelry brand - elegant aesthetic"
     },
     {
-      "username": "@kpop_dance",
+      "username": "@hwa.min",
       "platform": "instagram",
       "added_at": "2026-03-06T14:00:00Z",
-      "notes": "Trending K-pop moves"
+      "notes": "Korean influencer - dance and lifestyle"
     },
     {
-      "username": "@aesthetic_vibes",
-      "platform": "tiktok",
+      "username": "@hyunah_aa",
+      "platform": "instagram",
       "added_at": "2026-03-07T09:00:00Z",
-      "notes": "Soft aesthetic content"
+      "notes": "Korean dancer - trendy choreography"
+    },
+    {
+      "username": "@dlwlrma",
+      "platform": "instagram",
+      "added_at": "2026-03-08T11:00:00Z",
+      "notes": "IU - K-pop artist reference"
+    },
+    {
+      "username": "@rosesarerosie",
+      "platform": "instagram",
+      "added_at": "2026-03-09T15:00:00Z",
+      "notes": "BLACKPINK Rose - style inspiration"
     }
   ],
   "post_tracking": [
     {
       "post_id": "DVkOW71EcXA",
       "url": "https://www.instagram.com/reel/DVkOW71EcXA/",
-      "caption": "You can count to ❤️❤️❤️",
+      "caption": "You can count to hearts",
       "published_at": "2026-03-10T12:00:00Z",
       "source_task": "task-20260311-001",
       "engagement_snapshots": [
@@ -89,12 +453,11 @@
       "post_id": "DVvDWSwESI2",
       "url": "https://www.instagram.com/reel/DVvDWSwESI2/",
       "caption": "Take his bxll",
-      "published_at": "2026-03-09T15:00:00Z",
-      "source_task": "task-20260309-001",
+      "published_at": "2026-03-11T19:00:00Z",
+      "source_task": "task-20260311-006",
       "engagement_snapshots": [
-        { "date": "2026-03-09", "likes": 3, "comments": 0 },
-        { "date": "2026-03-10", "likes": 10, "comments": 0 },
-        { "date": "2026-03-11", "likes": 17, "comments": 0 }
+        { "date": "2026-03-11", "likes": 3, "comments": 0 },
+        { "date": "2026-03-12", "likes": 17, "comments": 0 }
       ]
     }
   ]

@@ -443,6 +443,42 @@ app.post('/api/content-history/add', (req, res) => {
   }
 });
 
+// Update task status
+app.post('/api/content-history/status', (req, res) => {
+  try {
+    const { taskId, status } = req.body;
+    if (!taskId || !status) {
+      return res.json({ success: false, error: 'taskId and status are required' });
+    }
+
+    const validStatuses = ['posted', 'draft', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      return res.json({ success: false, error: 'Invalid status. Must be: posted, draft, or rejected' });
+    }
+
+    let history = { tasks: [] };
+    try {
+      history = JSON.parse(fs.readFileSync(CONTENT_HISTORY_FILE, 'utf8'));
+    } catch (e) {
+      return res.json({ success: false, error: 'Content history file not found' });
+    }
+
+    const task = history.tasks.find(t => t.id === taskId);
+    if (!task) {
+      return res.json({ success: false, error: 'Task not found' });
+    }
+
+    task.status = status;
+    task.status_updated_at = new Date().toISOString();
+    history.lastUpdated = new Date().toISOString();
+
+    fs.writeFileSync(CONTENT_HISTORY_FILE, JSON.stringify(history, null, 2));
+    res.json({ success: true, task });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
 // Serve index.html for root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
