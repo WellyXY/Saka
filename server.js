@@ -27,6 +27,49 @@ const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 const INSPIRATION_FILE = path.join(__dirname, 'inspiration-saved.json');
 const CONTENT_HISTORY_FILE = path.join(__dirname, 'content-history.json');
 const REJECTED_INSPIRATIONS_FILE = path.join(__dirname, 'rejected-inspirations.json');
+const DATA_JSON_FILE = path.join(__dirname, 'data.json');
+
+// Load fallback data from data.json on startup
+function loadFallbackData() {
+  try {
+    const data = JSON.parse(fs.readFileSync(DATA_JSON_FILE, 'utf8'));
+    if (!cache.profile && data.profile) {
+      cache.profile = data.profile;
+      console.log('Loaded fallback profile from data.json');
+    }
+    if (!cache.posts && data.posts) {
+      cache.posts = data.posts;
+      console.log(`Loaded ${data.posts.length} fallback posts from data.json`);
+    }
+  } catch (e) {
+    console.log('No fallback data.json available');
+  }
+}
+
+// Load inspiration from saved file (for fast cold starts)
+function loadSavedInspiration() {
+  try {
+    const data = JSON.parse(fs.readFileSync(INSPIRATION_FILE, 'utf8'));
+    if (Array.isArray(data) && data.length > 0) {
+      cache.inspiration = data;
+      console.log(`Loaded ${data.length} inspiration posts from saved file`);
+      return true;
+    }
+  } catch (e) {
+    console.log('No saved inspiration file available');
+  }
+  return false;
+}
+
+// Save inspiration to file for persistence
+function saveInspiration(inspirationData) {
+  try {
+    fs.writeFileSync(INSPIRATION_FILE, JSON.stringify(inspirationData, null, 2));
+    console.log(`Saved ${inspirationData.length} inspiration posts to file`);
+  } catch (e) {
+    console.error('Failed to save inspiration:', e.message);
+  }
+}
 
 // Helper to load/save rejected IDs
 function loadRejectedIds() {
@@ -228,9 +271,19 @@ function getTimeAgo(timestamp) {
 
 // Refresh cache
 async function refreshCache() {
+  // Load fallback data first if cache is empty
+  if (!cache.posts || !cache.profile) {
+    loadFallbackData();
+  }
+
+  // Load saved inspiration if not in cache
+  if (!cache.inspiration) {
+    loadSavedInspiration();
+  }
+
   if (!TIKHUB_API_KEY) {
-    console.log('No TIKHUB_API_KEY, using static data');
-    return false;
+    console.log('No TIKHUB_API_KEY, using fallback data');
+    return cache.posts ? true : false;
   }
 
   const now = Date.now();
@@ -266,12 +319,18 @@ async function refreshCache() {
     // Fetch inspiration from followed accounts (use raw following data for user IDs)
     cache.inspiration = await fetchInspiration(following);
 
+    // Save inspiration to file for fast cold starts
+    if (cache.inspiration && cache.inspiration.length > 0) {
+      saveInspiration(cache.inspiration);
+    }
+
     cache.lastFetch = now;
     console.log(`Cache refreshed: ${cache.posts.length} posts, ${cache.followers.length} followers, ${cache.following.length} following, ${cache.inspiration.length} inspiration`);
     return true;
   } catch (e) {
     console.error('Error refreshing cache:', e.message);
-    return false;
+    // Return true if we have fallback data
+    return cache.posts ? true : false;
   }
 }
 
@@ -665,10 +724,16 @@ app.get('/', (req, res) => {
 // Start server and initial fetch
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
+
+  // Load fallback data immediately for fast first response
+  loadFallbackData();
+  loadSavedInspiration();
+
   if (TIKHUB_API_KEY) {
-    console.log('TikHub API key found, fetching initial data...');
-    await refreshCache();
+    console.log('TikHub API key found, fetching initial data in background...');
+    // Don't await - let server start immediately
+    refreshCache().catch(e => console.error('Initial fetch error:', e.message));
   } else {
-    console.log('No TIKHUB_API_KEY set, using static data only');
+    console.log('No TIKHUB_API_KEY set, using fallback data only');
   }
 });
