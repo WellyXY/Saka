@@ -336,10 +336,11 @@ app.get('/api/agents', async (req, res) => {
 });
 
 // Tasks API - extract tasks from all agents
+const AGENTS_DATA_FILE = path.join(__dirname, 'agents-data.json');
+
 app.get('/api/tasks', async (req, res) => {
   try {
-    const dataPath = path.join(__dirname, 'agents-data.json');
-    const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(AGENTS_DATA_FILE, 'utf8'));
     const tasks = [];
 
     const agentNames = {
@@ -366,6 +367,74 @@ app.get('/api/tasks', async (req, res) => {
     });
 
     res.json({ success: true, data: tasks });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
+// Update agent task (for agents to call)
+app.post('/api/tasks/update', (req, res) => {
+  try {
+    const { agentType, taskIndex, status, description, time } = req.body;
+    if (!agentType) {
+      return res.json({ success: false, error: 'agentType required' });
+    }
+
+    const data = JSON.parse(fs.readFileSync(AGENTS_DATA_FILE, 'utf8'));
+    const agent = data.agents.find(a => a.type === agentType);
+
+    if (!agent) {
+      return res.json({ success: false, error: 'Agent not found' });
+    }
+
+    if (taskIndex !== undefined && agent.tasks[taskIndex]) {
+      // Update existing task
+      if (status) agent.tasks[taskIndex].status = status;
+      if (description) agent.tasks[taskIndex].description = description;
+      if (time) agent.tasks[taskIndex].time = time;
+    } else if (description) {
+      // Add new task
+      agent.tasks.unshift({
+        date: new Date().toISOString().split('T')[0],
+        description,
+        status: status || 'in_progress',
+        time: time || 'Now'
+      });
+    }
+
+    fs.writeFileSync(AGENTS_DATA_FILE, JSON.stringify(data, null, 2));
+    res.json({ success: true });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
+// Add task for agent
+app.post('/api/tasks/add', (req, res) => {
+  try {
+    const { agentType, description, status = 'todo' } = req.body;
+    if (!agentType || !description) {
+      return res.json({ success: false, error: 'agentType and description required' });
+    }
+
+    const data = JSON.parse(fs.readFileSync(AGENTS_DATA_FILE, 'utf8'));
+    let agent = data.agents.find(a => a.type === agentType);
+
+    if (!agent) {
+      // Create agent if not exists
+      agent = { type: agentType, status: 'idle', tasks: [] };
+      data.agents.push(agent);
+    }
+
+    agent.tasks.unshift({
+      date: new Date().toISOString().split('T')[0],
+      description,
+      status,
+      time: status === 'in_progress' ? 'Now' : 'Pending'
+    });
+
+    fs.writeFileSync(AGENTS_DATA_FILE, JSON.stringify(data, null, 2));
+    res.json({ success: true });
   } catch (e) {
     res.json({ success: false, error: e.message });
   }
