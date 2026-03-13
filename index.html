@@ -586,7 +586,7 @@
         }
         .game-subtitle {
             font-family: 'Press Start 2P', monospace;
-            font-size: 7px;
+            font-size: 8px;
             color: rgba(255,255,255,0.6);
             letter-spacing: 1px;
         }
@@ -617,7 +617,8 @@
         .game-chat-overlay.open { display: flex; }
         .game-chat-header {
             padding: 10px 8px;
-            font-size: 7px;
+            font-size: 11px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             color: #333;
             border-bottom: 2px solid #c8b898;
             background: #e8dcc8;
@@ -642,17 +643,20 @@
         .game-chat-msgs::-webkit-scrollbar { width: 4px; }
         .game-chat-msgs::-webkit-scrollbar-thumb { background: #b8a888; border-radius: 2px; }
         .gchat-name {
-            font-size: 6px;
-            color: #666;
+            font-size: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #555;
+            font-weight: 600;
             margin-bottom: 3px;
             text-transform: uppercase;
         }
         .gchat-bubble {
             background: #fff;
             border: 2px solid #333;
-            padding: 8px;
-            font-size: 7px;
-            line-height: 1.7;
+            padding: 10px;
+            font-size: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
             color: #111;
         }
         .game-chat-input {
@@ -664,18 +668,19 @@
         }
         .game-chat-input input {
             flex: 1;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 6px;
-            padding: 6px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 12px;
+            padding: 8px;
             border: 2px solid #888;
             background: #fff;
             color: #111;
             outline: none;
         }
         .game-chat-input button {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 6px;
-            padding: 6px 8px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 12px;
             background: #333;
             color: #fff;
             border: 2px solid #111;
@@ -1499,42 +1504,48 @@
 
             // Name + status tag
             const label = def.name;
-            c.font = '8px "Press Start 2P", monospace';
+            c.font = 'bold 11px -apple-system, sans-serif';
             c.textAlign = 'center';
-            const tw = c.measureText(label).width + 8;
+            const tw = c.measureText(label).width + 12;
 
             // Status color
             const stColor = isWorking ? '#4caf50' : agent.status === 'completed' ? '#4090e0' : '#888';
 
             // Name background
-            c.fillStyle = 'rgba(0,0,0,0.7)';
-            c.fillRect(cx-tw/2, cy+SP*16+8, tw, 12);
-            c.fillStyle = '#fff';
-            c.fillText(label, cx, cy+SP*16+17);
-
-            // Status dot
+            c.fillStyle = 'rgba(0,0,0,0.75)';
+            const ny = cy+SP*16+8;
+            c.fillRect(cx-tw/2, ny, tw, 16);
+            // Status dot inside name tag
             c.fillStyle = stColor;
-            c.fillRect(cx+tw/2+3, cy+SP*16+10, 6, 6);
+            c.beginPath(); c.arc(cx-tw/2+8, ny+8, 3, 0, Math.PI*2); c.fill();
+            // Name text
+            c.fillStyle = '#fff';
+            c.fillText(label, cx+4, ny+12);
 
             // Speech bubble with status/task info
             const activity = agent.currentActivity || agent.lastTask || null;
             if (activity || isWorking) {
-                const text = isWorking ? (agent.currentActivity || 'Working...').slice(0,28) : activity ? activity.slice(0,28) : '';
+                const text = isWorking ? (agent.currentActivity || 'Working...').slice(0,32) : activity ? activity.slice(0,32) : '';
                 if (text) {
-                    const bw = Math.min(text.length*5+16, 160);
+                    c.font = '10px -apple-system, sans-serif';
+                    const textW = c.measureText(text).width;
+                    const bw = textW + 16;
+                    const bh = 20;
+                    const bx = cx - bw/2;
+                    const by = cy - 26;
+                    // bubble bg
                     c.fillStyle = '#fff';
-                    c.fillRect(cx-bw/2, cy-20, bw, 16);
-                    c.strokeStyle = '#333'; c.lineWidth = 1;
-                    c.strokeRect(cx-bw/2, cy-20, bw, 16);
-                    // pointer
+                    c.fillRect(bx, by, bw, bh);
+                    c.strokeStyle = '#333'; c.lineWidth = 2;
+                    c.strokeRect(bx, by, bw, bh);
+                    // pointer triangle
                     c.fillStyle = '#fff';
-                    c.fillRect(cx-2, cy-4, 4, 5);
-                    c.strokeStyle='#333';
-                    c.beginPath(); c.moveTo(cx-3,cy-4); c.lineTo(cx,cy+2); c.lineTo(cx+3,cy-4); c.stroke();
+                    c.beginPath(); c.moveTo(cx-4,by+bh); c.lineTo(cx,by+bh+6); c.lineTo(cx+4,by+bh); c.fill();
+                    c.strokeStyle='#333'; c.lineWidth=1;
+                    c.beginPath(); c.moveTo(cx-4,by+bh); c.lineTo(cx,by+bh+6); c.lineTo(cx+4,by+bh); c.stroke();
                     // text
                     c.fillStyle = '#111';
-                    c.font = '6px "Press Start 2P", monospace';
-                    c.fillText(text, cx, cy-9);
+                    c.fillText(text, cx, by+14);
                 }
             }
         }
@@ -1602,7 +1613,7 @@
             const act = room?.currentActivity || '';
             const task = room?.lastTask?.description || '';
             document.getElementById('game-chat-header-text').innerHTML =
-                `<b>${def.name}</b> ${def.role}<br><span style="font-size:5px;color:#888">${st.toUpperCase()}${act?' · '+act.slice(0,24):''}${task?' | '+task.slice(0,24):''}</span>`;
+                `<b>${def.name}</b> — ${def.role}<br><span style="font-size:9px;color:#666">${st.toUpperCase()}${act?' · '+act.slice(0,30):''}${task?' | '+task.slice(0,30):''}</span>`;
             document.getElementById('game-chat-overlay').classList.add('open');
             await fetchTownMsgs(type);
         }
@@ -1619,7 +1630,7 @@
                 const data = await res.json();
                 if (!data.success) return;
                 if (data.data.length === 0) {
-                    c.innerHTML = '<div style="text-align:center;color:#999;padding:20px;font-size:6px;">No messages yet.<br>Say hello!</div>';
+                    c.innerHTML = '<div style="text-align:center;color:#888;padding:20px;font-size:12px;">No messages yet.<br>Say hello!</div>';
                 } else {
                     c.innerHTML = data.data.map(msg => {
                         const t = new Date(msg.timestamp).toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'});
@@ -1627,7 +1638,7 @@
                     }).join('');
                     c.scrollTop = c.scrollHeight;
                 }
-            } catch(e) { c.innerHTML='<div style="color:#999;padding:10px;font-size:6px;">Failed to load</div>'; }
+            } catch(e) { c.innerHTML='<div style="color:#888;padding:10px;font-size:12px;">Failed to load</div>'; }
         }
 
         async function sendTownMsg() {
