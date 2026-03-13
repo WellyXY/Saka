@@ -26,6 +26,20 @@ const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 // Persistent data file paths
 const INSPIRATION_FILE = path.join(__dirname, 'inspiration-saved.json');
 const CONTENT_HISTORY_FILE = path.join(__dirname, 'content-history.json');
+const REJECTED_INSPIRATIONS_FILE = path.join(__dirname, 'rejected-inspirations.json');
+
+// Helper to load/save rejected IDs
+function loadRejectedIds() {
+  try {
+    return new Set(JSON.parse(fs.readFileSync(REJECTED_INSPIRATIONS_FILE, 'utf8')));
+  } catch (e) {
+    return new Set();
+  }
+}
+
+function saveRejectedIds(rejectedSet) {
+  fs.writeFileSync(REJECTED_INSPIRATIONS_FILE, JSON.stringify([...rejectedSet], null, 2));
+}
 
 app.use(cors());
 app.use(express.json());
@@ -301,17 +315,32 @@ app.get('/api/following', async (req, res) => {
 app.get('/api/inspiration', async (req, res) => {
   await refreshCache();
   if (cache.inspiration) {
+    const includeRejected = req.query.includeRejected === 'true';
+    const rejectedIds = loadRejectedIds();
+
+    // Filter out rejected posts unless includeRejected=true
+    let filteredData = cache.inspiration;
+    if (!includeRejected) {
+      filteredData = cache.inspiration.filter(item => !rejectedIds.has(item.id));
+    } else {
+      // Add rejected flag to items
+      filteredData = cache.inspiration.map(item => ({
+        ...item,
+        rejected: rejectedIds.has(item.id)
+      }));
+    }
+
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.perPage) || 30;
     const start = (page - 1) * perPage;
     const end = start + perPage;
-    const paginated = cache.inspiration.slice(start, end);
-    const totalPages = Math.ceil(cache.inspiration.length / perPage);
+    const paginated = filteredData.slice(start, end);
+    const totalPages = Math.ceil(filteredData.length / perPage);
 
     res.json({
       success: true,
       data: paginated,
-      count: cache.inspiration.length,
+      count: filteredData.length,
       page,
       perPage,
       totalPages,
@@ -326,6 +355,41 @@ app.get('/api/refresh', async (req, res) => {
   cache.lastFetch = null; // Force refresh
   const success = await refreshCache();
   res.json({ success, message: success ? 'Cache refreshed' : 'Failed to refresh' });
+});
+
+// Mark inspiration post as rejected
+app.patch('/api/inspiration/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rejected } = req.body;
+
+    if (typeof rejected !== 'boolean') {
+      return res.json({ success: false, error: 'rejected must be a boolean' });
+    }
+
+    const rejectedIds = loadRejectedIds();
+
+    if (rejected) {
+      rejectedIds.add(id);
+    } else {
+      rejectedIds.delete(id);
+    }
+
+    saveRejectedIds(rejectedIds);
+    res.json({ success: true, id, rejected });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
+// Get list of rejected inspiration IDs
+app.get('/api/inspiration/rejected', (req, res) => {
+  try {
+    const rejectedIds = loadRejectedIds();
+    res.json({ success: true, data: [...rejectedIds], count: rejectedIds.size });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
 });
 
 app.get('/api/status', (req, res) => {
@@ -488,17 +552,31 @@ app.post('/api/inspiration/save', (req, res) => {
 app.get('/api/inspiration/saved', (req, res) => {
   try {
     const data = JSON.parse(fs.readFileSync(INSPIRATION_FILE, 'utf8'));
+    const includeRejected = req.query.includeRejected === 'true';
+    const rejectedIds = loadRejectedIds();
+
+    // Filter out rejected posts unless includeRejected=true
+    let filteredData = data;
+    if (!includeRejected) {
+      filteredData = data.filter(item => !rejectedIds.has(item.id));
+    } else {
+      filteredData = data.map(item => ({
+        ...item,
+        rejected: rejectedIds.has(item.id)
+      }));
+    }
+
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.perPage) || 30;
     const start = (page - 1) * perPage;
     const end = start + perPage;
-    const paginated = data.slice(start, end);
-    const totalPages = Math.ceil(data.length / perPage);
+    const paginated = filteredData.slice(start, end);
+    const totalPages = Math.ceil(filteredData.length / perPage);
 
     res.json({
       success: true,
       data: paginated,
-      count: data.length,
+      count: filteredData.length,
       page,
       perPage,
       totalPages,
