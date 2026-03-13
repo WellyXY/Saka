@@ -56,44 +56,54 @@ let cache = {
 };
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
-// Agent tasks cache - shared across all environments
-let agentsCache = {
-  agents: [],
-  lastFetch: null
+// In-memory agent state (source of truth for Railway's ephemeral filesystem)
+const agentStore = {
+  muse: { type: 'muse', status: 'idle', tasks: [], currentActivity: null },
+  echo: { type: 'echo', status: 'idle', tasks: [], currentActivity: null },
+  bolt: { type: 'bolt', status: 'idle', tasks: [], currentActivity: null },
+  saga: { type: 'saga', status: 'idle', tasks: [], currentActivity: null },
+  nova: { type: 'nova', status: 'idle', tasks: [], currentActivity: null },
+  atlas: { type: 'atlas', status: 'idle', tasks: [], currentActivity: null },
+  saka: { type: 'saka', status: 'idle', tasks: [], currentActivity: null }
 };
-const AGENTS_CACHE_TTL = 60 * 1000; // 1 minute for agents
 
-// In-memory agent tasks storage (for Railway where filesystem is ephemeral)
-let inMemoryAgentTasks = null;
+// Per-agent room messages (activity log + user messages)
+const roomMessages = {
+  muse: [], echo: [], bolt: [], saga: [], nova: [], atlas: [], saka: []
+};
 
-// Initialize in-memory agents from file
-function initInMemoryAgents() {
-  if (inMemoryAgentTasks) return inMemoryAgentTasks;
+const MAX_ROOM_MESSAGES = 100;
+const MAX_TASKS_PER_AGENT = 20;
 
-  // Default agents structure
-  inMemoryAgentTasks = {
-    muse: { type: 'muse', status: 'idle', tasks: [] },
-    echo: { type: 'echo', status: 'idle', tasks: [] },
-    bolt: { type: 'bolt', status: 'idle', tasks: [] },
-    saga: { type: 'saga', status: 'idle', tasks: [] },
-    nova: { type: 'nova', status: 'idle', tasks: [] },
-    atlas: { type: 'atlas', status: 'idle', tasks: [] }
-  };
-
-  // Try to load initial data from agents-data.json
+// Seed from agents-data.json on startup
+function seedAgentStore() {
   try {
     const dataPath = path.join(__dirname, 'agents-data.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
     (data.agents || []).forEach(agent => {
-      if (inMemoryAgentTasks[agent.type]) {
-        inMemoryAgentTasks[agent.type] = { ...agent };
+      if (agentStore[agent.type]) {
+        agentStore[agent.type].status = agent.status || 'idle';
+        agentStore[agent.type].tasks = (agent.tasks || []).slice(0, MAX_TASKS_PER_AGENT);
       }
     });
+    console.log('Agent store seeded from agents-data.json');
   } catch (e) {
-    console.log('Could not load initial agents data');
+    console.log('Could not seed agent store');
   }
+}
+seedAgentStore();
 
-  return inMemoryAgentTasks;
+function pushRoomMessage(agentType, role, text) {
+  if (!roomMessages[agentType]) roomMessages[agentType] = [];
+  roomMessages[agentType].push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    role,
+    text,
+    timestamp: new Date().toISOString()
+  });
+  if (roomMessages[agentType].length > MAX_ROOM_MESSAGES) {
+    roomMessages[agentType] = roomMessages[agentType].slice(-MAX_ROOM_MESSAGES);
+  }
 }
 
 // Persistent data directory (fallback when no DB)
@@ -657,279 +667,150 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// Load agents data - from task-log.md (local) or agents-data.json (fallback)
-function loadAgentsData() {
-  const taskLogPath = '/workspace/agent-memory/task-log.md';
+// ─── Agent & Task APIs (in-memory, real-time) ───
 
-  // Default agent structure
-  const defaultAgents = {
-    muse: { type: 'muse', status: 'idle', tasks: [] },
-    echo: { type: 'echo', status: 'idle', tasks: [] },
-    bolt: { type: 'bolt', status: 'idle', tasks: [] },
-    saga: { type: 'saga', status: 'idle', tasks: [] },
-    nova: { type: 'nova', status: 'idle', tasks: [] },
-    atlas: { type: 'atlas', status: 'idle', tasks: [] }
-  };
+const AGENT_NAMES = {
+  muse: 'Muse', echo: 'Echo', bolt: 'Bolt',
+  saga: 'Saga', nova: 'Nova', atlas: 'Atlas', saka: 'Saka'
+};
 
-  try {
-    // Try to read from task-log.md first for real-time data (local dev only)
-    if (fs.existsSync(taskLogPath)) {
-      const taskLogContent = fs.readFileSync(taskLogPath, 'utf8');
-      const entries = parseTaskLogEntries(taskLogContent);
-
-      // Group entries by agent type
-      entries.forEach(entry => {
-        const agentType = entry.agentType;
-        if (defaultAgents[agentType]) {
-          defaultAgents[agentType].tasks.push({
-            date: entry.date,
-            description: entry.description,
-            status: entry.status,
-            time: entry.time
-          });
-          // Update agent status based on most recent task
-          if (entry.status === 'in_progress') {
-            defaultAgents[agentType].status = 'working';
-          } else if (defaultAgents[agentType].status !== 'working') {
-            defaultAgents[agentType].status = entry.status === 'completed' ? 'completed' : 'idle';
-          }
-        }
-      });
-
-      return Object.values(defaultAgents).map(agent => ({
-        ...agent,
-        tasks: agent.tasks.slice(0, 5)
-      }));
-    }
-  } catch (e) {
-    console.log('task-log.md not available, using fallback');
-  }
-
-  // Fallback to agents-data.json
-  try {
-    const dataPath = path.join(__dirname, 'agents-data.json');
-    const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    return data.agents;
-  } catch (e) {
-    console.log('agents-data.json not available, using defaults');
-    return Object.values(defaultAgents);
-  }
-}
-
-// Agent Task Dashboard - always read fresh data for real-time updates
-app.get('/api/agents', async (req, res) => {
-  try {
-    // Always read fresh data - no caching for real-time updates
-    const agentsData = loadAgentsData();
-    res.json({ success: true, data: agentsData });
-  } catch (e) {
-    console.error('Error loading agents:', e.message);
-    res.json({ success: false, error: e.message });
-  }
+app.get('/api/agents', (req, res) => {
+  const data = Object.values(agentStore).map(a => ({
+    ...a,
+    tasks: a.tasks.slice(0, 5)
+  }));
+  res.json({ success: true, data });
 });
 
-// Parse task-log.md entries
-function parseTaskLogEntries(content) {
-  const entries = [];
-  const lines = content.split('\n');
-  let currentEntry = null;
-
-  for (const line of lines) {
-    // Match entry header: ### YYYY-MM-DD — Task description
-    const headerMatch = line.match(/^###\s+(\d{4}-\d{2}-\d{2})\s+[-—]\s+(.+)$/);
-    if (headerMatch) {
-      if (currentEntry) {
-        entries.push(currentEntry);
-      }
-      currentEntry = {
-        date: headerMatch[1],
-        description: headerMatch[2],
-        agentType: 'bolt', // Default to bolt (developer tasks)
-        status: 'completed',
-        time: 'Recently'
-      };
-      continue;
-    }
-
-    // Match date format: ### Mar 12, 2026 — Task description
-    const altHeaderMatch = line.match(/^###\s+([A-Z][a-z]{2}\s+\d{1,2},?\s+\d{4})\s+[-—]\s+(.+)$/);
-    if (altHeaderMatch) {
-      if (currentEntry) {
-        entries.push(currentEntry);
-      }
-      // Convert to ISO date format
-      const dateObj = new Date(altHeaderMatch[1]);
-      const isoDate = dateObj.toISOString().split('T')[0];
-      currentEntry = {
-        date: isoDate,
-        description: altHeaderMatch[2],
-        agentType: 'bolt',
-        status: 'completed',
-        time: 'Recently'
-      };
-      continue;
-    }
-
-    // Detect agent type from content
-    if (currentEntry) {
-      const agentPatterns = [
-        { pattern: /muse|content|caption|script|creative/i, type: 'muse' },
-        { pattern: /echo|social|engagement|follower|following|instagram|post/i, type: 'echo' },
-        { pattern: /bolt|dev|code|fix|build|deploy|server|api|dashboard/i, type: 'bolt' },
-        { pattern: /saga|story|narrative|character|voice/i, type: 'saga' },
-        { pattern: /nova|research|trend|hashtag|audio|benchmark/i, type: 'nova' },
-        { pattern: /atlas|data|analytic|report|growth|metric/i, type: 'atlas' }
-      ];
-
-      for (const { pattern, type } of agentPatterns) {
-        if (pattern.test(line)) {
-          currentEntry.agentType = type;
-          break;
-        }
-      }
-
-      // Detect status
-      if (/in progress|working|started|doing/i.test(line)) {
-        currentEntry.status = 'in_progress';
-        currentEntry.time = 'Now';
-      } else if (/completed|done|finished|fixed|built|created/i.test(line)) {
-        currentEntry.status = 'completed';
-        currentEntry.time = 'Recently';
-      }
-    }
-  }
-
-  if (currentEntry) {
-    entries.push(currentEntry);
-  }
-
-  return entries;
-}
-
-// Tasks API - extract tasks from all agents
-const AGENTS_DATA_FILE = path.join(__dirname, 'agents-data.json');
-
-app.get('/api/tasks', async (req, res) => {
-  try {
-    const data = JSON.parse(fs.readFileSync(AGENTS_DATA_FILE, 'utf8'));
-    const tasks = [];
-
-    const agentNames = {
-      muse: 'Muse',
-      echo: 'Echo',
-      bolt: 'Bolt',
-      saga: 'Saga',
-      nova: 'Nova',
-      atlas: 'Atlas'
-    };
-
-    (data.agents || []).forEach(agent => {
-      (agent.tasks || []).forEach((task, idx) => {
-        tasks.push({
-          id: `${agent.type}-${idx}`,
-          title: task.description,
-          agent: agentNames[agent.type] || agent.type,
-          agentType: agent.type,
-          status: task.status === 'completed' ? 'done' : (task.status === 'in_progress' ? 'progress' : 'todo'),
-          time: task.time,
-          date: task.date
-        });
+app.get('/api/tasks', (req, res) => {
+  const tasks = [];
+  for (const agent of Object.values(agentStore)) {
+    for (const [idx, task] of (agent.tasks || []).entries()) {
+      tasks.push({
+        id: `${agent.type}-${idx}`,
+        title: task.description,
+        agent: AGENT_NAMES[agent.type] || agent.type,
+        agentType: agent.type,
+        status: task.status === 'completed' ? 'done' : (task.status === 'in_progress' ? 'progress' : 'todo'),
+        time: task.time,
+        date: task.date
       });
-    });
-
-    res.json({ success: true, data: tasks });
-  } catch (e) {
-    res.json({ success: false, error: e.message });
+    }
   }
+  res.json({ success: true, data: tasks });
 });
 
-// Update agent task (for agents to call)
 app.post('/api/tasks/update', (req, res) => {
-  try {
-    const { agentType, taskIndex, status, description, time } = req.body;
-    if (!agentType) {
-      return res.json({ success: false, error: 'agentType required' });
-    }
+  const { agentType, taskIndex, status, description, time } = req.body;
+  if (!agentType) return res.json({ success: false, error: 'agentType required' });
 
-    // Update agents-data.json
-    const data = JSON.parse(fs.readFileSync(AGENTS_DATA_FILE, 'utf8'));
-    const agent = data.agents.find(a => a.type === agentType);
-
-    if (!agent) {
-      return res.json({ success: false, error: 'Agent not found' });
-    }
-
-    if (taskIndex !== undefined && agent.tasks[taskIndex]) {
-      // Update existing task
-      if (status) agent.tasks[taskIndex].status = status;
-      if (description) agent.tasks[taskIndex].description = description;
-      if (time) agent.tasks[taskIndex].time = time;
-    } else if (description) {
-      // Add new task
-      agent.tasks.unshift({
-        date: new Date().toISOString().split('T')[0],
-        description,
-        status: status || 'in_progress',
-        time: time || 'Now'
-      });
-    }
-
-    // Update agent status
-    if (status === 'in_progress') {
-      agent.status = 'working';
-    } else if (status === 'completed') {
-      agent.status = 'completed';
-    }
-
-    fs.writeFileSync(AGENTS_DATA_FILE, JSON.stringify(data, null, 2));
-
-    // Invalidate agents cache so next fetch gets fresh data
-    agentsCache.lastFetch = null;
-
-    res.json({ success: true });
-  } catch (e) {
-    res.json({ success: false, error: e.message });
+  // Auto-create agent if not known
+  if (!agentStore[agentType]) {
+    agentStore[agentType] = { type: agentType, status: 'idle', tasks: [], currentActivity: null };
+    roomMessages[agentType] = [];
   }
-});
 
-// Add task for agent
-app.post('/api/tasks/add', (req, res) => {
-  try {
-    const { agentType, description, status = 'todo' } = req.body;
-    if (!agentType || !description) {
-      return res.json({ success: false, error: 'agentType and description required' });
-    }
+  const agent = agentStore[agentType];
 
-    const data = JSON.parse(fs.readFileSync(AGENTS_DATA_FILE, 'utf8'));
-    let agent = data.agents.find(a => a.type === agentType);
-
-    if (!agent) {
-      // Create agent if not exists
-      agent = { type: agentType, status: 'idle', tasks: [] };
-      data.agents.push(agent);
-    }
-
+  if (taskIndex !== undefined && agent.tasks[taskIndex]) {
+    if (status) agent.tasks[taskIndex].status = status;
+    if (description) agent.tasks[taskIndex].description = description;
+    if (time) agent.tasks[taskIndex].time = time;
+  } else if (description) {
     agent.tasks.unshift({
       date: new Date().toISOString().split('T')[0],
       description,
-      status,
-      time: status === 'in_progress' ? 'Now' : 'Pending'
+      status: status || 'in_progress',
+      time: time || 'Now'
     });
-
-    // Update agent status
-    if (status === 'in_progress') {
-      agent.status = 'working';
-    }
-
-    fs.writeFileSync(AGENTS_DATA_FILE, JSON.stringify(data, null, 2));
-
-    // Invalidate agents cache so next fetch gets fresh data
-    agentsCache.lastFetch = null;
-
-    res.json({ success: true });
-  } catch (e) {
-    res.json({ success: false, error: e.message });
+    if (agent.tasks.length > MAX_TASKS_PER_AGENT) agent.tasks.length = MAX_TASKS_PER_AGENT;
   }
+
+  if (status === 'in_progress') {
+    agent.status = 'working';
+    agent.currentActivity = description || agent.currentActivity;
+    pushRoomMessage(agentType, 'system', `Started: ${description}`);
+  } else if (status === 'completed') {
+    agent.status = 'completed';
+    agent.currentActivity = null;
+    pushRoomMessage(agentType, 'system', `Completed: ${description}`);
+  }
+
+  res.json({ success: true });
+});
+
+app.post('/api/tasks/add', (req, res) => {
+  const { agentType, description, status = 'todo' } = req.body;
+  if (!agentType || !description) return res.json({ success: false, error: 'agentType and description required' });
+
+  if (!agentStore[agentType]) {
+    agentStore[agentType] = { type: agentType, status: 'idle', tasks: [], currentActivity: null };
+    roomMessages[agentType] = [];
+  }
+
+  const agent = agentStore[agentType];
+  agent.tasks.unshift({
+    date: new Date().toISOString().split('T')[0],
+    description,
+    status,
+    time: status === 'in_progress' ? 'Now' : 'Pending'
+  });
+  if (agent.tasks.length > MAX_TASKS_PER_AGENT) agent.tasks.length = MAX_TASKS_PER_AGENT;
+  if (status === 'in_progress') {
+    agent.status = 'working';
+    agent.currentActivity = description;
+  }
+
+  pushRoomMessage(agentType, 'system', `New task: ${description}`);
+  res.json({ success: true });
+});
+
+// ─── Room APIs ───
+
+app.get('/api/rooms', (req, res) => {
+  const rooms = Object.entries(agentStore).map(([type, agent]) => ({
+    type,
+    name: AGENT_NAMES[type] || type,
+    status: agent.status,
+    currentActivity: agent.currentActivity,
+    lastTask: agent.tasks[0] || null,
+    messageCount: (roomMessages[type] || []).length,
+    lastMessage: (roomMessages[type] || []).slice(-1)[0] || null
+  }));
+  res.json({ success: true, data: rooms });
+});
+
+app.get('/api/rooms/:agent/messages', (req, res) => {
+  const { agent } = req.params;
+  const limit = parseInt(req.query.limit) || 50;
+  const msgs = (roomMessages[agent] || []).slice(-limit);
+  res.json({ success: true, data: msgs, agent });
+});
+
+app.post('/api/rooms/:agent/message', (req, res) => {
+  const { agent } = req.params;
+  const { text, role = 'user' } = req.body;
+  if (!text) return res.json({ success: false, error: 'text required' });
+  if (!roomMessages[agent]) roomMessages[agent] = [];
+  pushRoomMessage(agent, role, text);
+  res.json({ success: true });
+});
+
+// Agent can push activity/progress messages to their room
+app.post('/api/rooms/:agent/activity', (req, res) => {
+  const { agent } = req.params;
+  const { text, status } = req.body;
+  if (!text) return res.json({ success: false, error: 'text required' });
+
+  if (!agentStore[agent]) {
+    agentStore[agent] = { type: agent, status: 'idle', tasks: [], currentActivity: null };
+    roomMessages[agent] = [];
+  }
+
+  if (status) agentStore[agent].status = status;
+  agentStore[agent].currentActivity = text;
+  pushRoomMessage(agent, 'agent', text);
+  res.json({ success: true });
 });
 
 // Save inspiration content

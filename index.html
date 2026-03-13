@@ -491,11 +491,12 @@
             font-weight: 700;
             color: #fff;
         }
-        .agent-avatar.muse { background: linear-gradient(135deg, #ff6b9d, #c44569); }
+        .agent-avatar.saka { background: linear-gradient(135deg, #ff6b9d, #c44569); }
+        .agent-avatar.muse { background: linear-gradient(135deg, #f093fb, #f5576c); }
         .agent-avatar.echo { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-        .agent-avatar.bolt { background: linear-gradient(135deg, #f093fb, #f5576c); }
-        .agent-avatar.saga { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-        .agent-avatar.nova { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .agent-avatar.bolt { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .agent-avatar.saga { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+        .agent-avatar.nova { background: linear-gradient(135deg, #f6d365, #fda085); }
         .agent-avatar.atlas { background: linear-gradient(135deg, #667eea, #764ba2); }
         .agent-info h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
         .agent-role { font-size: 12px; color: #888; }
@@ -557,6 +558,171 @@
         .task-item-content { flex: 1; color: #ccc; line-height: 1.4; }
         .task-item-time { font-size: 11px; color: #555; flex-shrink: 0; }
         .no-tasks { color: #555; font-size: 13px; font-style: italic; }
+
+        /* ─── Rooms ─── */
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .room-card {
+            background: #141418;
+            border: 1px solid #1a1a22;
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .room-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: #333;
+            transition: background 0.3s;
+        }
+        .room-card.working::before { background: linear-gradient(90deg, #4caf50, #66bb6a); }
+        .room-card.idle::before { background: #444; }
+        .room-card.completed::before { background: linear-gradient(90deg, #2196f3, #42a5f5); }
+        .room-card:hover { border-color: #ff6b9d; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(255,107,157,0.1); }
+        .room-card .room-avatar {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 700; color: #fff;
+            margin-bottom: 14px;
+        }
+        .room-card .room-name { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+        .room-card .room-role { font-size: 11px; color: #666; margin-bottom: 12px; }
+        .room-card .room-bubble {
+            background: #1e1e26;
+            border: 1px solid #2a2a35;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #aaa;
+            line-height: 1.5;
+            min-height: 40px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .room-card .room-status-dot {
+            position: absolute; top: 16px; right: 16px;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #555;
+        }
+        .room-card.working .room-status-dot { background: #4caf50; animation: pulse 1.5s infinite; }
+        .room-card.completed .room-status-dot { background: #2196f3; }
+
+        /* Room Detail Panel (overlay) */
+        .room-detail {
+            display: none;
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 440px;
+            background: #111116;
+            border-left: 1px solid #1a1a22;
+            z-index: 900;
+            flex-direction: column;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+        }
+        .room-detail.open { display: flex; }
+        .room-detail-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #1a1a22;
+            display: flex; align-items: center; gap: 14px;
+        }
+        .room-detail-header .close-btn {
+            margin-left: auto; background: none; border: none;
+            color: #666; font-size: 20px; cursor: pointer;
+        }
+        .room-detail-header .close-btn:hover { color: #fff; }
+        .room-detail-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .room-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .room-msg.system {
+            align-self: center;
+            background: rgba(255,255,255,0.04);
+            color: #666;
+            font-size: 11px;
+            text-align: center;
+            max-width: 90%;
+            border-radius: 8px;
+        }
+        .room-msg.agent {
+            align-self: flex-start;
+            background: #1a1a24;
+            color: #ccc;
+            border: 1px solid #252530;
+        }
+        .room-msg.user {
+            align-self: flex-end;
+            background: rgba(255,107,157,0.15);
+            color: #eee;
+            border: 1px solid rgba(255,107,157,0.25);
+        }
+        .room-msg .msg-time {
+            font-size: 10px;
+            color: #555;
+            margin-top: 4px;
+        }
+        .room-detail-input {
+            padding: 16px 24px;
+            border-top: 1px solid #1a1a22;
+            display: flex; gap: 10px;
+        }
+        .room-detail-input input {
+            flex: 1;
+            background: #1a1a22;
+            border: 1px solid #2a2a35;
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+        }
+        .room-detail-input input:focus { border-color: #ff6b9d; }
+        .room-detail-input button {
+            background: #ff6b9d;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .room-detail-input button:hover { background: #e05588; }
+        .room-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 899;
+        }
+        .room-overlay.open { display: block; }
+
+        @media (max-width: 768px) {
+            .rooms-grid { grid-template-columns: repeat(2, 1fr); }
+            .room-detail { width: 100%; }
+        }
 
         /* Loading state */
         .loading {
@@ -622,6 +788,9 @@
 
         <div class="sidebar-section">
             <div class="sidebar-label">Management</div>
+            <button class="nav-btn" onclick="showPage('rooms')">
+                <span class="icon">🏠</span> Rooms
+            </button>
             <button class="nav-btn" onclick="showPage('tasks')">
                 <span class="icon">📋</span> Tasks
             </button>
@@ -764,6 +933,38 @@
             </div>
         </div>
 
+        <!-- Rooms Page -->
+        <div class="page" id="page-rooms">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Agent Rooms</h2>
+                    <p class="section-subtitle">See what each agent is up to — click a room to chat</p>
+                </div>
+                <button class="filter-btn" onclick="fetchRooms()" style="background:#ff6b9d;color:#fff;border-color:#ff6b9d;">↻ Refresh</button>
+            </div>
+            <div class="rooms-grid" id="rooms-container">
+                <div class="loading">Loading rooms...</div>
+            </div>
+        </div>
+
+        <!-- Room Detail Panel -->
+        <div class="room-overlay" id="room-overlay" onclick="closeRoomDetail()"></div>
+        <div class="room-detail" id="room-detail">
+            <div class="room-detail-header">
+                <div class="agent-avatar" id="rd-avatar" style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;"></div>
+                <div>
+                    <div id="rd-name" style="font-size:16px;font-weight:600;"></div>
+                    <div id="rd-status" style="font-size:12px;color:#888;"></div>
+                </div>
+                <button class="close-btn" onclick="closeRoomDetail()">✕</button>
+            </div>
+            <div class="room-detail-messages" id="rd-messages"></div>
+            <div class="room-detail-input">
+                <input type="text" id="rd-input" placeholder="Send a message..." onkeydown="if(event.key==='Enter')sendRoomMessage()">
+                <button onclick="sendRoomMessage()">Send</button>
+            </div>
+        </div>
+
         <!-- Agents Page -->
         <div class="page" id="page-agents">
             <div class="section-header">
@@ -825,15 +1026,18 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('page-' + page).classList.add('active');
-            event.target.classList.add('active');
+            // Find the clicked button more reliably
+            const btn = event?.target?.closest?.('.nav-btn') || event?.target;
+            if (btn) btn.classList.add('active');
 
-            // Lazy load inspiration posts
             if (page === 'inspiration' && inspirationPosts.length === 0) {
                 fetchInspirationPosts();
             }
-            // Lazy load agents
             if (page === 'agents' && !agentsLoaded) {
                 fetchAgents();
+            }
+            if (page === 'rooms') {
+                fetchRooms();
             }
         }
 
@@ -1061,12 +1265,13 @@
         let agentsData = [];
 
         const agentMeta = {
+            saka: { name: 'Saka', role: 'CEO / Orchestrator', icon: '👑' },
             muse: { name: 'Muse', role: 'Content Creator', icon: '✨' },
             echo: { name: 'Echo', role: 'Social Media Manager', icon: '📱' },
             bolt: { name: 'Bolt', role: 'Developer', icon: '⚡' },
-            saga: { name: 'Saga', role: 'Storyteller', icon: '📖' },
-            nova: { name: 'Nova', role: 'Researcher', icon: '🔍' },
-            atlas: { name: 'Atlas', role: 'Data Analyst', icon: '📊' }
+            saga: { name: 'Saga', role: 'Researcher', icon: '🔍' },
+            nova: { name: 'Nova', role: 'HR Manager', icon: '🌟' },
+            atlas: { name: 'Atlas', role: 'General Assistant', icon: '📊' }
         };
 
         async function fetchAgents() {
@@ -1133,6 +1338,150 @@
                 `;
             }).join('');
         }
+
+        // ─── Rooms ───
+        let roomsData = [];
+        let activeRoom = null;
+
+        const roomMeta = {
+            saka: { name: 'Saka', role: 'CEO / Orchestrator', icon: '👑', gradient: 'linear-gradient(135deg, #ff6b9d, #c44569)' },
+            muse: { name: 'Muse', role: 'Content Creator', icon: '✨', gradient: 'linear-gradient(135deg, #f093fb, #f5576c)' },
+            echo: { name: 'Echo', role: 'Social Media Manager', icon: '📱', gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)' },
+            bolt: { name: 'Bolt', role: 'Developer', icon: '⚡', gradient: 'linear-gradient(135deg, #fa709a, #fee140)' },
+            saga: { name: 'Saga', role: 'Researcher', icon: '🔍', gradient: 'linear-gradient(135deg, #a18cd1, #fbc2eb)' },
+            nova: { name: 'Nova', role: 'HR Manager', icon: '🌟', gradient: 'linear-gradient(135deg, #f6d365, #fda085)' },
+            atlas: { name: 'Atlas', role: 'General Assistant', icon: '📊', gradient: 'linear-gradient(135deg, #667eea, #764ba2)' }
+        };
+
+        async function fetchRooms() {
+            try {
+                const res = await fetch('/api/rooms');
+                const data = await res.json();
+                if (data.success) {
+                    roomsData = data.data;
+                    renderRooms();
+                }
+            } catch (e) {
+                document.getElementById('rooms-container').innerHTML = '<div class="empty-state"><h3>Failed to load rooms</h3></div>';
+            }
+        }
+
+        function renderRooms() {
+            const container = document.getElementById('rooms-container');
+            if (!roomsData.length) {
+                container.innerHTML = '<div class="empty-state"><h3>No agents found</h3></div>';
+                return;
+            }
+
+            const order = ['saka', 'muse', 'echo', 'bolt', 'saga', 'nova', 'atlas'];
+            const sorted = [...roomsData].sort((a, b) => {
+                const ia = order.indexOf(a.type); const ib = order.indexOf(b.type);
+                return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+            });
+
+            container.innerHTML = sorted.map(room => {
+                const meta = roomMeta[room.type] || { name: room.name, role: 'Agent', icon: '🤖', gradient: 'linear-gradient(135deg, #555, #333)' };
+                const statusClass = room.status === 'working' ? 'working' : room.status === 'completed' ? 'completed' : 'idle';
+                const bubbleText = room.currentActivity || room.lastTask?.description || 'Idle — no active tasks';
+
+                return `
+                    <div class="room-card ${statusClass}" onclick="openRoomDetail('${room.type}')">
+                        <div class="room-status-dot"></div>
+                        <div class="room-avatar" style="background:${meta.gradient}">${meta.icon}</div>
+                        <div class="room-name">${meta.name}</div>
+                        <div class="room-role">${meta.role}</div>
+                        <div class="room-bubble">${bubbleText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function openRoomDetail(agentType) {
+            activeRoom = agentType;
+            const meta = roomMeta[agentType] || { name: agentType, role: 'Agent', icon: '🤖', gradient: '#333' };
+
+            document.getElementById('rd-avatar').style.background = meta.gradient;
+            document.getElementById('rd-avatar').textContent = meta.icon;
+            document.getElementById('rd-name').textContent = meta.name;
+
+            const room = roomsData.find(r => r.type === agentType);
+            const statusText = room?.status === 'working' ? '🟢 Working' : room?.status === 'completed' ? '🔵 Completed' : '⚫ Idle';
+            document.getElementById('rd-status').textContent = statusText + (room?.currentActivity ? ' — ' + room.currentActivity : '');
+
+            document.getElementById('room-overlay').classList.add('open');
+            document.getElementById('room-detail').classList.add('open');
+
+            await fetchRoomMessages(agentType);
+        }
+
+        function closeRoomDetail() {
+            activeRoom = null;
+            document.getElementById('room-overlay').classList.remove('open');
+            document.getElementById('room-detail').classList.remove('open');
+        }
+
+        async function fetchRoomMessages(agentType) {
+            const container = document.getElementById('rd-messages');
+            try {
+                const res = await fetch(`/api/rooms/${agentType}/messages?limit=50`);
+                const data = await res.json();
+                if (data.success) {
+                    if (data.data.length === 0) {
+                        container.innerHTML = '<div style="text-align:center;color:#555;padding:40px;font-size:13px;">No messages yet. This agent has been quiet.</div>';
+                    } else {
+                        container.innerHTML = data.data.map(msg => {
+                            const time = new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                            return `<div class="room-msg ${msg.role}"><div>${msg.text}</div><div class="msg-time">${time}</div></div>`;
+                        }).join('');
+                        container.scrollTop = container.scrollHeight;
+                    }
+                }
+            } catch (e) {
+                container.innerHTML = '<div style="color:#555;padding:20px;">Failed to load messages</div>';
+            }
+        }
+
+        async function sendRoomMessage() {
+            const input = document.getElementById('rd-input');
+            const text = input.value.trim();
+            if (!text || !activeRoom) return;
+            input.value = '';
+
+            // Optimistic UI
+            const container = document.getElementById('rd-messages');
+            const noMsgDiv = container.querySelector('div[style*="text-align:center"]');
+            if (noMsgDiv) noMsgDiv.remove();
+            const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+            container.innerHTML += `<div class="room-msg user"><div>${text}</div><div class="msg-time">${time}</div></div>`;
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                await fetch(`/api/rooms/${activeRoom}/message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, role: 'user' })
+                });
+            } catch (e) {
+                console.error('Failed to send message');
+            }
+        }
+
+        // Auto-refresh room detail if open
+        setInterval(async () => {
+            if (activeRoom) {
+                await fetchRoomMessages(activeRoom);
+                // Also refresh room status
+                const res = await fetch('/api/rooms').then(r => r.json()).catch(() => null);
+                if (res?.success) {
+                    roomsData = res.data;
+                    const room = roomsData.find(r => r.type === activeRoom);
+                    if (room) {
+                        const statusText = room.status === 'working' ? '🟢 Working' : room.status === 'completed' ? '🔵 Completed' : '⚫ Idle';
+                        document.getElementById('rd-status').textContent = statusText + (room.currentActivity ? ' — ' + room.currentActivity : '');
+                    }
+                }
+            }
+        }, 10000);
 
         // Tasks Board Data
         let tasksData = [];
@@ -1303,21 +1652,20 @@
             extractTasksFromAgents();
         });
 
-        // Auto-refresh agents every 45 seconds
+        // Auto-refresh every 30 seconds
         setInterval(() => {
             const isAgentsPage = document.getElementById('page-agents').classList.contains('active');
             const isTasksPage = document.getElementById('page-tasks').classList.contains('active');
+            const isRoomsPage = document.getElementById('page-rooms').classList.contains('active');
 
             if (isAgentsPage) {
                 fetchAgents().then(() => extractTasksFromAgents());
             } else if (isTasksPage) {
-                // Refresh tasks on Task Board page
-                loadTasks().then(() => {
-                    // Also refresh agents data in background for consistency
-                    fetchAgents();
-                });
+                loadTasks().then(() => fetchAgents());
+            } else if (isRoomsPage) {
+                fetchRooms();
             }
-        }, 45000);
+        }, 30000);
     </script>
 </body>
 </html>
