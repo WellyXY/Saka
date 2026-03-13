@@ -686,6 +686,62 @@
             border: 2px solid #111;
             cursor: pointer;
         }
+        /* Persistent input bar */
+        .game-input-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #2a1a0a;
+            border-top: 3px solid #3a2210;
+        }
+        .game-input-to {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 10px;
+            background: #3a2210;
+            border: 2px solid #5a3a1a;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: -apple-system, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #f0c048;
+            white-space: nowrap;
+            user-select: none;
+        }
+        .game-input-to:hover { background: #4a3218; }
+        .input-to-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #f0c048;
+        }
+        .game-input-bar input {
+            flex: 1;
+            font-family: -apple-system, sans-serif;
+            font-size: 13px;
+            padding: 8px 12px;
+            background: #1a0e06;
+            border: 2px solid #5a3a1a;
+            border-radius: 4px;
+            color: #f0e0c0;
+            outline: none;
+        }
+        .game-input-bar input::placeholder { color: #6a5a48; }
+        .game-input-bar input:focus { border-color: #f0c048; }
+        .game-input-bar button {
+            font-family: -apple-system, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 14px;
+            background: #f0c048;
+            color: #1a0e06;
+            border: 2px solid #c8a030;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .game-input-bar button:hover { background: #ffd060; }
         @media (max-width: 768px) {
             .game-frame { max-width: 100%; }
             .game-chat-overlay { width: 180px; }
@@ -920,6 +976,14 @@
                             <button onclick="sendTownMsg()">OK</button>
                         </div>
                     </div>
+                </div>
+                <div class="game-input-bar">
+                    <div class="game-input-to" id="game-input-to" onclick="cycleInputTarget()">
+                        <span class="input-to-dot" id="input-to-dot"></span>
+                        <span id="input-to-name">Saka</span>
+                    </div>
+                    <input type="text" id="game-main-input" placeholder="Message Saka..." onkeydown="if(event.key==='Enter')sendMainMsg()">
+                    <button onclick="sendMainMsg()">Send</button>
                 </div>
             </div>
         </div>
@@ -1522,9 +1586,10 @@
             c.fillStyle = '#fff';
             c.fillText(label, cx+4, ny+12);
 
-            // Speech bubble with status/task info
-            const activity = agent.currentActivity || agent.lastTask || null;
-            if (activity || isWorking) {
+            // Speech bubble with status/task info (Saka shows supervision, others show tasks)
+            const isSaka = agent.type === 'saka';
+            const activity = isSaka ? null : (agent.currentActivity || agent.lastTask || null);
+            if (!isSaka && (activity || isWorking)) {
                 const text = isWorking ? (agent.currentActivity || 'Working...').slice(0,32) : activity ? activity.slice(0,32) : '';
                 if (text) {
                     c.font = '10px -apple-system, sans-serif';
@@ -1582,6 +1647,9 @@
             });
             agents.sort((a,b) => agentDefs[a.type].ty - agentDefs[b.type].ty);
             agents.forEach(a => drawCharacter(a, time));
+
+            // Saka's supervision checklist
+            drawSakaChecklist(c, time);
 
             townAnimFrame = requestAnimationFrame(renderFrame);
         }
@@ -1664,6 +1732,97 @@
                 const data = await res.json();
                 if (data.success) roomsData = data.data;
             } catch(e) {}
+        }
+
+        // Persistent input bar — defaults to Saka, cycle through agents
+        const inputTargets = ['saka','muse','echo','bolt','saga','nova','atlas'];
+        let inputTargetIdx = 0;
+        const targetColors = { saka:'#f0c048', muse:'#f068a8', echo:'#48b8f0', bolt:'#f0a030', saga:'#b0b0c8', nova:'#f0d060', atlas:'#4868a0' };
+
+        function cycleInputTarget() {
+            inputTargetIdx = (inputTargetIdx + 1) % inputTargets.length;
+            updateInputTarget();
+        }
+        function updateInputTarget() {
+            const t = inputTargets[inputTargetIdx];
+            const def = agentDefs[t];
+            document.getElementById('input-to-name').textContent = def.name;
+            document.getElementById('input-to-dot').style.background = targetColors[t];
+            document.getElementById('game-main-input').placeholder = `Message ${def.name}...`;
+        }
+        async function sendMainMsg() {
+            const input = document.getElementById('game-main-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            const target = inputTargets[inputTargetIdx];
+            try {
+                await fetch(`/api/rooms/${target}/message`, {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ text, role: 'user' })
+                });
+            } catch(e) {}
+            if (activeRoom === target) await fetchTownMsgs(target);
+            else { activeRoom = target; await selectAgent(target); }
+        }
+
+        // Saka checklist: draw supervision panel near Saka
+        function drawSakaChecklist(c, time) {
+            const def = agentDefs.saka;
+            const bx = def.tx*TILE + TILE/2 + 40;
+            const by = def.ty*TILE - 10;
+
+            const others = ['muse','echo','bolt','saga','nova','atlas'];
+            const lineH = 14;
+            const panelH = others.length * lineH + 24;
+            const panelW = 140;
+
+            // Panel bg
+            c.fillStyle = 'rgba(255,255,250,0.94)';
+            c.fillRect(bx, by, panelW, panelH);
+            c.strokeStyle = '#5a3a1a'; c.lineWidth = 2;
+            c.strokeRect(bx, by, panelW, panelH);
+
+            // Title
+            c.fillStyle = '#5a3a1a';
+            c.font = 'bold 9px -apple-system, sans-serif';
+            c.textAlign = 'left';
+            c.fillText('📋 Agent Status', bx+6, by+13);
+
+            // Each agent row
+            others.forEach((type, i) => {
+                const room = roomsData.find(r => r.type === type);
+                const st = room?.status || 'idle';
+                const name = agentDefs[type]?.name || type;
+                const ry = by + 20 + i*lineH;
+
+                // Checkbox
+                const done = st === 'completed';
+                const working = st === 'working';
+                c.strokeStyle = '#888'; c.lineWidth = 1;
+                c.strokeRect(bx+6, ry, 8, 8);
+                if (done) {
+                    c.fillStyle = '#4caf50';
+                    c.fillRect(bx+7, ry+1, 6, 6);
+                    c.strokeStyle = '#fff'; c.lineWidth = 1.5;
+                    c.beginPath(); c.moveTo(bx+8,ry+4); c.lineTo(bx+10,ry+6); c.lineTo(bx+13,ry+1); c.stroke();
+                } else if (working) {
+                    c.fillStyle = '#f0c048';
+                    c.fillRect(bx+7, ry+1, 6, 6);
+                }
+
+                // Name
+                c.font = '9px -apple-system, sans-serif';
+                c.fillStyle = '#333';
+                c.fillText(name, bx+18, ry+8);
+
+                // Status text
+                const stText = working ? '⚡' : done ? '✓' : '—';
+                const taskText = (room?.currentActivity || room?.lastTask?.description || '').slice(0,12);
+                c.fillStyle = '#888';
+                c.font = '8px -apple-system, sans-serif';
+                c.fillText(stText + ' ' + taskText, bx+54, ry+8);
+            });
         }
 
         setInterval(async () => {
