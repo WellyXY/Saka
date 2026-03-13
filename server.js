@@ -23,7 +23,12 @@ let cache = {
 };
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
+// Persistent data file paths
+const INSPIRATION_FILE = path.join(__dirname, 'inspiration-saved.json');
+const CONTENT_HISTORY_FILE = path.join(__dirname, 'content-history.json');
+
 app.use(cors());
+app.use(express.json());
 app.use(express.static(__dirname));
 
 // TikHub API helper
@@ -325,6 +330,114 @@ app.get('/api/agents', async (req, res) => {
     const dataPath = path.join(__dirname, 'agents-data.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
     res.json({ success: true, data: data.agents });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
+// Tasks API - extract tasks from all agents
+app.get('/api/tasks', async (req, res) => {
+  try {
+    const dataPath = path.join(__dirname, 'agents-data.json');
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    const tasks = [];
+
+    const agentNames = {
+      muse: 'Muse',
+      echo: 'Echo',
+      bolt: 'Bolt',
+      saga: 'Saga',
+      nova: 'Nova',
+      atlas: 'Atlas'
+    };
+
+    (data.agents || []).forEach(agent => {
+      (agent.tasks || []).forEach((task, idx) => {
+        tasks.push({
+          id: `${agent.type}-${idx}`,
+          title: task.description,
+          agent: agentNames[agent.type] || agent.type,
+          agentType: agent.type,
+          status: task.status === 'completed' ? 'done' : (task.status === 'in_progress' ? 'progress' : 'todo'),
+          time: task.time,
+          date: task.date
+        });
+      });
+    });
+
+    res.json({ success: true, data: tasks });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
+// Save inspiration content
+app.post('/api/inspiration/save', (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!items || !Array.isArray(items)) {
+      return res.json({ success: false, error: 'Invalid items' });
+    }
+
+    // Load existing
+    let existing = [];
+    try {
+      existing = JSON.parse(fs.readFileSync(INSPIRATION_FILE, 'utf8'));
+    } catch (e) {
+      existing = [];
+    }
+
+    // Merge (avoid duplicates by id)
+    const existingIds = new Set(existing.map(i => i.id));
+    const newItems = items.filter(i => !existingIds.has(i.id));
+    const merged = [...newItems, ...existing].slice(0, 100); // Keep last 100
+
+    fs.writeFileSync(INSPIRATION_FILE, JSON.stringify(merged, null, 2));
+    res.json({ success: true, saved: newItems.length });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
+// Get saved inspiration
+app.get('/api/inspiration/saved', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(INSPIRATION_FILE, 'utf8'));
+    res.json({ success: true, data });
+  } catch (e) {
+    res.json({ success: true, data: [] });
+  }
+});
+
+// Content history API - with optional refresh
+app.get('/api/content-history', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(CONTENT_HISTORY_FILE, 'utf8'));
+    res.json({ success: true, data });
+  } catch (e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
+// Add content to history
+app.post('/api/content-history/add', (req, res) => {
+  try {
+    const { task } = req.body;
+    if (!task) {
+      return res.json({ success: false, error: 'No task provided' });
+    }
+
+    let history = { tasks: [], inspiration_accounts: [], post_tracking: [] };
+    try {
+      history = JSON.parse(fs.readFileSync(CONTENT_HISTORY_FILE, 'utf8'));
+    } catch (e) {}
+
+    // Add to tasks
+    history.tasks = [task, ...(history.tasks || [])];
+    history.lastUpdated = new Date().toISOString();
+
+    fs.writeFileSync(CONTENT_HISTORY_FILE, JSON.stringify(history, null, 2));
+    res.json({ success: true });
   } catch (e) {
     res.json({ success: false, error: e.message });
   }

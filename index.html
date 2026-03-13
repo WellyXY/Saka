@@ -533,7 +533,10 @@
                     <h2 class="section-title">Content</h2>
                     <p class="section-subtitle">All posts from @saka.yiumo</p>
                 </div>
-                <span class="update-badge">Auto-updated: <span id="last-updated">Mar 11, 2026</span></span>
+                <div style="display:flex;gap:12px;align-items:center;">
+                    <span class="update-badge">Auto-updated: <span id="last-updated">Mar 11, 2026</span></span>
+                    <button class="filter-btn" onclick="refreshPosts()" style="background:#ff6b9d;color:#fff;border-color:#ff6b9d;">↻ Refresh</button>
+                </div>
             </div>
             <div class="posts-grid" id="posts-container"></div>
         </div>
@@ -775,11 +778,33 @@
                 if (data.success && data.data && data.data.length > 0) {
                     inspirationPosts = data.data;
                     renderInspiration();
+                    // Save inspiration posts to backend for persistence
+                    saveInspirationPosts(data.data);
                 } else {
-                    container.innerHTML = '<div class="empty-state"><h3>No posts found</h3><p>Follow some accounts to see their latest posts here</p></div>';
+                    // Try loading saved inspiration
+                    const savedRes = await fetch('/api/inspiration/saved');
+                    const savedData = await savedRes.json();
+                    if (savedData.success && savedData.data && savedData.data.length > 0) {
+                        inspirationPosts = savedData.data;
+                        renderInspiration();
+                    } else {
+                        container.innerHTML = '<div class="empty-state"><h3>No posts found</h3><p>Follow some accounts to see their latest posts here</p></div>';
+                    }
                 }
             } catch (e) {
                 container.innerHTML = '<div class="empty-state"><h3>Failed to load</h3><p>Could not fetch inspiration posts</p></div>';
+            }
+        }
+
+        async function saveInspirationPosts(posts) {
+            try {
+                await fetch('/api/inspiration/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: posts })
+                });
+            } catch (e) {
+                console.log('Failed to save inspiration posts');
             }
         }
 
@@ -955,9 +980,156 @@
             }).join('');
         }
 
+        // Tasks Board Data
+        let tasksData = [];
+
+        async function loadTasks() {
+            try {
+                const res = await fetch('/api/tasks');
+                const data = await res.json();
+                if (data.success) {
+                    tasksData = data.data;
+                    renderTasks();
+                }
+            } catch (e) {
+                console.log('Failed to load tasks');
+                // Fallback: extract tasks from agents data
+                if (agentsData.length > 0) {
+                    extractTasksFromAgents();
+                }
+            }
+        }
+
+        function extractTasksFromAgents() {
+            tasksData = [];
+            agentsData.forEach(agent => {
+                const meta = agentMeta[agent.type] || { name: agent.type };
+                (agent.tasks || []).forEach(task => {
+                    tasksData.push({
+                        id: `${agent.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                        title: task.description,
+                        agent: meta.name,
+                        agentType: agent.type,
+                        status: task.status === 'completed' ? 'done' : (task.status === 'in_progress' ? 'progress' : 'todo'),
+                        time: task.time,
+                        date: task.date
+                    });
+                });
+            });
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const todo = tasksData.filter(t => t.status === 'todo');
+            const progress = tasksData.filter(t => t.status === 'progress' || t.status === 'in_progress');
+            const done = tasksData.filter(t => t.status === 'done' || t.status === 'completed').slice(0, 10);
+
+            document.getElementById('tasks-todo').innerHTML = todo.length === 0
+                ? '<div class="no-tasks">No pending tasks</div>'
+                : todo.map(renderTaskCard).join('');
+
+            document.getElementById('tasks-progress').innerHTML = progress.length === 0
+                ? '<div class="no-tasks">No tasks in progress</div>'
+                : progress.map(renderTaskCard).join('');
+
+            document.getElementById('tasks-done').innerHTML = done.length === 0
+                ? '<div class="no-tasks">No completed tasks</div>'
+                : done.map(renderTaskCard).join('');
+        }
+
+        function renderTaskCard(task) {
+            return `
+                <div class="task-card">
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-meta">
+                        <span class="task-tag">${task.agent}</span>
+                        ${task.time ? `<span class="task-tag ref">${task.time}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function addTask() {
+            alert('Task creation coming soon! For now, tasks are tracked by agent activities.');
+        }
+
+        // Load posts from API instead of static data
+        async function loadPostsFromAPI() {
+            try {
+                const res = await fetch('/api/posts');
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    // Update posts array with API data
+                    posts.length = 0;
+                    data.data.forEach(p => {
+                        posts.push({
+                            image: p.image || 'images/placeholder.jpg',
+                            caption: p.caption || '',
+                            likes: p.likes || 0,
+                            comments: p.comments || 0,
+                            type: p.type || 'Post',
+                            pinned: p.pinned || false,
+                            url: `https://www.instagram.com/${p.type === 'Reel' ? 'reel' : 'p'}/${p.id}/`
+                        });
+                    });
+                    renderPosts();
+                    // Update stats
+                    document.getElementById('stat-posts').textContent = posts.length;
+                    document.getElementById('stat-likes').textContent = posts.reduce((sum, p) => sum + p.likes, 0);
+                }
+            } catch (e) {
+                console.log('Using static posts data');
+            }
+        }
+
+        // Load profile from API
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/profile');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const p = data.data;
+                    document.getElementById('stat-posts').textContent = p.posts || posts.length;
+                    document.getElementById('stat-followers').textContent = formatNumber(p.followers || 34);
+                    document.getElementById('stat-following').textContent = p.following || 30;
+                    document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                }
+            } catch (e) {
+                console.log('Using static profile data');
+            }
+        }
+
+        // Refresh posts from Instagram via TikHub
+        async function refreshPosts() {
+            const btn = event.target;
+            btn.textContent = 'Refreshing...';
+            btn.disabled = true;
+
+            try {
+                // Force cache refresh
+                await fetch('/api/refresh');
+                // Reload posts and profile
+                await loadPostsFromAPI();
+                await loadProfile();
+                document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                console.error('Refresh failed:', e);
+            }
+
+            btn.textContent = '↻ Refresh';
+            btn.disabled = false;
+        }
+
         // Initialize
         renderPosts();
         loadContentHistory();
+        loadProfile();
+        loadPostsFromAPI();
+
+        // Load tasks when agents are loaded
+        fetchAgents().then(() => {
+            extractTasksFromAgents();
+        });
     </script>
 </body>
 </html>
