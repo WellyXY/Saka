@@ -1368,40 +1368,174 @@
         let activeRoom = null;
         let townCanvas, townCtx, townW, townH;
         let townAnimFrame = null;
+        let lastFrameTime = 0;
 
         const TILE = 32;
         const COLS = 14, ROWS = 25;
-        const SP = 3; // sprite pixel scale
+        const SP = 3;
+        const WALK_SPEED = 1.2;
 
-        // 12x16 pixel character template (0=transparent,1=outline,2=skin,3=hair,4=shirt,5=pants,6=shoes,7=eye)
-        const charTemplate = [
-            [0,0,0,0,3,3,3,3,0,0,0,0],
-            [0,0,0,3,3,3,3,3,3,0,0,0],
-            [0,0,1,3,3,3,3,3,3,1,0,0],
-            [0,1,2,2,2,2,2,2,2,2,1,0],
-            [0,1,2,7,2,2,2,2,7,2,1,0],
-            [0,1,2,2,2,2,2,2,2,2,1,0],
-            [0,0,1,2,2,1,2,2,2,1,0,0],
-            [0,0,0,1,2,2,2,2,1,0,0,0],
-            [0,0,1,4,4,4,4,4,4,1,0,0],
-            [0,1,2,4,4,4,4,4,4,2,1,0],
-            [0,1,2,4,4,4,4,4,4,2,1,0],
-            [0,0,1,4,4,4,4,4,4,1,0,0],
-            [0,0,1,5,5,1,1,5,5,1,0,0],
-            [0,0,1,5,5,1,1,5,5,1,0,0],
-            [0,0,1,5,5,0,0,5,5,1,0,0],
-            [0,0,1,6,6,0,0,6,6,1,0,0],
-        ];
+        // 4-direction sprite templates: 0=transparent,1=outline,2=skin,3=hair,4=shirt,5=pants,6=shoes,7=eye
+        const sprites = {
+            down: [
+                [0,0,0,0,3,3,3,3,0,0,0,0],
+                [0,0,0,3,3,3,3,3,3,0,0,0],
+                [0,0,1,3,3,3,3,3,3,1,0,0],
+                [0,1,2,2,2,2,2,2,2,2,1,0],
+                [0,1,2,7,2,2,2,2,7,2,1,0],
+                [0,1,2,2,2,2,2,2,2,2,1,0],
+                [0,0,1,2,2,1,2,2,2,1,0,0],
+                [0,0,0,1,2,2,2,2,1,0,0,0],
+                [0,0,1,4,4,4,4,4,4,1,0,0],
+                [0,1,2,4,4,4,4,4,4,2,1,0],
+                [0,1,2,4,4,4,4,4,4,2,1,0],
+                [0,0,1,4,4,4,4,4,4,1,0,0],
+                [0,0,1,5,5,1,1,5,5,1,0,0],
+                [0,0,1,5,5,1,1,5,5,1,0,0],
+                [0,0,1,5,5,0,0,5,5,1,0,0],
+                [0,0,1,6,6,0,0,6,6,1,0,0],
+            ],
+            up: [
+                [0,0,0,0,3,3,3,3,0,0,0,0],
+                [0,0,0,3,3,3,3,3,3,0,0,0],
+                [0,0,1,3,3,3,3,3,3,1,0,0],
+                [0,1,3,3,3,3,3,3,3,3,1,0],
+                [0,1,3,3,3,3,3,3,3,3,1,0],
+                [0,1,2,2,2,2,2,2,2,2,1,0],
+                [0,0,1,2,2,2,2,2,2,1,0,0],
+                [0,0,0,1,2,2,2,2,1,0,0,0],
+                [0,0,1,4,4,4,4,4,4,1,0,0],
+                [0,1,2,4,4,4,4,4,4,2,1,0],
+                [0,1,2,4,4,4,4,4,4,2,1,0],
+                [0,0,1,4,4,4,4,4,4,1,0,0],
+                [0,0,1,5,5,1,1,5,5,1,0,0],
+                [0,0,1,5,5,1,1,5,5,1,0,0],
+                [0,0,1,5,5,0,0,5,5,1,0,0],
+                [0,0,1,6,6,0,0,6,6,1,0,0],
+            ],
+            left: [
+                [0,0,0,0,0,3,3,3,0,0,0,0],
+                [0,0,0,0,3,3,3,3,3,0,0,0],
+                [0,0,0,1,3,3,3,3,3,1,0,0],
+                [0,0,1,2,2,2,2,2,2,1,0,0],
+                [0,0,1,7,2,2,2,2,2,1,0,0],
+                [0,0,1,2,2,2,2,2,1,0,0,0],
+                [0,0,0,1,2,1,2,1,0,0,0,0],
+                [0,0,0,0,1,2,1,0,0,0,0,0],
+                [0,0,0,1,4,4,4,4,1,0,0,0],
+                [0,0,2,4,4,4,4,4,1,0,0,0],
+                [0,0,1,2,4,4,4,4,1,0,0,0],
+                [0,0,0,1,4,4,4,1,0,0,0,0],
+                [0,0,0,1,5,5,5,1,0,0,0,0],
+                [0,0,0,1,5,5,5,1,0,0,0,0],
+                [0,0,0,1,5,5,5,1,0,0,0,0],
+                [0,0,0,1,6,6,6,1,0,0,0,0],
+            ],
+            right: [
+                [0,0,0,0,3,3,3,0,0,0,0,0],
+                [0,0,0,3,3,3,3,3,0,0,0,0],
+                [0,0,1,3,3,3,3,3,1,0,0,0],
+                [0,0,1,2,2,2,2,2,2,1,0,0],
+                [0,0,1,2,2,2,2,2,7,1,0,0],
+                [0,0,0,1,2,2,2,2,2,1,0,0],
+                [0,0,0,0,1,2,1,2,1,0,0,0],
+                [0,0,0,0,0,1,2,1,0,0,0,0],
+                [0,0,0,1,4,4,4,4,1,0,0,0],
+                [0,0,0,1,4,4,4,4,2,0,0,0],
+                [0,0,0,1,4,4,4,2,1,0,0,0],
+                [0,0,0,0,1,4,4,4,1,0,0,0],
+                [0,0,0,0,1,5,5,5,1,0,0,0],
+                [0,0,0,0,1,5,5,5,1,0,0,0],
+                [0,0,0,0,1,5,5,5,1,0,0,0],
+                [0,0,0,0,1,6,6,6,1,0,0,0],
+            ]
+        };
 
         const agentDefs = {
-            saka:  { name:'Saka',  role:'CEO',  hair:'#e8c030', shirt:'#c83040', skin:'#f5d0a8', pants:'#303850', shoes:'#6a3020', eye:'#222', tx:7, ty:3 },
-            muse:  { name:'Muse',  role:'Creative', hair:'#f068a8', shirt:'#b830b0', skin:'#f5d0a8', pants:'#484058', shoes:'#805030', eye:'#222', tx:3, ty:8 },
-            echo:  { name:'Echo',  role:'Social',   hair:'#48b8f0', shirt:'#2880d0', skin:'#e8c8a0', pants:'#384060', shoes:'#504838', eye:'#222', tx:6, ty:10 },
-            bolt:  { name:'Bolt',  role:'Dev',      hair:'#f0a030', shirt:'#e85840', skin:'#f5d0a8', pants:'#404058', shoes:'#583828', eye:'#222', tx:10, ty:7 },
-            saga:  { name:'Saga',  role:'Research',  hair:'#b0b0c8', shirt:'#7858b8', skin:'#e8c8a0', pants:'#404050', shoes:'#4a3830', eye:'#222', tx:11, ty:12 },
-            nova:  { name:'Nova',  role:'HR',        hair:'#f0d060', shirt:'#40a858', skin:'#f5d0a8', pants:'#384848', shoes:'#5a4030', eye:'#222', tx:4, ty:16 },
-            atlas: { name:'Atlas', role:'General',   hair:'#484058', shirt:'#4868a0', skin:'#d8a880', pants:'#383848', shoes:'#403830', eye:'#222', tx:9, ty:18 }
+            saka:  { name:'Saka',  role:'CEO',      hair:'#e8c030', shirt:'#c83040', skin:'#f5d0a8', pants:'#303850', shoes:'#6a3020', eye:'#222', homeTx:7,  homeTy:3 },
+            muse:  { name:'Muse',  role:'Creative',  hair:'#f068a8', shirt:'#b830b0', skin:'#f5d0a8', pants:'#484058', shoes:'#805030', eye:'#222', homeTx:3,  homeTy:8 },
+            echo:  { name:'Echo',  role:'Social',    hair:'#48b8f0', shirt:'#2880d0', skin:'#e8c8a0', pants:'#384060', shoes:'#504838', eye:'#222', homeTx:6,  homeTy:10 },
+            bolt:  { name:'Bolt',  role:'Dev',       hair:'#f0a030', shirt:'#e85840', skin:'#f5d0a8', pants:'#404058', shoes:'#583828', eye:'#222', homeTx:10, homeTy:7 },
+            saga:  { name:'Saga',  role:'Research',  hair:'#b0b0c8', shirt:'#7858b8', skin:'#e8c8a0', pants:'#404050', shoes:'#4a3830', eye:'#222', homeTx:11, homeTy:12 },
+            nova:  { name:'Nova',  role:'HR',        hair:'#f0d060', shirt:'#40a858', skin:'#f5d0a8', pants:'#384848', shoes:'#5a4030', eye:'#222', homeTx:4,  homeTy:16 },
+            atlas: { name:'Atlas', role:'General',   hair:'#484058', shirt:'#4868a0', skin:'#d8a880', pants:'#383848', shoes:'#403830', eye:'#222', homeTx:9,  homeTy:18 }
         };
+
+        // Movement state for each agent
+        const agentMovement = {};
+        function initAgentMovement() {
+            for (const [type, def] of Object.entries(agentDefs)) {
+                const px = def.homeTx * TILE + TILE/2;
+                const py = def.homeTy * TILE;
+                agentMovement[type] = {
+                    x: px, y: py, targetX: px, targetY: py,
+                    dir: 'down', frame: 0, walkTimer: 0,
+                    moving: false, idleTimer: Math.random()*200,
+                    homeTx: def.homeTx, homeTy: def.homeTy
+                };
+            }
+        }
+        initAgentMovement();
+
+        function isWalkable(tx, ty) {
+            if (tx < 1 || tx >= COLS-1 || ty < 1 || ty >= ROWS-1) return false;
+            const t = tileMap[ty]?.[tx];
+            return t === 0 || t === 2 || t === 3;
+        }
+
+        function updateAgents() {
+            for (const [type, mv] of Object.entries(agentMovement)) {
+                if (mv.moving) {
+                    const dx = mv.targetX - mv.x;
+                    const dy = mv.targetY - mv.y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < 2) {
+                        mv.x = mv.targetX;
+                        mv.y = mv.targetY;
+                        mv.moving = false;
+                        mv.frame = 0;
+                        mv.walkTimer = 0;
+                        mv.idleTimer = 0;
+                    } else {
+                        mv.x += (dx/dist) * WALK_SPEED;
+                        mv.y += (dy/dist) * WALK_SPEED;
+                        if (Math.abs(dx) > Math.abs(dy)) {
+                            mv.dir = dx > 0 ? 'right' : 'left';
+                        } else {
+                            mv.dir = dy > 0 ? 'down' : 'up';
+                        }
+                        mv.walkTimer++;
+                        mv.frame = Math.floor(mv.walkTimer / 10) % 3;
+                    }
+                } else {
+                    mv.idleTimer++;
+                    if (mv.idleTimer > 120 + Math.random()*180) {
+                        const range = 3;
+                        const ntx = mv.homeTx + Math.floor(Math.random()*(range*2+1)) - range;
+                        const nty = mv.homeTy + Math.floor(Math.random()*(range*2+1)) - range;
+                        if (isWalkable(ntx, nty)) {
+                            mv.targetX = ntx * TILE + TILE/2;
+                            mv.targetY = nty * TILE;
+                            mv.moving = true;
+                            mv.idleTimer = 0;
+                        } else {
+                            mv.idleTimer = 80;
+                        }
+                    }
+                }
+            }
+        }
+
+        function moveAgentTo(type, targetType) {
+            const mv = agentMovement[type];
+            const tdef = agentDefs[targetType];
+            if (!mv || !tdef) return;
+            const tmv = agentMovement[targetType];
+            mv.targetX = tmv.x + (tmv.x > mv.x ? -TILE : TILE);
+            mv.targetY = tmv.y;
+            mv.moving = true;
+            mv.idleTimer = 0;
+        }
 
         // 14 cols x 25 rows tilemap: 0=grass 1=darkgrass 2=path 3=flowers 4=water 5=soil 6=plants 7=stone
         const tileMap = [
@@ -1517,30 +1651,33 @@
             c.fillStyle=CL.treeL; c.fillRect(px-8,py-8,12,6); c.fillRect(px-4,py-10,8,4);
         }
 
-        function drawSprite(cx, cy, pal, time, isWorking) {
+        function drawSprite(cx, cy, pal, dir, walkFrame, isMoving) {
             const c = townCtx;
-            const bob = Math.sin(time/600 + cx)*2;
-            const walk = isWorking ? Math.sin(time/300 + cy)*3 : 0;
-            const ox = cx + walk;
-            const oy = cy + bob;
+            const template = sprites[dir] || sprites.down;
             const colorMap = { 1:'#1a1018', 2:pal.skin, 3:pal.hair, 4:pal.shirt, 5:pal.pants, 6:pal.shoes, 7:pal.eye };
 
-            // shadow
             c.fillStyle = 'rgba(0,0,0,0.18)';
-            c.fillRect(ox-12, oy+SP*16+2, 24, 4);
+            c.fillRect(cx-12, cy+SP*16+2, 24, 4);
 
-            // walk anim: shift leg rows
-            const legShift = isWorking ? Math.sin(time/200)*SP : 0;
+            // Walk animation: alternate leg offset based on frame
+            const legOff = isMoving ? [0, -SP, SP][walkFrame] : 0;
 
             for (let row = 0; row < 16; row++) {
                 for (let col = 0; col < 12; col++) {
-                    const v = charTemplate[row][col];
+                    const v = template[row][col];
                     if (v === 0) continue;
-                    c.fillStyle = colorMap[v] || '#f0f';
-                    let rx = ox + (col-6)*SP;
-                    let ry = oy + row*SP;
-                    if (row >= 14 && row <= 15) {
-                        if (col < 6) ry += legShift; else ry -= legShift;
+                    c.fillStyle = colorMap[v];
+                    let rx = cx + (col-6)*SP;
+                    let ry = cy + row*SP;
+                    // Leg animation: shift left/right legs differently
+                    if (isMoving && row >= 14) {
+                        if (col < 6) ry += legOff;
+                        else ry -= legOff;
+                    }
+                    // Arm swing when walking
+                    if (isMoving && (row === 9 || row === 10)) {
+                        if (col <= 2) ry += legOff * 0.5;
+                        if (col >= 9) ry -= legOff * 0.5;
                     }
                     c.fillRect(rx, ry, SP, SP);
                 }
@@ -1550,12 +1687,15 @@
         function drawCharacter(agent, time) {
             const def = agentDefs[agent.type];
             if (!def) return;
-            const cx = def.tx*TILE + TILE/2;
-            const cy = def.ty*TILE;
+            const mv = agentMovement[agent.type];
+            const cx = mv.x;
+            const cy = mv.y;
             const isWorking = agent.status === 'working';
             const c = townCtx;
 
-            drawSprite(cx, cy, def, time, isWorking);
+            // Idle bob when not walking
+            const bob = mv.moving ? 0 : Math.sin(time/600 + cx)*1.5;
+            drawSprite(cx, cy + bob, def, mv.dir, mv.frame, mv.moving);
 
             // Selected ring
             if (activeRoom === agent.type) {
@@ -1567,50 +1707,37 @@
             }
 
             // Name + status tag
-            const label = def.name;
             c.font = 'bold 11px -apple-system, sans-serif';
             c.textAlign = 'center';
-            const tw = c.measureText(label).width + 12;
-
-            // Status color
+            const tw = c.measureText(def.name).width + 12;
             const stColor = isWorking ? '#4caf50' : agent.status === 'completed' ? '#4090e0' : '#888';
-
-            // Name background
-            c.fillStyle = 'rgba(0,0,0,0.75)';
             const ny = cy+SP*16+8;
+            c.fillStyle = 'rgba(0,0,0,0.75)';
             c.fillRect(cx-tw/2, ny, tw, 16);
-            // Status dot inside name tag
             c.fillStyle = stColor;
             c.beginPath(); c.arc(cx-tw/2+8, ny+8, 3, 0, Math.PI*2); c.fill();
-            // Name text
             c.fillStyle = '#fff';
-            c.fillText(label, cx+4, ny+12);
+            c.fillText(def.name, cx+4, ny+12);
 
-            // Speech bubble with status/task info (Saka shows supervision, others show tasks)
+            // Speech bubble (not for Saka)
             const isSaka = agent.type === 'saka';
-            const activity = isSaka ? null : (agent.currentActivity || agent.lastTask || null);
-            if (!isSaka && (activity || isWorking)) {
-                const text = isWorking ? (agent.currentActivity || 'Working...').slice(0,32) : activity ? activity.slice(0,32) : '';
-                if (text) {
-                    c.font = '10px -apple-system, sans-serif';
-                    const textW = c.measureText(text).width;
-                    const bw = textW + 16;
-                    const bh = 20;
-                    const bx = cx - bw/2;
-                    const by = cy - 26;
-                    // bubble bg
-                    c.fillStyle = '#fff';
-                    c.fillRect(bx, by, bw, bh);
-                    c.strokeStyle = '#333'; c.lineWidth = 2;
-                    c.strokeRect(bx, by, bw, bh);
-                    // pointer triangle
-                    c.fillStyle = '#fff';
-                    c.beginPath(); c.moveTo(cx-4,by+bh); c.lineTo(cx,by+bh+6); c.lineTo(cx+4,by+bh); c.fill();
-                    c.strokeStyle='#333'; c.lineWidth=1;
-                    c.beginPath(); c.moveTo(cx-4,by+bh); c.lineTo(cx,by+bh+6); c.lineTo(cx+4,by+bh); c.stroke();
-                    // text
-                    c.fillStyle = '#111';
-                    c.fillText(text, cx, by+14);
+            if (!isSaka && !mv.moving) {
+                const activity = agent.currentActivity || agent.lastTask || null;
+                if (activity || isWorking) {
+                    const text = isWorking ? (agent.currentActivity || 'Working...').slice(0,32) : activity ? activity.slice(0,32) : '';
+                    if (text) {
+                        c.font = '10px -apple-system, sans-serif';
+                        const textW = c.measureText(text).width;
+                        const bw = textW + 16;
+                        const bx = cx - bw/2, by = cy - 26;
+                        c.fillStyle = '#fff'; c.fillRect(bx, by, bw, 20);
+                        c.strokeStyle = '#333'; c.lineWidth = 2; c.strokeRect(bx, by, bw, 20);
+                        c.fillStyle = '#fff';
+                        c.beginPath(); c.moveTo(cx-4,by+20); c.lineTo(cx,by+26); c.lineTo(cx+4,by+20); c.fill();
+                        c.strokeStyle='#333'; c.lineWidth=1;
+                        c.beginPath(); c.moveTo(cx-4,by+20); c.lineTo(cx,by+26); c.lineTo(cx+4,by+20); c.stroke();
+                        c.fillStyle = '#111'; c.fillText(text, cx, by+14);
+                    }
                 }
             }
         }
@@ -1624,10 +1751,13 @@
             if (!townCtx) return;
             const c = townCtx;
 
+            // Update movement
+            updateAgents();
+
+            // Draw world
             for (let y=0; y<ROWS; y++) for (let x=0; x<COLS; x++) drawTile(x,y,tileMap[y][x]);
             trees.forEach(([x,y])=>drawTree(x,y));
 
-            // sparkles
             sparkles.forEach(s => {
                 const a = Math.sin(time/800+s.phase)*0.5+0.5;
                 if (a>0.3) {
@@ -1636,6 +1766,7 @@
                 }
             });
 
+            // Build agent data, sort by y for depth ordering
             const agents = Object.keys(agentDefs).map(type => {
                 const room = roomsData.find(r => r.type === type);
                 return {
@@ -1645,10 +1776,10 @@
                     lastTask: room?.lastTask?.description || null
                 };
             });
-            agents.sort((a,b) => agentDefs[a.type].ty - agentDefs[b.type].ty);
+            agents.sort((a,b) => agentMovement[a.type].y - agentMovement[b.type].y);
             agents.forEach(a => drawCharacter(a, time));
 
-            // Saka's supervision checklist
+            // Saka's supervision checklist (anchored to Saka's current position)
             drawSakaChecklist(c, time);
 
             townAnimFrame = requestAnimationFrame(renderFrame);
@@ -1663,10 +1794,9 @@
             const rect = townCanvas.getBoundingClientRect();
             const sx = townW/rect.width, sy = townH/rect.height;
             const mx = (e.clientX-rect.left)*sx, my = (e.clientY-rect.top)*sy;
-            let clicked = null, minD = 40;
-            for (const [type, def] of Object.entries(agentDefs)) {
-                const ax = def.tx*TILE+TILE/2, ay = def.ty*TILE+TILE/2;
-                const d = Math.hypot(mx-ax, my-ay);
+            let clicked = null, minD = 50;
+            for (const [type, mv] of Object.entries(agentMovement)) {
+                const d = Math.hypot(mx-mv.x, my-(mv.y+SP*8));
                 if (d < minD) { clicked = type; minD = d; }
             }
             if (clicked) selectAgent(clicked);
@@ -1756,6 +1886,10 @@
             if (!text) return;
             input.value = '';
             const target = inputTargets[inputTargetIdx];
+            // Saka walks to the target agent to deliver the message
+            if (target !== 'saka') {
+                moveAgentTo('saka', target);
+            }
             try {
                 await fetch(`/api/rooms/${target}/message`, {
                     method: 'POST', headers: {'Content-Type':'application/json'},
@@ -1766,11 +1900,12 @@
             else { activeRoom = target; await selectAgent(target); }
         }
 
-        // Saka checklist: draw supervision panel near Saka
+        // Saka checklist: draw supervision panel near Saka's current position
         function drawSakaChecklist(c, time) {
-            const def = agentDefs.saka;
-            const bx = def.tx*TILE + TILE/2 + 40;
-            const by = def.ty*TILE - 10;
+            const smv = agentMovement.saka;
+            if (smv.moving) return; // Hide while walking
+            const bx = smv.x + 40;
+            const by = smv.y - 10;
 
             const others = ['muse','echo','bolt','saga','nova','atlas'];
             const lineH = 14;
