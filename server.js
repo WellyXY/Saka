@@ -93,16 +93,22 @@ function seedAgentStore() {
 }
 seedAgentStore();
 
+const pendingMessages = [];
+
 function pushRoomMessage(agentType, role, text) {
   if (!roomMessages[agentType]) roomMessages[agentType] = [];
-  roomMessages[agentType].push({
+  const msg = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     role,
     text,
     timestamp: new Date().toISOString()
-  });
+  };
+  roomMessages[agentType].push(msg);
   if (roomMessages[agentType].length > MAX_ROOM_MESSAGES) {
     roomMessages[agentType] = roomMessages[agentType].slice(-MAX_ROOM_MESSAGES);
+  }
+  if (role === 'user') {
+    pendingMessages.push({ agent: agentType, id: msg.id, text: msg.text, timestamp: msg.timestamp });
   }
 }
 
@@ -810,6 +816,20 @@ app.post('/api/rooms/:agent/activity', (req, res) => {
   if (status) agentStore[agent].status = status;
   agentStore[agent].currentActivity = text;
   pushRoomMessage(agent, 'agent', text);
+  res.json({ success: true });
+});
+
+// NanoClaw polls this to pick up dashboard messages
+app.get('/api/rooms/pending', (req, res) => {
+  const msgs = pendingMessages.splice(0, pendingMessages.length);
+  res.json({ success: true, data: msgs });
+});
+
+// NanoClaw ACKs processed messages (kept for compat, actual drain happens in GET above)
+app.post('/api/rooms/ack', (req, res) => {
+  const { id } = req.body;
+  const idx = pendingMessages.findIndex(m => m.id === id);
+  if (idx !== -1) pendingMessages.splice(idx, 1);
   res.json({ success: true });
 });
 
