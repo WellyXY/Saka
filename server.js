@@ -122,7 +122,36 @@ if (DATA_DIR !== __dirname && !fs.existsSync(DATA_DIR)) {
 const INSPIRATION_FILE = path.join(DATA_DIR, 'inspiration-saved.json');
 const CONTENT_HISTORY_FILE = path.join(DATA_DIR, 'content-history.json');
 const REJECTED_INSPIRATIONS_FILE = path.join(DATA_DIR, 'rejected-inspirations.json');
+const TASK_HISTORY_FILE = path.join(DATA_DIR, 'task-history.json');
 const DATA_JSON_FILE = path.join(__dirname, 'data.json');
+
+function saveTaskHistory() {
+  try {
+    const data = {};
+    for (const [key, agent] of Object.entries(agentStore)) {
+      data[key] = { tasks: agent.tasks || [] };
+    }
+    fs.writeFileSync(TASK_HISTORY_FILE, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.log('Could not save task history:', e.message);
+  }
+}
+
+function loadTaskHistory() {
+  try {
+    if (!fs.existsSync(TASK_HISTORY_FILE)) return;
+    const data = JSON.parse(fs.readFileSync(TASK_HISTORY_FILE, 'utf8'));
+    for (const [key, val] of Object.entries(data)) {
+      if (agentStore[key] && val.tasks) {
+        agentStore[key].tasks = val.tasks.slice(0, MAX_TASKS_PER_AGENT);
+      }
+    }
+    console.log('Task history restored from', TASK_HISTORY_FILE);
+  } catch (e) {
+    console.log('Could not load task history:', e.message);
+  }
+}
+loadTaskHistory();
 
 // Load fallback data from data.json on startup
 function loadFallbackData() {
@@ -742,6 +771,7 @@ app.post('/api/tasks/update', (req, res) => {
     pushRoomMessage(agentType, 'system', `Completed: ${description}`);
   }
 
+  saveTaskHistory();
   res.json({ success: true });
 });
 
@@ -768,6 +798,7 @@ app.post('/api/tasks/add', (req, res) => {
   }
 
   pushRoomMessage(agentType, 'system', `New task: ${description}`);
+  saveTaskHistory();
   res.json({ success: true });
 });
 
