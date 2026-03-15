@@ -575,6 +575,71 @@
         .task-item-time { font-size: 11px; color: #555; flex-shrink: 0; }
         .no-tasks { color: #555; font-size: 13px; font-style: italic; }
 
+        /* Rooms layout: game left, task log right */
+        .rooms-layout {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+        .rooms-task-log {
+            flex: 1;
+            min-width: 280px;
+            background: #12121a;
+            border: 1px solid #1a1a22;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .rooms-task-log-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid #1a1a22;
+        }
+        .rooms-task-log-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            border-radius: 10px;
+        }
+        .rooms-task-log-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #eee;
+            margin: 0;
+        }
+        .rooms-task-log-header p {
+            font-size: 12px;
+            color: #666;
+            margin: 2px 0 0;
+        }
+        .rooms-task-log-list {
+            max-height: 680px;
+            overflow-y: auto;
+        }
+        .rooms-task-entry {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 10px 20px;
+            border-bottom: 1px solid #1a1a22;
+            font-size: 13px;
+        }
+        .rooms-task-entry:last-child { border-bottom: none; }
+        .rooms-task-time {
+            color: #555;
+            font-size: 11px;
+        }
+        .rooms-task-text { color: #ccc; line-height: 1.4; }
+        @media (max-width: 900px) {
+            .rooms-layout { flex-direction: column; }
+            .rooms-task-log { min-width: 100%; }
+        }
+
         /* ─── AI Town (pixel game world 9:16) ─── */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         .game-frame {
@@ -974,32 +1039,46 @@
 
         <!-- Rooms Page (AI Town) -->
         <div class="page" id="page-rooms">
-            <div class="game-frame">
-                <div class="game-header">
-                    <div class="game-title">AGENT TOWN</div>
-                    <div class="game-subtitle">A virtual studio where AI agents live, work and create.</div>
-                </div>
-                <div class="game-viewport" id="game-viewport">
-                    <canvas id="town-canvas"></canvas>
-                    <div class="game-chat-overlay" id="game-chat-overlay">
-                        <div class="game-chat-header">
-                            <div id="game-chat-header-text">Chat</div>
-                            <button class="game-chat-close" onclick="closeTownChat()">X</button>
-                        </div>
-                        <div class="game-chat-msgs" id="game-chat-msgs"></div>
-                        <div class="game-chat-input">
-                            <input type="text" id="game-chat-input" placeholder="Say..." onkeydown="if(event.key==='Enter')sendTownMsg()">
-                            <button onclick="sendTownMsg()">OK</button>
+            <div class="rooms-layout">
+                <div class="game-frame">
+                    <div class="game-header">
+                        <div class="game-title">AGENT TOWN</div>
+                        <div class="game-subtitle">A virtual studio where AI agents live, work and create.</div>
+                    </div>
+                    <div class="game-viewport" id="game-viewport">
+                        <canvas id="town-canvas"></canvas>
+                        <div class="game-chat-overlay" id="game-chat-overlay">
+                            <div class="game-chat-header">
+                                <div id="game-chat-header-text">Chat</div>
+                                <button class="game-chat-close" onclick="closeTownChat()">X</button>
+                            </div>
+                            <div class="game-chat-msgs" id="game-chat-msgs"></div>
+                            <div class="game-chat-input">
+                                <input type="text" id="game-chat-input" placeholder="Say..." onkeydown="if(event.key==='Enter')sendTownMsg()">
+                                <button onclick="sendTownMsg()">OK</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="game-input-bar">
-                    <div class="game-input-to" id="game-input-to" onclick="cycleInputTarget()">
-                        <span class="input-to-dot" id="input-to-dot"></span>
-                        <span id="input-to-name">Saka</span>
+                    <div class="game-input-bar">
+                        <div class="game-input-to" id="game-input-to" onclick="cycleInputTarget()">
+                            <span class="input-to-dot" id="input-to-dot"></span>
+                            <span id="input-to-name">Saka</span>
+                        </div>
+                        <input type="text" id="game-main-input" placeholder="Message Saka..." onkeydown="if(event.key==='Enter')sendMainMsg()">
+                        <button onclick="sendMainMsg()">Send</button>
                     </div>
-                    <input type="text" id="game-main-input" placeholder="Message Saka..." onkeydown="if(event.key==='Enter')sendMainMsg()">
-                    <button onclick="sendMainMsg()">Send</button>
+                </div>
+                <div class="rooms-task-log">
+                    <div class="rooms-task-log-header">
+                        <span class="rooms-task-log-icon">📋</span>
+                        <div>
+                            <h3>Task Log</h3>
+                            <p>All completed agent tasks</p>
+                        </div>
+                    </div>
+                    <div id="rooms-task-log-list" class="rooms-task-log-list">
+                        <div style="color:#555;padding:16px;">Loading...</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1077,6 +1156,7 @@
             }
             if (page === 'rooms') {
                 fetchRooms();
+                fetchRoomsTaskLog();
                 setTimeout(initTownCanvas, 100);
             }
         }
@@ -1938,6 +2018,28 @@
             } catch(e) {}
         }
 
+        async function fetchRoomsTaskLog() {
+            try {
+                const res = await fetch('/api/rooms/tasks/messages?limit=30');
+                const data = await res.json();
+                const el = document.getElementById('rooms-task-log-list');
+                if (!el || !data.success) return;
+                if (!data.data || data.data.length === 0) {
+                    el.innerHTML = '<div style="color:#555;padding:16px;text-align:center;">No tasks recorded yet</div>';
+                    return;
+                }
+                el.innerHTML = data.data.slice().reverse().map(msg => {
+                    const t = new Date(msg.timestamp);
+                    const time = t.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true });
+                    const date = t.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+                    return `<div class="rooms-task-entry">
+                        <span class="rooms-task-time">${date}, ${time}</span>
+                        <span class="rooms-task-text">${msg.text}</span>
+                    </div>`;
+                }).join('');
+            } catch(e) {}
+        }
+
         // Persistent input bar — defaults to Saka, cycle through agents
         const inputTargets = ['saka','muse','echo','bolt','nova','atlas'];
         let inputTargetIdx = 0;
@@ -2038,6 +2140,7 @@
             const vis = document.getElementById('page-rooms')?.classList.contains('active');
             if (!vis && !activeRoom) return;
             await fetchRooms();
+            fetchRoomsTaskLog();
             if (activeRoom) await fetchTownMsgs(activeRoom);
         }, 8000);
 
@@ -2222,6 +2325,7 @@
                 loadTasks().then(() => fetchAgents());
             } else if (isRoomsPage) {
                 fetchRooms();
+                fetchRoomsTaskLog();
             }
         }, 30000);
     </script>
