@@ -495,7 +495,7 @@
         .agent-avatar.muse { background: linear-gradient(135deg, #f093fb, #f5576c); }
         .agent-avatar.echo { background: linear-gradient(135deg, #4facfe, #00f2fe); }
         .agent-avatar.bolt { background: linear-gradient(135deg, #fa709a, #fee140); }
-        .agent-avatar.saga { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+        .agent-avatar.tasks { background: linear-gradient(135deg, #43e97b, #38f9d7); }
         .agent-avatar.nova { background: linear-gradient(135deg, #f6d365, #fda085); }
         .agent-avatar.atlas { background: linear-gradient(135deg, #667eea, #764ba2); }
         .agent-info h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
@@ -526,6 +526,22 @@
             border-top: 1px solid #222;
             padding-top: 16px;
         }
+        .task-log-entry {
+            display: flex;
+            gap: 12px;
+            padding: 8px 12px;
+            border-bottom: 1px solid #1a1a22;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .task-log-entry:last-child { border-bottom: none; }
+        .task-log-time {
+            color: #555;
+            white-space: nowrap;
+            min-width: 110px;
+            font-size: 11px;
+        }
+        .task-log-text { color: #ccc; }
         .agent-tasks-title {
             font-size: 12px;
             color: #666;
@@ -1293,7 +1309,7 @@
             muse: { name: 'Muse', role: 'Content Creator', icon: '✨' },
             echo: { name: 'Echo', role: 'Social Media Manager', icon: '📱' },
             bolt: { name: 'Bolt', role: 'Developer', icon: '⚡' },
-            saga: { name: 'Saga', role: 'Researcher', icon: '🔍' },
+            tasks: { name: 'Task Log', role: 'All Agent Tasks', icon: '📋' },
             nova: { name: 'Nova', role: 'HR Manager', icon: '🌟' },
             atlas: { name: 'Atlas', role: 'General Assistant', icon: '📊' }
         };
@@ -1329,7 +1345,19 @@
                 return;
             }
 
-            container.innerHTML = agentsData.map(agent => {
+            const knownTypes = new Set(Object.keys(agentMeta));
+            const filtered = agentsData.filter(a => knownTypes.has(a.type));
+            const taskLogAgent = filtered.find(a => a.type === 'tasks');
+            const regularAgents = filtered.filter(a => a.type !== 'tasks');
+
+            let html = '';
+
+            // Task Log panel (full-width, at top)
+            if (taskLogAgent) {
+                html += renderTaskLogPanel(taskLogAgent);
+            }
+
+            html += regularAgents.map(agent => {
                 const meta = agentMeta[agent.type] || { name: agent.type, role: 'Agent', icon: '🤖' };
                 const statusClass = agent.status === 'working' ? 'working' : (agent.status === 'completed' ? 'completed' : 'idle');
 
@@ -1361,6 +1389,52 @@
                     </div>
                 `;
             }).join('');
+
+            container.innerHTML = html;
+
+            // Load task log messages async
+            if (taskLogAgent) fetchTaskLogMessages();
+        }
+
+        async function fetchTaskLogMessages() {
+            try {
+                const res = await fetch('/api/rooms/tasks/messages?limit=20');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const el = document.getElementById('task-log-list');
+                    if (!el) return;
+                    if (data.data.length === 0) {
+                        el.innerHTML = '<div style="color:#555;padding:12px;">No tasks recorded yet</div>';
+                        return;
+                    }
+                    el.innerHTML = data.data.slice().reverse().map(msg => {
+                        const t = new Date(msg.timestamp);
+                        const time = t.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true });
+                        const date = t.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+                        return `<div class="task-log-entry">
+                            <span class="task-log-time">${date} ${time}</span>
+                            <span class="task-log-text">${msg.text}</span>
+                        </div>`;
+                    }).join('');
+                }
+            } catch(e) {}
+        }
+
+        function renderTaskLogPanel(agent) {
+            return `
+                <div class="agent-card" style="grid-column: 1 / -1; border-color: #1a3a2a;">
+                    <div class="agent-header">
+                        <div class="agent-avatar tasks">📋</div>
+                        <div class="agent-info">
+                            <h3>Task Log</h3>
+                            <div class="agent-role">All completed agent tasks</div>
+                        </div>
+                    </div>
+                    <div id="task-log-list" style="max-height:300px;overflow-y:auto;padding:8px 0;">
+                        <div style="color:#555;padding:12px;">Loading...</div>
+                    </div>
+                </div>
+            `;
         }
 
         // ─── AI Town: Pixel RPG Game World (9:16) ───
@@ -1456,7 +1530,7 @@
             muse:  { name:'Muse',  role:'Creative',  hair:'#f068a8', shirt:'#b830b0', skin:'#f5d0a8', pants:'#484058', shoes:'#805030', eye:'#222', homeTx:3,  homeTy:8 },
             echo:  { name:'Echo',  role:'Social',    hair:'#48b8f0', shirt:'#2880d0', skin:'#e8c8a0', pants:'#384060', shoes:'#504838', eye:'#222', homeTx:6,  homeTy:10 },
             bolt:  { name:'Bolt',  role:'Dev',       hair:'#f0a030', shirt:'#e85840', skin:'#f5d0a8', pants:'#404058', shoes:'#583828', eye:'#222', homeTx:10, homeTy:7 },
-            saga:  { name:'Saga',  role:'Research',  hair:'#b0b0c8', shirt:'#7858b8', skin:'#e8c8a0', pants:'#404050', shoes:'#4a3830', eye:'#222', homeTx:11, homeTy:12 },
+            
             nova:  { name:'Nova',  role:'HR',        hair:'#f0d060', shirt:'#40a858', skin:'#f5d0a8', pants:'#384848', shoes:'#5a4030', eye:'#222', homeTx:4,  homeTy:16 },
             atlas: { name:'Atlas', role:'General',   hair:'#484058', shirt:'#4868a0', skin:'#d8a880', pants:'#383848', shoes:'#403830', eye:'#222', homeTx:9,  homeTy:18 }
         };
@@ -1865,9 +1939,9 @@
         }
 
         // Persistent input bar — defaults to Saka, cycle through agents
-        const inputTargets = ['saka','muse','echo','bolt','saga','nova','atlas'];
+        const inputTargets = ['saka','muse','echo','bolt','nova','atlas'];
         let inputTargetIdx = 0;
-        const targetColors = { saka:'#f0c048', muse:'#f068a8', echo:'#48b8f0', bolt:'#f0a030', saga:'#b0b0c8', nova:'#f0d060', atlas:'#4868a0' };
+        const targetColors = { saka:'#f0c048', muse:'#f068a8', echo:'#48b8f0', bolt:'#f0a030', nova:'#f0d060', atlas:'#4868a0' };
 
         function cycleInputTarget() {
             inputTargetIdx = (inputTargetIdx + 1) % inputTargets.length;
@@ -1907,7 +1981,7 @@
             const bx = smv.x + 40;
             const by = smv.y - 10;
 
-            const others = ['muse','echo','bolt','saga','nova','atlas'];
+            const others = ['muse','echo','bolt','nova','atlas'];
             const lineH = 14;
             const panelH = others.length * lineH + 24;
             const panelW = 140;

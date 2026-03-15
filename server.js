@@ -61,7 +61,6 @@ const agentStore = {
   muse: { type: 'muse', status: 'idle', tasks: [], currentActivity: null },
   echo: { type: 'echo', status: 'idle', tasks: [], currentActivity: null },
   bolt: { type: 'bolt', status: 'idle', tasks: [], currentActivity: null },
-  saga: { type: 'saga', status: 'idle', tasks: [], currentActivity: null },
   nova: { type: 'nova', status: 'idle', tasks: [], currentActivity: null },
   atlas: { type: 'atlas', status: 'idle', tasks: [], currentActivity: null },
   saka: { type: 'saka', status: 'idle', tasks: [], currentActivity: null }
@@ -69,7 +68,7 @@ const agentStore = {
 
 // Per-agent room messages (activity log + user messages)
 const roomMessages = {
-  muse: [], echo: [], bolt: [], saga: [], nova: [], atlas: [], saka: []
+  muse: [], echo: [], bolt: [], nova: [], atlas: [], saka: []
 };
 
 const MAX_ROOM_MESSAGES = 100;
@@ -706,7 +705,8 @@ app.get('/api/status', (req, res) => {
 
 const AGENT_NAMES = {
   muse: 'Muse', echo: 'Echo', bolt: 'Bolt',
-  saga: 'Saga', nova: 'Nova', atlas: 'Atlas', saka: 'Saka'
+  nova: 'Nova', atlas: 'Atlas', saka: 'Saka',
+  tasks: 'Task Log'
 };
 
 app.get('/api/agents', (req, res) => {

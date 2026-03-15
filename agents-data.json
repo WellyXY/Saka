@@ -32,15 +32,6 @@
       ]
     },
     {
-      "type": "saga",
-      "status": "idle",
-      "tasks": [
-        {"date": "2026-03-11", "description": "Wrote narrative for brand story highlight", "status": "completed", "time": "Yesterday"},
-        {"date": "2026-03-09", "description": "Developed character voice guide", "status": "completed", "time": "3d ago"},
-        {"date": "2026-03-08", "description": "Content calendar story themes", "status": "completed", "time": "4d ago"}
-      ]
-    },
-    {
       "type": "nova",
       "status": "completed",
       "tasks": [
